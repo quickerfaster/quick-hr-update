@@ -377,7 +377,7 @@ return [
     ],
     'employeePayrollProfile' => [
       'type' => 'hasOne',
-      'model' => 'App\Modules\Hr\Models\EmployeePayrollProfile',
+      'model' => 'App\Modules\Payroll\Models\EmployeePayrollProfile',
       'foreignKey' => 'employee_id',
       'localKey' => '',
     ],

@@ -11,10 +11,7 @@ class HrsServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->mergeConfigFrom(
-            __DIR__ . '/../Config/quick_hr_payroll.php',
-            'quick_hr_payroll'
-        );
+        //
     }
 
     /**

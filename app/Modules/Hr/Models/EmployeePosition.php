@@ -175,7 +175,7 @@ class EmployeePosition extends Model
 
     public function paySchedule()
     {
-        return $this->belongsTo(\App\Modules\Hr\Models\PaySchedule::class, 'pay_schedule_id', 'id');
+        return $this->belongsTo(\App\Modules\Payroll\Models\PaySchedule::class, 'pay_schedule_id', 'id');
     }
 
 

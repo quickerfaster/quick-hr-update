@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Modules\Hr\Models\EmployeePosition;
 use App\Modules\Hr\Models\EmployeeJobHistory;
-use App\Modules\Hr\Models\EmployeePayrollProfile;
+use App\Modules\Payroll\Models\EmployeePayrollProfile;
 use App\Modules\Hr\Models\EmployeeProfile;
 use App\Modules\Hr\Models\Company;
 use App\Modules\Hr\Models\Document;
@@ -120,7 +120,7 @@ class Employee extends Model
 
     public function employeePayrollProfile()
     {
-        return $this->hasOne(\App\Modules\Hr\Models\EmployeePayrollProfile::class, 'employee_id', 'id');
+        return $this->hasOne(\App\Modules\Payroll\Models\EmployeePayrollProfile::class, 'employee_id', 'id');
     }
 
     public function employeeProfile()

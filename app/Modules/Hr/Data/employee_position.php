@@ -226,7 +226,7 @@ return [
       'validation' => 'nullable|integer|exists:pay_schedules,id',
       'filterable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Hr\Models\PaySchedule',
+        'model' => 'App\Modules\Payroll\Models\PaySchedule',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'paySchedule',
@@ -234,7 +234,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Hr\Models\PaySchedule',
+        'model' => 'App\Modules\Payroll\Models\PaySchedule',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -529,7 +529,7 @@ return [
     ],
     'paySchedule' => [
       'type' => 'belongsTo',
-      'model' => 'App\Modules\Hr\Models\PaySchedule',
+      'model' => 'App\Modules\Payroll\Models\PaySchedule',
       'foreignKey' => 'pay_schedule_id',
       'localKey' => '',
     ],

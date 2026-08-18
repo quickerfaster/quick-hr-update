@@ -4,6 +4,7 @@ use App\Modules\Attendance\Providers\AttendanceServiceProvider;
 use App\Modules\Hr\Providers\HrsServiceProvider;
 use App\Modules\Leave\Providers\LeaveServiceProvider;
 use App\Modules\Organization\Providers\OrganizationServiceProvider;
+use App\Modules\Payroll\Providers\PayrollServiceProvider;
 use App\Providers\AppServiceProvider;
 
 return [
@@ -12,4 +13,5 @@ return [
     HrsServiceProvider::class,
     LeaveServiceProvider::class,
     OrganizationServiceProvider::class,
+    PayrollServiceProvider::class,
 ];
