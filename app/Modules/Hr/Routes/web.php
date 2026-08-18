@@ -164,34 +164,6 @@ Route::get('employee-positions/{id}/edit', function (\Illuminate\Http\Request $r
     ]);
 })->name('employee-positions.edit')->where('id', '[0-9]+'); // And here;
 
-// Routes for Holiday
-
-// Create Route
-Route::get('holidays/create', function (\Illuminate\Http\Request $request) {
-    return view('hr::holidays.create', [
-        'configKey' => 'hr.holiday',
-        'returnParams' => $request->only(['page', 'perPage', 'search', 'sort', 'activeFilters'])
-    ]);
-})->name('holidays.create');
-
-// Show Route
-Route::get('holidays/{id}', function (\Illuminate\Http\Request $request, $id) {
-    return view('hr::holidays.show', [
-        'recordId' => (int) $id,
-        'configKey' => 'hr.holiday',
-        'returnParams' => $request->only(['page', 'perPage', 'search', 'sort', 'activeFilters'])
-    ]);
-})->name('holidays.show')->where('id', '[0-9]+');
-
-// Edit Route
-Route::get('holidays/{id}/edit', function (\Illuminate\Http\Request $request, $id) {
-    return view('hr::holidays.edit', [
-        'recordId' => (int) $id,
-        'configKey' => 'hr.holiday',
-        'returnParams' => $request->only(['page', 'perPage', 'search', 'sort', 'activeFilters'])
-    ]);
-})->name('holidays.edit')->where('id', '[0-9]+'); // And here;
-
 // Routes for Location
 
 // Create Route

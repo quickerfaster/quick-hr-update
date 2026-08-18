@@ -10,7 +10,7 @@ return array (
     0 => 
     array (
       'title' => 'Select Calendar & Year',
-      'model' => 'App\\Modules\\Hr\\Models\\Holiday',
+      'model' => 'App\\Modules\\Holiday\\Models\\Holiday',
       'fields' => 
       array (
         0 => 
@@ -107,24 +107,24 @@ return array (
       0 => 
       array (
         'label' => 'View Calendar',
-        'url' => '/hr/holiday-calendars/{calendar_id}',
+        'url' => '/holiday/holiday-calendars/{calendar_id}',
         'primary' => true,
       ),
       1 => 
       array (
         'label' => 'View Holidays',
-        'url' => '/hr/holidays?calendar_id={calendar_id}&year={year}',
+        'url' => '/holiday/holidays?calendar_id={calendar_id}&year={year}',
       ),
       2 => 
       array (
         'label' => 'Create Another Set',
-        'url' => '/hr/holidays/batch-create',
+        'url' => '/holiday/holidays/batch-create',
       ),
     ),
   ),
   'models' => 
   array (
-    'primary' => 'App\\Modules\\Hr\\Models\\Holiday',
+    'primary' => 'App\\Modules\\Holiday\\Models\\Holiday',
     'related' => 
     array (
     ),

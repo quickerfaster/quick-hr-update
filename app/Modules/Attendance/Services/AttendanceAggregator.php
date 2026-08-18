@@ -8,7 +8,7 @@ use App\Modules\Attendance\Models\{
 };
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\EmployeePosition;
-use App\Modules\Hr\Models\Holiday;
+use App\Modules\Holiday\Models\Holiday;
 use App\Modules\Leave\Models\LeaveRequest;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;

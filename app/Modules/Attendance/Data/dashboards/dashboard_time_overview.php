@@ -85,7 +85,7 @@ return array (
       'type' => 'stat',
       'title' => 'Upcoming Holidays',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\Holiday',
+      'model' => 'App\\Modules\\Holiday\\Models\\Holiday',
       'icon' => 'fas fa-gift',
       'aggregate' => 'count',
       'conditions' => 
@@ -225,7 +225,7 @@ return array (
       'type' => 'list',
       'title' => 'Upcoming Holidays',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\Holiday',
+      'model' => 'App\\Modules\\Holiday\\Models\\Holiday',
       'icon' => 'fas fa-calendar-week',
       'description' => 'Next 5 holidays',
       'limit' => 5,

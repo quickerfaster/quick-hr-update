@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Hr\Models;
+namespace App\Modules\Holiday\Models;
 
 use QuickerFaster\UILibrary\Traits\HasCompanyScope;
 
@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use App\Modules\Hr\Models\HolidayCalendar;
+use App\Modules\Holiday\Models\HolidayCalendar;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -124,12 +124,12 @@ class Holiday extends Model
 
     public function calendar()
     {
-        return $this->belongsTo(\App\Modules\Hr\Models\HolidayCalendar::class, 'calendar_id', 'id');
+        return $this->belongsTo(\App\Modules\Holiday\Models\HolidayCalendar::class, 'calendar_id', 'id');
     }
 
     public function company()
     {
-        return $this->belongsTo(\App\Modules\Hr\Models\Company::class, 'company_id', 'id');
+        return $this->belongsTo(\App\Modules\Organization\Models\Company::class, 'company_id', 'id');
     }
 
     /**
@@ -137,6 +137,6 @@ class Holiday extends Model
      */
     protected static function newFactory()
     {
-        return \App\Modules\Hr\Database\Factories\HolidayFactory::new();
+        return \App\Modules\Holiday\Database\Factories\HolidayFactory::new();
     }
 }

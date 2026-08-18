@@ -1,7 +1,7 @@
 <?php
 
 return [
-  'model' => 'App\Modules\Hr\Models\Holiday',
+  'model' => 'App\Modules\Holiday\Models\Holiday',
   'fieldDefinitions' => [
     'calendar_id' => [
       'display' => 'inline',
@@ -12,7 +12,7 @@ return [
       'filterable' => true,
       'searchable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Hr\Models\HolidayCalendar',
+        'model' => 'App\Modules\Holiday\Models\HolidayCalendar',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'calendar',
@@ -20,7 +20,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Hr\Models\HolidayCalendar',
+        'model' => 'App\Modules\Holiday\Models\HolidayCalendar',
         'column' => 'name',
         'hintField' => 'country_code,year',
       ],
@@ -34,7 +34,7 @@ return [
       'filterable' => true,
       'searchable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Hr\Models\Company',
+        'model' => 'App\Modules\Organization\Models\Company',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'company',
@@ -42,7 +42,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Hr\Models\Company',
+        'model' => 'App\Modules\Organization\Models\Company',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -492,7 +492,7 @@ return [
   'relations' => [
     'calendar' => [
       'type' => 'belongsTo',
-      'model' => 'App\Modules\Hr\Models\HolidayCalendar',
+      'model' => 'App\Modules\Holiday\Models\HolidayCalendar',
       'foreignKey' => 'calendar_id',
       'localKey' => '',
     ],

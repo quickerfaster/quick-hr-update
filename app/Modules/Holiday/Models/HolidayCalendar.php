@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Hr\Models;
+namespace App\Modules\Holiday\Models;
 
 use QuickerFaster\UILibrary\Traits\HasCompanyScope;
 
@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use App\Modules\Hr\Models\Holiday;
-use App\Modules\Hr\Models\Department;
-use App\Modules\Hr\Models\Location;
+use App\Modules\Holiday\Models\Holiday;
+use App\Modules\Organization\Models\Department;
+use App\Modules\Organization\Models\Location;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -107,22 +107,22 @@ class HolidayCalendar extends Model
 
     public function holidays()
     {
-        return $this->hasMany(\App\Modules\Hr\Models\Holiday::class, 'calendar_id', 'id');
+        return $this->hasMany(\App\Modules\Holiday\Models\Holiday::class, 'calendar_id', 'id');
     }
 
     public function departments()
     {
-        return $this->belongsToMany(\App\Modules\Hr\Models\Department::class, 'department_holiday_calendar', 'holiday_calendar_id', 'department_id', 'id', 'id');
+        return $this->belongsToMany(\App\Modules\Organization\Models\Department::class, 'department_holiday_calendar', 'holiday_calendar_id', 'department_id', 'id', 'id');
     }
 
     public function locations()
     {
-        return $this->belongsToMany(\App\Modules\Hr\Models\Location::class, 'holiday_calendar_location', 'holiday_calendar_id', 'location_id', 'id', 'id');
+        return $this->belongsToMany(\App\Modules\Organization\Models\Location::class, 'holiday_calendar_location', 'holiday_calendar_id', 'location_id', 'id', 'id');
     }
 
     public function company()
     {
-        return $this->belongsTo(\App\Modules\Hr\Models\Company::class, 'company_id', 'id');
+        return $this->belongsTo(\App\Modules\Organization\Models\Company::class, 'company_id', 'id');
     }
 
     /**
@@ -130,6 +130,6 @@ class HolidayCalendar extends Model
      */
     protected static function newFactory()
     {
-        return \App\Modules\Hr\Database\Factories\HolidayCalendarFactory::new();
+        return \App\Modules\Holiday\Database\Factories\HolidayCalendarFactory::new();
     }
 }

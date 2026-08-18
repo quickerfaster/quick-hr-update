@@ -1,7 +1,7 @@
 <?php
 
 return [
-  'model' => 'App\Modules\Hr\Models\HolidayCalendar',
+  'model' => 'App\Modules\Holiday\Models\HolidayCalendar',
   'fieldDefinitions' => [
     'name' => [
       'display' => 'inline',
@@ -21,7 +21,7 @@ return [
       'filterable' => true,
       'searchable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Hr\Models\Company',
+        'model' => 'App\Modules\Organization\Models\Company',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'company',
@@ -29,7 +29,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Hr\Models\Company',
+        'model' => 'App\Modules\Organization\Models\Company',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -353,19 +353,19 @@ return [
   'relations' => [
     'holidays' => [
       'type' => 'hasMany',
-      'model' => 'App\Modules\Hr\Models\Holiday',
+      'model' => 'App\Modules\Holiday\Models\Holiday',
       'foreignKey' => 'calendar_id',
       'localKey' => '',
     ],
     'departments' => [
       'type' => 'belongsToMany',
-      'model' => 'App\Modules\Hr\Models\Department',
+      'model' => 'App\Modules\Organization\Models\Department',
       'foreignKey' => 'id',
       'localKey' => '',
     ],
     'locations' => [
       'type' => 'belongsToMany',
-      'model' => 'App\Modules\Hr\Models\Location',
+      'model' => 'App\Modules\Organization\Models\Location',
       'foreignKey' => 'id',
       'localKey' => '',
     ],
