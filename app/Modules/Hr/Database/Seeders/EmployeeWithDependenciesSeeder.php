@@ -11,8 +11,8 @@ use App\Modules\Hr\Models\Department;
 use App\Modules\Hr\Models\JobTitle;
 use App\Modules\Hr\Models\Company;
 use App\Modules\Hr\Models\Location;
-use App\Modules\Hr\Models\Shift;
-use App\Modules\Hr\Models\AttendancePolicy;
+use App\Modules\Attendance\Models\Shift;
+use App\Modules\Attendance\Models\AttendancePolicy;
 use Illuminate\Support\Facades\DB;
 
 class EmployeeWithDependenciesSeeder extends Seeder

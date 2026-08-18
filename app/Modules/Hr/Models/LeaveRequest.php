@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\LeaveType;
-use App\Modules\Hr\Models\Attendance;
+use App\Modules\Attendance\Models\Attendance;
 use QuickerFaster\UILibrary\Contracts\Workflow\Workflowable;
 use QuickerFaster\UILibrary\Traits\Workflows\HasWorkflow;
 use Illuminate\Database\Eloquent\Model;
@@ -130,7 +130,7 @@ class LeaveRequest extends Model implements Workflowable
 
     public function attendanceRecords()
     {
-        return $this->hasMany(\App\Modules\Hr\Models\Attendance::class, 'leave_request_id', 'id');
+        return $this->hasMany(\App\Modules\Attendance\Models\Attendance::class, 'leave_request_id', 'id');
     }
 
     public function company()

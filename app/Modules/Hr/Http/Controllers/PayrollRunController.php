@@ -10,7 +10,7 @@ use App\Modules\Hr\Services\PayrollRunProcessor;
 
 use App\Modules\Hr\Models\EmployeePayrollProfile;
 use App\Modules\Hr\Models\EmployeePosition;
-use App\Modules\Hr\Models\Attendance;
+use App\Modules\Attendance\Models\Attendance;
 
 use Illuminate\Http\Request;
 use Carbon\Carbon;

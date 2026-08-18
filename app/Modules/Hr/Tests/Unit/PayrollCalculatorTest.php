@@ -20,10 +20,10 @@ use App\Modules\Hr\Models\EmployeeAdjustmentProfile;
 use App\Modules\Hr\Models\PayrollRunAdjustment;
 use App\Modules\Hr\Models\PayrollPayslip;
 use App\Modules\Hr\Models\PayslipItem;
-use App\Modules\Hr\Models\Attendance;
-use App\Modules\Hr\Models\EmployeeWorkPattern;
-use App\Modules\Hr\Models\WorkPattern;
-use App\Modules\Hr\Models\Shift;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\Attendance\Models\EmployeeWorkPattern;
+use App\Modules\Attendance\Models\WorkPattern;
+use App\Modules\Attendance\Models\Shift;
 use App\Modules\Hr\Services\Payroll\PayrollCalculator;
 
 class PayrollCalculatorTest extends TestCase

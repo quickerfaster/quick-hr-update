@@ -267,7 +267,7 @@ return [
       'label' => 'Shift',
       'validation' => 'nullable|integer',
       'relationship' => [
-        'model' => 'App\Modules\Hr\Models\Shift',
+        'model' => 'App\Modules\Attendance\Models\Shift',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'shift',
@@ -275,7 +275,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Hr\Models\Shift',
+        'model' => 'App\Modules\Attendance\Models\Shift',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -287,7 +287,7 @@ return [
       'label' => 'Attendance Policy',
       'validation' => 'nullable|integer',
       'relationship' => [
-        'model' => 'App\Modules\Hr\Models\AttendancePolicy',
+        'model' => 'App\Modules\Attendance\Models\AttendancePolicy',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'attendancePolicy',
@@ -295,7 +295,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Hr\Models\AttendancePolicy',
+        'model' => 'App\Modules\Attendance\Models\AttendancePolicy',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -511,19 +511,19 @@ return [
     ],
     'shift' => [
       'type' => 'belongsTo',
-      'model' => 'App\Modules\Hr\Models\Shift',
+      'model' => 'App\Modules\Attendance\Models\Shift',
       'foreignKey' => 'shift_id',
       'localKey' => '',
     ],
     'employeeWorkPatterns' => [
       'type' => 'hasMany',
-      'model' => 'App\Modules\Hr\Models\EmployeeWorkPattern',
+      'model' => 'App\Modules\Attendance\Models\EmployeeWorkPattern',
       'foreignKey' => 'employee_id',
       'localKey' => '',
     ],
     'attendancePolicy' => [
       'type' => 'belongsTo',
-      'model' => 'App\Modules\Hr\Models\AttendancePolicy',
+      'model' => 'App\Modules\Attendance\Models\AttendancePolicy',
       'foreignKey' => 'attendance_policy_id',
       'localKey' => '',
     ],

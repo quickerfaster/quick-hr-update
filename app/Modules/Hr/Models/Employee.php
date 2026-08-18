@@ -15,7 +15,7 @@ use App\Modules\Hr\Models\EmployeePayrollProfile;
 use App\Modules\Hr\Models\EmployeeProfile;
 use App\Modules\Hr\Models\Company;
 use App\Modules\Hr\Models\Document;
-use App\Modules\Hr\Models\EmployeeWorkPattern;
+use App\Modules\Attendance\Models\EmployeeWorkPattern;
 use App\Models\User;
 use App\Modules\Hr\Models\EmployeeGroup;
 use App\Modules\Hr\Models\Team;
@@ -140,7 +140,7 @@ class Employee extends Model
 
     public function employeeWorkPatterns()
     {
-        return $this->hasMany(\App\Modules\Hr\Models\EmployeeWorkPattern::class, 'employee_id', 'id');
+        return $this->hasMany(\App\Modules\Attendance\Models\EmployeeWorkPattern::class, 'employee_id', 'id');
     }
 
     public function user()

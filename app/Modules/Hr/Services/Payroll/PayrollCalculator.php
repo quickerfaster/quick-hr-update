@@ -11,9 +11,9 @@ use App\Modules\Hr\Models\PayrollRunAdjustment;
 use App\Modules\Hr\Models\PayrollPolicy;
 use App\Modules\Hr\Models\PayrollPolicyAssignment;
 use App\Modules\Hr\Models\Company;
-use App\Modules\Hr\Models\WorkPattern;
-use App\Modules\Hr\Models\AttendancePolicy;
-use App\Modules\Hr\Traits\HasPayPeriods;
+use App\Modules\Attendance\Models\WorkPattern;
+use App\Modules\Attendance\Models\AttendancePolicy;
+use App\Modules\Attendance\Traits\HasPayPeriods;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -120,7 +120,7 @@ protected function isAttendanceIntegrationEnabled(): bool
  */
 protected function getAttendanceSummary(int $employeeId, Carbon $start, Carbon $end): array
 {
-    $attendances = \App\Modules\Hr\Models\Attendance::withoutCompanyScope()
+    $attendances = \App\Modules\Attendance\Models\Attendance::withoutCompanyScope()
         ->where('employee_id', $employeeId)
         ->whereBetween('date', [$start, $end])
         ->get();
@@ -159,7 +159,7 @@ protected function getAttendanceSummary(int $employeeId, Carbon $start, Carbon $
 protected function getWorkdaysInPeriod(Carbon $start, Carbon $end, ?int $workPatternId): int
 {
     if ($workPatternId) {
-        $workPattern = \App\Modules\Hr\Models\WorkPattern::find($workPatternId);
+        $workPattern = \App\Modules\Attendance\Models\WorkPattern::find($workPatternId);
         if ($workPattern && !empty($workPattern->applicable_days)) {
             // Normalize applicable_days to an array of integers.
             // DB may store as comma-separated string "1,2,3,4,5" or JSON array [1,2,3,4,5].
@@ -202,7 +202,7 @@ protected function getWorkdaysInPeriod(Carbon $start, Carbon $end, ?int $workPat
 protected function resolveWorkPatternId(EmployeePosition $position): ?int
 {
     // First try employee‑specific assignment
-    $assignment = \App\Modules\Hr\Models\EmployeeWorkPattern::withoutCompanyScope()
+    $assignment = \App\Modules\Attendance\Models\EmployeeWorkPattern::withoutCompanyScope()
         ->where('employee_id', $position->employee_id)
         ->where('start_date', '<=', $this->run->period_end)
         ->where(function ($q) {
@@ -403,7 +403,7 @@ protected function resolveWorkPatternId(EmployeePosition $position): ?int
                 'App\Modules\Hr\Models\Company',
                 'App\Modules\Hr\Models\Location',
                 'App\Modules\Hr\Models\Department',
-                'App\Modules\Hr\Models\Shift',
+                'App\Modules\Attendance\Models\Shift',
                 'App\Modules\Hr\Models\EmployeeGroup',
             ])
             ->where(function ($q) use ($position) {
@@ -423,7 +423,7 @@ protected function resolveWorkPatternId(EmployeePosition $position): ?int
                     $q2->where('assignable_type', 'App\Modules\Hr\Models\Department')
                         ->where('assignable_id', $departmentId);
                 })->orWhere(function ($q2) use ($shiftId) {
-                    $q2->where('assignable_type', 'App\Modules\Hr\Models\Shift')
+                    $q2->where('assignable_type', 'App\Modules\Attendance\Models\Shift')
                         ->where('assignable_id', $shiftId);
                 })->orWhere(function ($q2) use ($employeeGroupId) {
                     $q2->where('assignable_type', 'App\Modules\Hr\Models\EmployeeGroup')
@@ -442,7 +442,7 @@ protected function resolveWorkPatternId(EmployeePosition $position): ?int
             'App\Modules\Hr\Models\Company',
             'App\Modules\Hr\Models\Location',
             'App\Modules\Hr\Models\Department',
-            'App\Modules\Hr\Models\Shift',
+            'App\Modules\Attendance\Models\Shift',
             'App\Modules\Hr\Models\EmployeeGroup',
         ])
             ->where('effective_date', '<=', $this->run->period_end)

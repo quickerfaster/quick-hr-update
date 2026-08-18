@@ -10,7 +10,7 @@ use App\Modules\Hr\Models\{
     PolicyAssignment, ClockEvent, Attendance, AttendanceSession, ShiftSchedule
 };
 use App\Modules\Hr\Services\AttendanceCalculator;
-use App\Modules\Hr\Models\Shift;
+use App\Modules\Attendance\Models\Shift;
 
 class AttendanceCalculatorStatusTest extends TestCase
 {
@@ -323,7 +323,7 @@ public function shift_policy_is_overridden_by_higher_level_policies()
 
     // Assign shift policy via PolicyAssignment
     PolicyAssignment::create([
-        'assignable_type' => \App\Modules\Hr\Models\Shift::class,
+        'assignable_type' => \App\Modules\Attendance\Models\Shift::class,
         'assignable_id' => $shift->id,
         'attendance_policy_id' => $shiftPolicy->id,
     ]);

@@ -18,7 +18,7 @@ use App\Modules\Hr\Models\{
     ShiftSchedule
 };
 use App\Modules\Hr\Services\AttendanceCalculator;
-use App\Modules\Hr\Models\Shift;
+use App\Modules\Attendance\Models\Shift;
 use App\Modules\Hr\Models\Location;
 
 

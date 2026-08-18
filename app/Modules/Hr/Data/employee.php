@@ -401,7 +401,7 @@ return [
     ],
     'employeeWorkPatterns' => [
       'type' => 'hasMany',
-      'model' => 'App\Modules\Hr\Models\EmployeeWorkPattern',
+      'model' => 'App\Modules\Attendance\Models\EmployeeWorkPattern',
       'foreignKey' => 'employee_id',
       'localKey' => '',
     ],

@@ -13,9 +13,9 @@ use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\JobTitle;
 use App\Modules\Hr\Models\Department;
 use App\Modules\Hr\Models\Location;
-use App\Modules\Hr\Models\Shift;
-use App\Modules\Hr\Models\EmployeeWorkPattern;
-use App\Modules\Hr\Models\AttendancePolicy;
+use App\Modules\Attendance\Models\Shift;
+use App\Modules\Attendance\Models\EmployeeWorkPattern;
+use App\Modules\Attendance\Models\AttendancePolicy;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -158,17 +158,17 @@ class EmployeePosition extends Model
 
     public function shift()
     {
-        return $this->belongsTo(\App\Modules\Hr\Models\Shift::class, 'shift_id', 'id');
+        return $this->belongsTo(\App\Modules\Attendance\Models\Shift::class, 'shift_id', 'id');
     }
 
     public function employeeWorkPatterns()
     {
-        return $this->hasMany(\App\Modules\Hr\Models\EmployeeWorkPattern::class, 'employee_id', 'id');
+        return $this->hasMany(\App\Modules\Attendance\Models\EmployeeWorkPattern::class, 'employee_id', 'id');
     }
 
     public function attendancePolicy()
     {
-        return $this->belongsTo(\App\Modules\Hr\Models\AttendancePolicy::class, 'attendance_policy_id', 'id');
+        return $this->belongsTo(\App\Modules\Attendance\Models\AttendancePolicy::class, 'attendance_policy_id', 'id');
     }
 
 

@@ -474,7 +474,7 @@ return [
     ],
     'attendanceRecords' => [
       'type' => 'hasMany',
-      'model' => 'App\Modules\Hr\Models\Attendance',
+      'model' => 'App\Modules\Attendance\Models\Attendance',
       'foreignKey' => 'leave_request_id',
       'localKey' => '',
     ],

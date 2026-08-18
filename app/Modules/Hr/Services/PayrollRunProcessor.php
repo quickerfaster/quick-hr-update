@@ -2,9 +2,9 @@
 
 namespace App\Modules\Hr\Services;
 
-use App\Modules\Hr\Models\ClockEvent;
-use App\Modules\Hr\Models\Attendance;
-use App\Modules\Hr\Http\Controllers\ClockEventController;
+use App\Modules\Attendance\Models\ClockEvent;
+use App\Modules\Attendance\Models\Attendance;
+use App\Modules\Attendance\Http\Controllers\ClockEventController;
 use Illuminate\Support\Facades\DB;
 use App\Modules\Hr\Models\PayrollRun;
 use App\Modules\Hr\Models\PayrollPayslip;

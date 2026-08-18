@@ -3,7 +3,7 @@
 namespace App\Modules\Hr\Services;
 
 use App\Modules\Hr\Models\LeaveRequest;
-use App\Modules\Hr\Models\Attendance;
+use App\Modules\Attendance\Models\Attendance;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\Holiday;
 use Carbon\Carbon;
