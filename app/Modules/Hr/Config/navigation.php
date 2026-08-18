@@ -9,13 +9,6 @@ return [
             'route' => NULL,
             'url' => 'hr/dashboard-organization-overview',
         ],
-        'reports' => [
-            'label' => 'Reports',
-            'icon' => 'fas fa-file-alt',
-            'order' => 10000,
-            'route' => NULL,
-            'url' => 'reports',
-        ],
         'people' => [
             'label' => 'People',
             'icon' => 'fas fa-user-tie',
@@ -60,17 +53,6 @@ return [
                 'route' => '/hr/departments',
                 'permission' => 'view_department',
                 'order' => 4,
-                'page_title' => NULL,
-            ],
-        ],
-        'reports' => [
-            [
-                'key' => 'saved_report',
-                'label' => 'Saved Reports',
-                'icon' => 'fas fa-user',
-                'route' => '/saved-reports',
-                'permission' => 'view_saved_report',
-                'order' => 999,
                 'page_title' => NULL,
             ],
         ],
