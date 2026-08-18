@@ -2,7 +2,7 @@
 
 namespace App\Modules\Hr\Models;
 
-use QuickerFaster\UILibrary\Core\Organization\Models\Location as BaseLocation;
+use App\Modules\Organization\Models\Location as BaseLocation;
 use QuickerFaster\UILibrary\Traits\HasCompanyScope;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;

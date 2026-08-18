@@ -2,7 +2,7 @@
 
 namespace App\Modules\Hr\Models;
 
-use QuickerFaster\UILibrary\Core\Organization\Models\Team as BaseTeam;
+use App\Modules\Organization\Models\Team as BaseTeam;
 use QuickerFaster\UILibrary\Traits\HasCompanyScope;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;

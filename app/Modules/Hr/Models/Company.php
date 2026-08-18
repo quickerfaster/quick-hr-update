@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Modules\Hr\Models\Employee;
-use QuickerFaster\UILibrary\Core\Organization\Models\Company as BaseCompany;
+use App\Modules\Organization\Models\Company as BaseCompany;
 
 
 class Company extends BaseCompany
