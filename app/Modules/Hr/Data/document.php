@@ -1,0 +1,276 @@
+<?php
+
+return [
+  'model' => 'App\Modules\Hr\Models\Document',
+  'fieldDefinitions' => [
+    'employee_id' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'livewire-searchable-select',
+      'label' => 'Employee',
+      'validation' => 'required|exists:employees,id',
+      'filterable' => true,
+      'searchable' => true,
+      'relationship' => [
+        'model' => 'App\Modules\Hr\Models\Employee',
+        'type' => 'belongsTo',
+        'display_field' => 'employee_number',
+        'dynamic_property' => 'employee',
+        'foreign_key' => 'employee_id',
+        'inlineAdd' => false,
+      ],
+      'options' => [
+        'model' => 'App\Modules\Hr\Models\Employee',
+        'column' => 'employee_number',
+        'hintField' => 'first_name,last_name',
+      ],
+    ],
+    'company_id' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'select',
+      'label' => 'Company',
+      'validation' => 'required|integer|exists:companies,id',
+      'filterable' => true,
+      'searchable' => true,
+      'relationship' => [
+        'model' => 'App\Modules\Hr\Models\Company',
+        'type' => 'belongsTo',
+        'display_field' => 'name',
+        'dynamic_property' => 'company',
+        'foreign_key' => 'company_id',
+        'inlineAdd' => false,
+      ],
+      'options' => [
+        'model' => 'App\Modules\Hr\Models\Company',
+        'column' => 'name',
+        'hintField' => '',
+      ],
+    ],
+    'name' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'string',
+      'label' => 'Document Name',
+      'validation' => 'required|string|max:255',
+      'filterable' => true,
+      'searchable' => true,
+    ],
+    'type' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'select',
+      'label' => 'Document Type',
+      'validation' => 'required',
+      'options' => [
+        '0' => 'Resume',
+        '1' => 'Contract',
+        '2' => 'Offer Letter',
+        '3' => 'ID Proof',
+        '4' => 'Visa',
+        '5' => 'Certificate',
+        '6' => 'Performance Review',
+        '7' => 'Other',
+      ],
+      'filterable' => true,
+    ],
+    'document' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'file',
+      'label' => 'File',
+      'validation' => 'required|file|max:10240',
+      'reactivity' => 'live'
+    ],
+    'uploaded_at' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'datepicker',
+      'label' => 'Upload Date',
+      'validation' => 'nullable|date',
+      'filterable' => true,
+    ],
+    'expiry_date' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'datepicker',
+      'label' => 'Expiry Date',
+      'validation' => 'nullable|date',
+      'filterable' => true,
+    ],
+    'description' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'textarea',
+      'label' => 'Description',
+      'validation' => 'nullable|string',
+    ],
+  ],
+  'detailComponent' => '',
+  'hiddenFields' => [
+    'onTable' => [
+      '0' => 'document',
+      '1' => 'description',
+      '2' => 'created_at',
+      '3' => 'updated_at',
+      '4' => 'deleted_at',
+      '5' => 'company_id',
+    ],
+    'onNewForm' => [
+      '0' => 'uploaded_at',
+      '1' => 'deleted_at',
+      '2' => 'company_id',
+    ],
+    'onEditForm' => [
+      '0' => 'uploaded_at',
+      '1' => 'deleted_at',
+      '2' => 'company_id',
+    ],
+    'onQuery' => [
+      '0' => 'deleted_at',
+    ],
+  ],
+  'simpleActions' => [
+    '0' => 'show',
+    '1' => 'edit',
+    '2' => 'delete',
+  ],
+  'isTransaction' => false,
+  'crudType' => 'drawers',
+  'includeControllers' => false,
+  'tableDefaultFields' => [
+    '0' => 'company_id',
+    '1' => 'name',
+    '2' => 'employee_id',
+    '3' => 'type',
+    '4' => 'uploaded_at',
+    '5' => 'expiry_date',
+  ],
+  'addRoutes' => false,
+  'dispatchEvents' => false,
+  'controls' => [
+    'addButton' => true,
+    'search' => true,
+    'perPage' => [
+      '0' => 10,
+      '1' => 25,
+      '2' => 50,
+      '3' => 100,
+    ],
+    'files' => [
+      'export' => [
+        '0' => 'xls',
+        '1' => 'csv',
+        '2' => 'pdf',
+      ],
+      'print' => true,
+    ],
+    'showHideColumns' => true,
+    'filterColumns' => true,
+    'softDelete' => true,
+    'restore' => true,
+    'forceDelete' => true,
+    'trashView' => true,
+    'bulkActions' => [
+      'export' => [
+        '0' => 'xls',
+        '1' => 'csv',
+        '2' => 'pdf',
+      ],
+      'delete' => true,
+      'restore' => true,
+      'forceDelete' => true,
+    ],
+  ],
+  'fieldGroups' => [
+    'company' => [
+      'title' => 'Company',
+      'groupType' => 'hr',
+      'icon' => 'fas fa-building',
+      'fields' => [
+        '0' => 'company_id',
+      ],
+    ],
+    'document_details' => [
+      'title' => 'Document Details',
+      'groupType' => 'hr',
+      'icon' => 'fas fa-info-circle',
+      'fields' => [
+        '0' => 'employee_id',
+        '1' => 'name',
+        '2' => 'type',
+        '3' => 'description',
+      ],
+    ],
+    'file_information' => [
+      'title' => 'File Information',
+      'groupType' => 'hr',
+      'icon' => 'fas fa-file',
+      'fields' => [
+        '0' => 'document',
+        '1' => 'uploaded_at',
+        '2' => 'expiry_date',
+      ],
+    ],
+  ],
+  'moreActions' => [
+    '0' => [
+      'title' => 'Restore',
+      'icon' => 'fas fa-trash-restore',
+      'action' => 'restore',
+      'confirm' => 'Restore this archived document?',
+      'requiredPermission' => 'restore_document',
+      'condition' => ['trashed' => [true]],
+    ],
+    '1' => [
+      'title' => 'Permanently Delete',
+      'icon' => 'fas fa-skull-crossbones',
+      'action' => 'forceDelete',
+      'confirm' => 'This action cannot be undone. Permanently delete this document and its file?',
+      'requiredPermission' => 'force_delete_document',
+      'condition' => ['trashed' => [true]],
+    ],
+  ],
+  'switchViews' => [
+    'default' => 'table',
+    'table' => [
+      'enabled' => true,
+    ],
+    'list' => [
+      'enabled' => true,
+      'titleFields' => [
+        '0' => 'name',
+      ],
+      'subtitleFields' => [
+        '0' => 'type',
+      ],
+      'contentFields' => [
+        '0' => 'description',
+      ],
+      'badgeField' => 'expiry_date',
+      'badgeColors' => [],
+    ],
+    'card' => [
+      'enabled' => true,
+      'titleFields' => [
+        '0' => 'name',
+      ],
+      'subtitleFields' => [
+        '0' => 'type',
+      ],
+      'contentFields' => [
+        '0' => 'description',
+      ],
+      'imageField' => 'document',
+    ],
+  ],
+  'relations' => [
+    'employee' => [
+      'type' => 'belongsTo',
+      'model' => 'App\Modules\Hr\Models\Employee',
+      'foreignKey' => 'employee_id',
+      'localKey' => '',
+    ],
+  ],
+  'report' => [],
+];

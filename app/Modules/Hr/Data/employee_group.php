@@ -1,0 +1,296 @@
+<?php
+
+return [
+  'model' => 'App\Modules\Hr\Models\EmployeeGroup',
+  'fieldDefinitions' => [
+    'name' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'string',
+      'label' => 'Group Name',
+      'validation' => 'required|string|max:255|unique:employee_groups,name',
+      'filterable' => true,
+      'searchable' => true,
+    ],
+    'company_id' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'select',
+      'label' => 'Company',
+      'validation' => 'required|integer|exists:companies,id',
+      'filterable' => true,
+      'searchable' => true,
+      'relationship' => [
+        'model' => 'App\Modules\Hr\Models\Company',
+        'type' => 'belongsTo',
+        'display_field' => 'name',
+        'dynamic_property' => 'company',
+        'foreign_key' => 'company_id',
+        'inlineAdd' => false,
+      ],
+      'options' => [
+        'model' => 'App\Modules\Hr\Models\Company',
+        'column' => 'name',
+        'hintField' => '',
+      ],
+    ],
+    'code' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'string',
+      'label' => 'Group Code',
+      'validation' => 'required|string|max:50|unique:employee_groups,code',
+      'autoGenerate' => true,
+      'filterable' => true,
+      'searchable' => true,
+    ],
+    'group_type' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'select',
+      'label' => 'Group Type',
+      'validation' => 'required|in:manual,dynamic,hybrid',
+      'options' => [
+        'manual' => 'Manual (Admin selects members)',
+        'dynamic' => 'Dynamic (Auto‑populated by rules)',
+        'hybrid' => 'Hybrid (Manual + Dynamic)',
+      ],
+      'filterable' => true,
+    ],
+    'description' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'textarea',
+      'label' => 'Description',
+      'validation' => 'nullable|string|max:1000',
+      'searchable' => true,
+    ],
+    'is_active' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'checkbox',
+      'label' => 'Active',
+      'validation' => 'nullable|boolean',
+      'filterable' => true,
+    ],
+    'dynamic_rules' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'json',
+      'label' => 'Dynamic Rules (JSON)',
+      'validation' => 'nullable|json',
+    ],
+    'created_by' => [
+      'display' => 'inline',
+      'fillable' => false,
+      'field_type' => 'number',
+      'label' => 'Created By',
+      'validation' => 'nullable|integer',
+    ],
+    'updated_by' => [
+      'display' => 'inline',
+      'fillable' => false,
+      'field_type' => 'number',
+      'label' => 'Updated By',
+      'validation' => 'nullable|integer',
+    ],
+  ],
+  'detailComponent' => '',
+  'hiddenFields' => [
+    'onTable' => [
+      '0' => 'dynamic_rules',
+      '1' => 'created_by',
+      '2' => 'updated_by',
+      '3' => 'created_at',
+      '4' => 'updated_at',
+      '5' => 'deleted_at',
+      '6' => 'company_id',
+    ],
+    'onNewForm' => [
+      '0' => 'created_by',
+      '1' => 'updated_by',
+      '2' => 'deleted_at',
+      '3' => 'company_id',
+    ],
+    'onEditForm' => [
+      '0' => 'updated_by',
+      '1' => 'deleted_at',
+      '2' => 'company_id',
+    ],
+    'onQuery' => [
+      '0' => 'deleted_at',
+    ],
+  ],
+  'simpleActions' => [
+    '0' => 'show',
+    '1' => 'edit',
+    '2' => 'delete',
+  ],
+  'isTransaction' => false,
+  'crudType' => 'drawers',
+  'includeControllers' => false,
+  'tableDefaultFields' => [
+    '0' => 'company_id',
+    '1' => 'name',
+    '2' => 'code',
+    '3' => 'group_type',
+    '4' => 'is_active',
+  ],
+  'addRoutes' => false,
+  'dispatchEvents' => false,
+  'controls' => [
+    'addButton' => [
+      '0' => [
+        'label' => 'New Group',
+        'type' => 'quick_add',
+        'icon' => 'fas fa-plus-circle',
+        'primary' => true,
+      ],
+    ],
+    'files' => [
+      'export' => [
+        '0' => 'xls',
+        '1' => 'csv',
+        '2' => 'pdf',
+      ],
+      'print' => true,
+    ],
+    'perPage' => [
+      '0' => 10,
+      '1' => 25,
+      '2' => 50,
+      '3' => 100,
+    ],
+    'search' => true,
+    'showHideColumns' => true,
+    'filterColumns' => true,
+    'softDelete' => true,
+    'restore' => true,
+    'forceDelete' => true,
+    'trashView' => true,
+    'bulkActions' => [
+      'export' => [
+        '0' => 'xls',
+        '1' => 'csv',
+        '2' => 'pdf',
+      ],
+      'activate' => [
+        'label' => 'Activate Selected',
+        'icon' => 'fas fa-toggle-on',
+        'updateModelField' => 'is_active',
+        'fieldValue' => true,
+        'confirm' => 'Activate selected groups?',
+      ],
+      'deactivate' => [
+        'label' => 'Deactivate Selected',
+        'icon' => 'fas fa-toggle-off',
+        'updateModelField' => 'is_active',
+        'fieldValue' => false,
+        'confirm' => 'Deactivate selected groups?',
+      ],
+      'delete' => true,
+      'restore' => true,
+      'forceDelete' => true,
+    ],
+  ],
+  'fieldGroups' => [
+    'company' => [
+      'title' => 'Company',
+      'groupType' => 'hr',
+      'icon' => 'fas fa-building',
+      'fields' => [
+        '0' => 'company_id',
+      ],
+    ],
+    'basic_info' => [
+      'title' => 'Basic Information',
+      'groupType' => 'hr',
+      'icon' => 'fas fa-info-circle',
+      'fields' => [
+        '0' => 'name',
+        '1' => 'code',
+        '2' => 'description',
+        '3' => 'is_active',
+      ],
+    ],
+    'grouping_rules' => [
+      'title' => 'Grouping Rules',
+      'groupType' => 'hr',
+      'icon' => 'fas fa-cogs',
+      'fields' => [
+        '0' => 'group_type',
+        '1' => 'dynamic_rules',
+      ],
+    ],
+  ],
+  'moreActions' => [
+    '0' => [
+      'title' => 'Restore',
+      'icon' => 'fas fa-trash-restore',
+      'action' => 'restore',
+      'confirm' => 'Restore this archived group?',
+      'requiredPermission' => 'restore_employee_group',
+      'condition' => ['trashed' => [true]],
+    ],
+    '1' => [
+      'title' => 'Permanently Delete',
+      'icon' => 'fas fa-skull-crossbones',
+      'action' => 'forceDelete',
+      'confirm' => 'This action cannot be undone. Permanently delete this group?',
+      'requiredPermission' => 'force_delete_employee_group',
+      'condition' => ['trashed' => [true]],
+    ],
+  ],
+  'switchViews' => [
+    'default' => 'table',
+    'table' => [
+      'enabled' => true,
+    ],
+    'list' => [
+      'enabled' => true,
+      'titleFields' => [
+        '0' => 'name',
+      ],
+      'subtitleFields' => [
+        '0' => 'code',
+        '1' => 'group_type',
+      ],
+      'contentFields' => [
+        '0' => 'description',
+      ],
+      'badgeField' => 'is_active',
+      'badgeColors' => [
+        'true' => 'success',
+        'false' => 'secondary',
+      ],
+    ],
+    'card' => [
+      'enabled' => true,
+      'titleFields' => [
+        '0' => 'name',
+      ],
+      'subtitleFields' => [
+        '0' => 'code',
+        '1' => 'group_type',
+      ],
+      'contentFields' => [
+        '0' => 'description',
+      ],
+      'badgeField' => 'is_active',
+      'badgeColors' => [
+        'true' => 'success',
+        'false' => 'secondary',
+      ],
+      'defaultIconClass' => 'fas fa-users',
+    ],
+  ],
+  'relations' => [
+    'employees' => [
+      'type' => 'hasMany',
+      'model' => 'App\Modules\Hr\Models\Employee',
+      'foreignKey' => 'employee_group_id',
+      'localKey' => '',
+    ],
+  ],
+  'report' => [],
+];
