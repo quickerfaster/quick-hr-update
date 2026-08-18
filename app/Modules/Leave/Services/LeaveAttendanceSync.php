@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Modules\Hr\Services;
+namespace App\Modules\Leave\Services;
 
-use App\Modules\Hr\Models\LeaveRequest;
+use App\Modules\Leave\Models\LeaveRequest;
 use App\Modules\Attendance\Models\Attendance;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Hr\Models\Holiday;
+use App\Modules\Attendance\Services\AttendanceAggregator;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;

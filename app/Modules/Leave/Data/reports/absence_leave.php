@@ -1,9 +1,9 @@
 <?php
 
 return array (
-  'module' => 'hr',
+  'module' => 'leave',
   'context' => 'time',
-  'configKey' => 'hr_employee',
+  'configKey' => 'leave_employee',
   'title' => 'Absence & Leave Tracking',
   'label' => 'Absence & Leave',
   'type' => 'dashboard',
@@ -23,7 +23,7 @@ return array (
       'width' => 6,
       'type' => 'trend',
       'title' => 'Absence Days Trend',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveRequest',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'group_by' => 'month',
       'aggregate' => 'sum',
       'field' => 'workdays_count',
@@ -35,7 +35,7 @@ return array (
       'width' => 6,
       'type' => 'list',
       'title' => 'Employees with Low Leave Balance',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveBalance',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveBalance',
       'limit' => 10,
       'sort' => 
       array (

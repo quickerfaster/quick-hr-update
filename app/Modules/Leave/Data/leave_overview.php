@@ -1,7 +1,7 @@
 <?php
 
 return [
-  'model' => 'App\Modules\Hr\Models\LeaveOverview',
+  'model' => 'App\Modules\Leave\Models\LeaveOverview',
   'fieldDefinitions' => [
     'dummy' => [
       'display' => 'inline',

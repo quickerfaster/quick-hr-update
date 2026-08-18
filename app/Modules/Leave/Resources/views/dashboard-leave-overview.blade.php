@@ -1,7 +1,7 @@
 <x-qf::navigation-layout 
-    configKey="hr.dashboards.dashboard_leave_overview" 
+    configKey="leave.dashboards.dashboard_leave_overview" 
     context="leave" 
-    moduleName="hr" 
+    moduleName="leave" 
     :overrides="[
         'top_bar' => ['enabled' => true],
         'breadcrumb' => ['enabled' => false],
@@ -10,5 +10,5 @@
         'context_menu' => ['enabled' => true],
     ]"
 >
-    <livewire:qf.dashboard config-key="hr.dashboards.dashboard_leave_overview" />
+    <livewire:qf.dashboard config-key="leave.dashboards.dashboard_leave_overview" />
 </x-qf::navigation-layout>

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Hr\Models;
+namespace App\Modules\Leave\Models;
 
 use QuickerFaster\UILibrary\Traits\HasCompanyScope;
 
@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Modules\Hr\Models\Employee;
-use App\Modules\Hr\Models\LeaveType;
+use App\Modules\Leave\Models\LeaveType;
 
 use Illuminate\Database\Eloquent\Model;
 
 
-class LeaveBalance extends Model
+class LeaveApprover extends Model
 {
     use HasCompanyScope;
     use HasFactory;
@@ -24,7 +24,7 @@ class LeaveBalance extends Model
 
 
 
-    protected $table = 'leave_balances';
+    protected $table = 'leave_approvers';
 
 
 
@@ -32,7 +32,7 @@ class LeaveBalance extends Model
 
 
     protected $fillable = [
-        'company_id', 'employee_id', 'leave_type_id', 'balance', 'accrual_rate', 'accrual_frequency', 'year'
+        'company_id', 'employee_id', 'approver_id', 'approval_level', 'can_approve_all_types', 'leave_type_ids', 'max_approval_days', 'is_active'
     ];
 
     protected $guarded = [
@@ -40,15 +40,16 @@ class LeaveBalance extends Model
     ];
 
     protected $casts = [
-        'balance' => 'decimal:2',
-        'accrual_rate' => 'decimal:2',
-        'year' => 'integer'
+        'approval_level' => 'integer',
+        'can_approve_all_types' => 'boolean',
+        'max_approval_days' => 'integer',
+        'is_active' => 'boolean'
     ];
 
     protected $attributes = [
-        'balance' => 0,
-        'accrual_rate' => 1,
-        'accrual_frequency' => 'Monthly'
+        'approval_level' => 1,
+        'can_approve_all_types' => true,
+        'is_active' => true
     ];
 
     protected $dispatchesEvents = [
@@ -106,9 +107,14 @@ class LeaveBalance extends Model
         return $this->belongsTo(\App\Modules\Hr\Models\Employee::class, 'employee_id', 'id');
     }
 
-    public function leaveType()
+    public function approver()
     {
-        return $this->belongsTo(\App\Modules\Hr\Models\LeaveType::class, 'leave_type_id', 'id');
+        return $this->belongsTo(\App\Modules\Hr\Models\Employee::class, 'approver_id', 'id');
+    }
+
+    public function leaveTypes()
+    {
+        return $this->belongsToMany(\App\Modules\Leave\Models\LeaveType::class, 'leave_approver_leave_type', 'leave_approver_id', 'leave_type_id', 'id', 'leave_type_id');
     }
 
     public function company()
@@ -121,6 +127,6 @@ class LeaveBalance extends Model
      */
     protected static function newFactory()
     {
-        return \App\Modules\Hr\Database\Factories\LeaveBalanceFactory::new();
+        return \App\Modules\Leave\Database\Factories\LeaveApproverFactory::new();
     }
 }

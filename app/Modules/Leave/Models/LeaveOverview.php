@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Hr\Models;
+namespace App\Modules\Leave\Models;
 
 use QuickerFaster\UILibrary\Traits\HasCompanyScope;
 
@@ -8,31 +8,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use App\Modules\Hr\Models\Employee;
-use App\Modules\Hr\Models\LeaveType;
+
 
 use Illuminate\Database\Eloquent\Model;
 
 
-class LeaveApprover extends Model
+class LeaveOverview extends Model
 {
     use HasCompanyScope;
     use HasFactory;
 
-    use SoftDeletes;
 
 
 
 
-    protected $table = 'leave_approvers';
+
+    protected $table = 'leave_overviews';
 
 
 
-    public $timestamps = true;
 
 
     protected $fillable = [
-        'company_id', 'employee_id', 'approver_id', 'approval_level', 'can_approve_all_types', 'leave_type_ids', 'max_approval_days', 'is_active'
+        'company_id', 'dummy'
     ];
 
     protected $guarded = [
@@ -40,16 +38,11 @@ class LeaveApprover extends Model
     ];
 
     protected $casts = [
-        'approval_level' => 'integer',
-        'can_approve_all_types' => 'boolean',
-        'max_approval_days' => 'integer',
-        'is_active' => 'boolean'
+
     ];
 
     protected $attributes = [
-        'approval_level' => 1,
-        'can_approve_all_types' => true,
-        'is_active' => true
+
     ];
 
     protected $dispatchesEvents = [
@@ -102,20 +95,7 @@ class LeaveApprover extends Model
         return parent::save($options);
     }
 
-    public function employee()
-    {
-        return $this->belongsTo(\App\Modules\Hr\Models\Employee::class, 'employee_id', 'id');
-    }
 
-    public function approver()
-    {
-        return $this->belongsTo(\App\Modules\Hr\Models\Employee::class, 'approver_id', 'id');
-    }
-
-    public function leaveTypes()
-    {
-        return $this->belongsToMany(\App\Modules\Hr\Models\LeaveType::class, 'leave_approver_leave_type', 'leave_approver_id', 'leave_type_id', 'id', 'leave_type_id');
-    }
 
     public function company()
     {
@@ -127,6 +107,6 @@ class LeaveApprover extends Model
      */
     protected static function newFactory()
     {
-        return \App\Modules\Hr\Database\Factories\LeaveApproverFactory::new();
+        return \App\Modules\Leave\Database\Factories\LeaveOverviewFactory::new();
     }
 }

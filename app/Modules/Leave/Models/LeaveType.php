@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Hr\Models;
+namespace App\Modules\Leave\Models;
 
 use QuickerFaster\UILibrary\Traits\HasCompanyScope;
 
@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use App\Modules\Hr\Models\LeaveBalance;
+use App\Modules\Leave\Models\LeaveBalance;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -103,7 +103,7 @@ class LeaveType extends Model
 
     public function leaveBalances()
     {
-        return $this->hasMany(\App\Modules\Hr\Models\LeaveBalance::class, 'leave_type_id', 'id');
+        return $this->hasMany(\App\Modules\Leave\Models\LeaveBalance::class, 'leave_type_id', 'id');
     }
 
     public function company()
@@ -116,6 +116,6 @@ class LeaveType extends Model
      */
     protected static function newFactory()
     {
-        return \App\Modules\Hr\Database\Factories\LeaveTypeFactory::new();
+        return \App\Modules\Leave\Database\Factories\LeaveTypeFactory::new();
     }
 }

@@ -4,9 +4,12 @@ namespace App\Modules\Attendance\Services;
 
 use App\Modules\Attendance\Models\{
     ClockEvent, Attendance, AttendanceSession, AttendancePolicy,
-    WorkPattern, Shift, ShiftSchedule, Employee, EmployeePosition,
-    LeaveRequest, Holiday
+    WorkPattern, Shift, ShiftSchedule
 };
+use App\Modules\Hr\Models\Employee;
+use App\Modules\Hr\Models\EmployeePosition;
+use App\Modules\Hr\Models\Holiday;
+use App\Modules\Leave\Models\LeaveRequest;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;

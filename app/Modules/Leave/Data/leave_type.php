@@ -1,30 +1,8 @@
 <?php
 
 return [
-  'model' => 'App\Modules\Hr\Models\LeaveApprover',
+  'model' => 'App\Modules\Leave\Models\LeaveType',
   'fieldDefinitions' => [
-    'employee_id' => [
-      'display' => 'inline',
-      'fillable' => true,
-      'field_type' => 'livewire-searchable-select',
-      'label' => 'Employee (Subordinate)',
-      'validation' => 'required|exists:employees,id',
-      'filterable' => true,
-      'searchable' => true,
-      'relationship' => [
-        'model' => 'App\Modules\Hr\Models\Employee',
-        'type' => 'belongsTo',
-        'display_field' => 'employee_number',
-        'dynamic_property' => 'employee',
-        'foreign_key' => 'employee_id',
-        'inlineAdd' => false,
-      ],
-      'options' => [
-        'model' => 'App\Modules\Hr\Models\Employee',
-        'column' => 'employee_number',
-        'hintField' => 'first_name,last_name',
-      ],
-    ],
     'company_id' => [
       'display' => 'inline',
       'fillable' => true,
@@ -47,41 +25,37 @@ return [
         'hintField' => '',
       ],
     ],
-    'approver_id' => [
+    'name' => [
       'display' => 'inline',
       'fillable' => true,
-      'field_type' => 'livewire-searchable-select',
-      'label' => 'Approver (Manager)',
-      'validation' => 'required|exists:employees,id',
+      'field_type' => 'string',
+      'label' => 'Leave Type Name',
+      'validation' => 'required|string|max:255',
       'filterable' => true,
       'searchable' => true,
-      'relationship' => [
-        'model' => 'App\Modules\Hr\Models\Employee',
-        'type' => 'belongsTo',
-        'display_field' => 'employee_number',
-        'dynamic_property' => 'approver',
-        'foreign_key' => 'approver_id',
-        'inlineAdd' => false,
-      ],
-      'options' => [
-        'model' => 'App\Modules\Hr\Models\Employee',
-        'column' => 'employee_number',
-        'hintField' => 'first_name,last_name',
-      ],
     ],
-    'approval_level' => [
+    'code' => [
       'display' => 'inline',
       'fillable' => true,
-      'field_type' => 'number',
-      'label' => 'Approval Level',
-      'validation' => 'required|integer|min:1|max:3',
+      'field_type' => 'string',
+      'label' => 'Short Code',
+      'validation' => 'required|string|max:10|unique:leave_types,code',
       'filterable' => true,
+      'searchable' => true,
     ],
-    'can_approve_all_types' => [
+    'description' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'textarea',
+      'label' => 'Description',
+      'validation' => 'nullable|string',
+      'searchable' => true,
+    ],
+    'deducts_from_balance' => [
       'display' => 'inline',
       'fillable' => true,
       'field_type' => 'radio',
-      'label' => 'Can Approve All Leave Types',
+      'label' => 'Deducts from Balance',
       'validation' => 'required',
       'options' => [
         '0' => 'Yes',
@@ -89,29 +63,34 @@ return [
       ],
       'filterable' => true,
     ],
-    'leave_type_ids' => [
+    'requires_approval' => [
       'display' => 'inline',
       'fillable' => true,
-      'field_type' => 'checkbox',
-      'label' => 'Allowed Leave Types',
-      'validation' => 'required_if:can_approve_all_types,No|array',
+      'field_type' => 'radio',
+      'label' => 'Requires Approval',
+      'validation' => 'required',
+      'options' => [
+        '0' => 'Yes',
+        '1' => 'No',
+      ],
+      'filterable' => true,
     ],
-    'max_approval_days' => [
+    'max_days_per_request' => [
       'display' => 'inline',
       'fillable' => true,
       'field_type' => 'number',
-      'label' => 'Max Approval Days',
+      'label' => 'Max Days per Request',
       'validation' => 'nullable|integer|min:1',
     ],
     'is_active' => [
       'display' => 'inline',
       'fillable' => true,
       'field_type' => 'radio',
-      'label' => 'Active',
+      'label' => 'Status',
       'validation' => 'required',
       'options' => [
-        '0' => 'Yes',
-        '1' => 'No',
+        '0' => 'Active',
+        '1' => 'Inactive',
       ],
       'filterable' => true,
     ],
@@ -119,14 +98,12 @@ return [
   'detailComponent' => '',
   'hiddenFields' => [
     'onTable' => [
-      '0' => 'approval_level',
-      '1' => 'can_approve_all_types',
-      '2' => 'leave_type_ids',
-      '3' => 'max_approval_days',
-      '4' => 'created_at',
-      '5' => 'updated_at',
-      '6' => 'deleted_at',
-      '7' => 'company_id',
+      '0' => 'description',
+      '1' => 'max_days_per_request',
+      '2' => 'created_at',
+      '3' => 'updated_at',
+      '4' => 'deleted_at',
+      '5' => 'company_id',
     ],
     'onNewForm' => [
       '0' => 'created_at',
@@ -149,14 +126,14 @@ return [
     '2' => 'delete',
   ],
   'isTransaction' => false,
-  'crudType' => 'modals',
+  'crudType' => 'drawers',
   'includeControllers' => false,
   'tableDefaultFields' => [
     '0' => 'company_id',
-    '1' => 'employee_id',
-    '2' => 'approver_id',
-    '3' => 'approval_level',
-    '4' => 'can_approve_all_types',
+    '1' => 'name',
+    '2' => 'code',
+    '3' => 'deducts_from_balance',
+    '4' => 'requires_approval',
     '5' => 'is_active',
   ],
   'addRoutes' => false,
@@ -204,24 +181,24 @@ return [
         '0' => 'company_id',
       ],
     ],
-    'approval_relationship' => [
-      'title' => 'Approval Relationship',
+    'basic_info' => [
+      'title' => 'Basic Information',
       'groupType' => 'hr',
-      'icon' => 'fas fa-link',
+      'icon' => 'fas fa-info-circle',
       'fields' => [
-        '0' => 'employee_id',
-        '1' => 'approver_id',
-        '2' => 'approval_level',
+        '0' => 'name',
+        '1' => 'code',
+        '2' => 'description',
       ],
     ],
-    'approval_rules' => [
-      'title' => 'Approval Rules',
+    'rules' => [
+      'title' => 'Leave Rules',
       'groupType' => 'hr',
       'icon' => 'fas fa-gavel',
       'fields' => [
-        '0' => 'can_approve_all_types',
-        '1' => 'leave_type_ids',
-        '2' => 'max_approval_days',
+        '0' => 'deducts_from_balance',
+        '1' => 'requires_approval',
+        '2' => 'max_days_per_request',
         '3' => 'is_active',
       ],
     ],
@@ -231,16 +208,16 @@ return [
       'title' => 'Restore',
       'icon' => 'fas fa-trash-restore',
       'action' => 'restore',
-      'confirm' => 'Restore this archived approval rule?',
-      'requiredPermission' => 'restore_leave_approver',
+      'confirm' => 'Restore this archived leave type?',
+      'requiredPermission' => 'restore_leave_type',
       'condition' => ['trashed' => [true]],
     ],
     '1' => [
       'title' => 'Permanently Delete',
       'icon' => 'fas fa-skull-crossbones',
       'action' => 'forceDelete',
-      'confirm' => 'This action cannot be undone. Permanently delete this approval rule?',
-      'requiredPermission' => 'force_delete_leave_approver',
+      'confirm' => 'This action cannot be undone. Permanently delete this leave type?',
+      'requiredPermission' => 'force_delete_leave_type',
       'condition' => ['trashed' => [true]],
     ],
   ],
@@ -249,18 +226,13 @@ return [
     'list' => [
       'enabled' => true,
       'titleFields' => [
-        '0' => 'employee.employee_number',
-        '1' => 'employee.first_name',
-        '2' => 'employee.last_name',
+        '0' => 'name',
       ],
       'subtitleFields' => [
-        '0' => 'approver.employee_number',
-        '1' => 'approver.first_name',
-        '2' => 'approver.last_name',
+        '0' => 'code',
       ],
       'contentFields' => [
-        '0' => 'approval_level',
-        '1' => 'can_approve_all_types',
+        '0' => 'description',
       ],
       'badgeField' => 'is_active',
       'badgeColors' => [
@@ -271,14 +243,14 @@ return [
     'card' => [
       'enabled' => true,
       'titleFields' => [
-        '0' => 'employee.employee_number',
+        '0' => 'name',
       ],
       'subtitleFields' => [
-        '0' => 'approver.employee_number',
+        '0' => 'code',
       ],
       'contentFields' => [
-        '0' => 'approval_level',
-        '1' => 'can_approve_all_types',
+        '0' => 'deducts_from_balance',
+        '1' => 'requires_approval',
       ],
       'badgeField' => 'is_active',
       'badgeColors' => [
@@ -288,22 +260,10 @@ return [
     ],
   ],
   'relations' => [
-    'employee' => [
-      'type' => 'belongsTo',
-      'model' => 'App\Modules\Hr\Models\Employee',
-      'foreignKey' => 'employee_id',
-      'localKey' => '',
-    ],
-    'approver' => [
-      'type' => 'belongsTo',
-      'model' => 'App\Modules\Hr\Models\Employee',
-      'foreignKey' => 'approver_id',
-      'localKey' => '',
-    ],
-    'leaveTypes' => [
-      'type' => 'belongsToMany',
-      'model' => 'App\Modules\Hr\Models\LeaveType',
-      'foreignKey' => 'leave_approver_id',
+    'leaveBalances' => [
+      'type' => 'hasMany',
+      'model' => 'App\Modules\Leave\Models\LeaveBalance',
+      'foreignKey' => 'leave_type_id',
       'localKey' => '',
     ],
   ],

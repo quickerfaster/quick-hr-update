@@ -1,7 +1,7 @@
 <?php
 
 return [
-  'model' => 'App\Modules\Hr\Models\LeaveRequest',
+  'model' => 'App\Modules\Leave\Models\LeaveRequest',
   'fieldDefinitions' => [
     'company_id' => [
       'display' => 'inline',
@@ -59,7 +59,7 @@ return [
       'filterable' => true,
       'searchable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Hr\Models\LeaveType',
+        'model' => 'App\Modules\Leave\Models\LeaveType',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'leaveType',
@@ -67,7 +67,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Hr\Models\LeaveType',
+        'model' => 'App\Modules\Leave\Models\LeaveType',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -277,7 +277,7 @@ return [
       '0' => [
         'label' => 'Request Leave',
         'type' => 'wizard',
-        'url' => '/hr/leave-request',
+        'url' => '/leave/leave-request',
         'wizard' => 'employee_self_service',
         'icon' => 'fas fa-plus',
         'primary' => true,
@@ -462,7 +462,7 @@ return [
     ],
     'leaveType' => [
       'type' => 'belongsTo',
-      'model' => 'App\Modules\Hr\Models\LeaveType',
+      'model' => 'App\Modules\Leave\Models\LeaveType',
       'foreignKey' => 'leave_type_id',
       'localKey' => '',
     ],

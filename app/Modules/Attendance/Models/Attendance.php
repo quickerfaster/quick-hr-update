@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Modules\Hr\Models\Employee;
 use App\Modules\Attendance\Models\AttendanceSession;
 use App\Modules\Attendance\Models\AttendanceAdjustment;
-use App\Modules\Hr\Models\LeaveRequest;
+use App\Modules\Leave\Models\LeaveRequest;
 use App\Modules\Attendance\Models\Shift;
 use App\Modules\Attendance\Models\AttendancePolicy;
 use App\Modules\Attendance\Models\WorkPattern;
@@ -178,7 +178,7 @@ protected static function boot()
 
     public function leaveRequest()
     {
-        return $this->belongsTo(\App\Modules\Hr\Models\LeaveRequest::class, 'leave_request_id', 'id');
+        return $this->belongsTo(\App\Modules\Leave\Models\LeaveRequest::class, 'leave_request_id', 'id');
     }
 
     public function shift()

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Hr\Models;
+namespace App\Modules\Leave\Models;
 
 use QuickerFaster\UILibrary\Traits\HasCompanyScope;
 
@@ -8,30 +8,31 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-
+use App\Modules\Hr\Models\Employee;
+use App\Modules\Leave\Models\LeaveType;
 
 use Illuminate\Database\Eloquent\Model;
 
 
-class LeaveOverview extends Model
+class LeaveBalance extends Model
 {
     use HasCompanyScope;
     use HasFactory;
 
+    use SoftDeletes;
 
 
 
 
-
-    protected $table = 'leave_overviews';
-
+    protected $table = 'leave_balances';
 
 
 
+    public $timestamps = true;
 
 
     protected $fillable = [
-        'company_id', 'dummy'
+        'company_id', 'employee_id', 'leave_type_id', 'balance', 'accrual_rate', 'accrual_frequency', 'year'
     ];
 
     protected $guarded = [
@@ -39,11 +40,15 @@ class LeaveOverview extends Model
     ];
 
     protected $casts = [
-
+        'balance' => 'decimal:2',
+        'accrual_rate' => 'decimal:2',
+        'year' => 'integer'
     ];
 
     protected $attributes = [
-
+        'balance' => 0,
+        'accrual_rate' => 1,
+        'accrual_frequency' => 'Monthly'
     ];
 
     protected $dispatchesEvents = [
@@ -96,7 +101,15 @@ class LeaveOverview extends Model
         return parent::save($options);
     }
 
+    public function employee()
+    {
+        return $this->belongsTo(\App\Modules\Hr\Models\Employee::class, 'employee_id', 'id');
+    }
 
+    public function leaveType()
+    {
+        return $this->belongsTo(\App\Modules\Leave\Models\LeaveType::class, 'leave_type_id', 'id');
+    }
 
     public function company()
     {
@@ -108,6 +121,6 @@ class LeaveOverview extends Model
      */
     protected static function newFactory()
     {
-        return \App\Modules\Hr\Database\Factories\LeaveOverviewFactory::new();
+        return \App\Modules\Leave\Database\Factories\LeaveBalanceFactory::new();
     }
 }

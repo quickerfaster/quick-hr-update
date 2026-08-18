@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Hr\Models;
+namespace App\Modules\Leave\Models;
 
 use QuickerFaster\UILibrary\Traits\HasCompanyScope;
 
@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Modules\Hr\Models\Employee;
-use App\Modules\Hr\Models\LeaveType;
+use App\Modules\Leave\Models\LeaveType;
 use App\Modules\Attendance\Models\Attendance;
 use QuickerFaster\UILibrary\Contracts\Workflow\Workflowable;
 use QuickerFaster\UILibrary\Traits\Workflows\HasWorkflow;
@@ -120,7 +120,7 @@ class LeaveRequest extends Model implements Workflowable
 
     public function leaveType()
     {
-        return $this->belongsTo(\App\Modules\Hr\Models\LeaveType::class, 'leave_type_id', 'id');
+        return $this->belongsTo(\App\Modules\Leave\Models\LeaveType::class, 'leave_type_id', 'id');
     }
 
     public function approver()
@@ -165,6 +165,6 @@ class LeaveRequest extends Model implements Workflowable
      */
     protected static function newFactory()
     {
-        return \App\Modules\Hr\Database\Factories\LeaveRequestFactory::new();
+        return \App\Modules\Leave\Database\Factories\LeaveRequestFactory::new();
     }
 }

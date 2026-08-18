@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Modules\Hr\Services;
+namespace App\Modules\Leave\Services;
 
-use App\Modules\Hr\Models\LeaveBalance;
+use App\Modules\Leave\Models\LeaveBalance;
 use App\Modules\Hr\Models\Employee;
-use App\Modules\Hr\Models\LeaveType;
+use App\Modules\Leave\Models\LeaveType;
 use Carbon\Carbon;
 
 class LeaveAccrualService

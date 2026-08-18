@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Modules\Hr\Listeners;
+namespace App\Modules\Leave\Listeners;
 
 use QuickerFaster\UILibrary\Events\DataTableRecordSaved;
 use QuickerFaster\UILibrary\Listeners\DataTableRecordListener;
 
-use App\Modules\Hr\Services\LeaveAttendanceSync;
-use App\Modules\Hr\Models\LeaveRequest;
-use App\Modules\Hr\Services\AttendanceAggregator;
+use App\Modules\Leave\Services\LeaveAttendanceSync;
+use App\Modules\Leave\Models\LeaveRequest;
+use App\Modules\Attendance\Services\AttendanceAggregator;
 
 class LeaveRequestEventListener extends DataTableRecordListener
 {

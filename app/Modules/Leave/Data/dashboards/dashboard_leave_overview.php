@@ -10,7 +10,7 @@ return array (
       'type' => 'stat',
       'title' => 'Pending Requests',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveRequest',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'icon' => 'fas fa-clock',
       'aggregate' => 'count',
       'conditions' => 
@@ -29,7 +29,7 @@ return array (
       'type' => 'stat',
       'title' => 'Approved This Month',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveRequest',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'icon' => 'fas fa-check-circle',
       'aggregate' => 'count',
       'conditions' => 
@@ -54,7 +54,7 @@ return array (
       'type' => 'stat',
       'title' => 'Employees with Low Balance',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveBalance',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveBalance',
       'icon' => 'fas fa-exclamation-triangle',
       'aggregate' => 'count',
       'conditions' => 
@@ -82,7 +82,7 @@ return array (
       'type' => 'stat',
       'title' => 'Active Leave Types',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveType',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveType',
       'icon' => 'fas fa-tags',
       'aggregate' => 'count',
       'conditions' => 
@@ -101,7 +101,7 @@ return array (
       'type' => 'chart',
       'title' => 'Leave Requests by Status',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveRequest',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'group_by' => 'status',
       'chart_type' => 'pie',
       'description' => 'Distribution across workflow states',
@@ -113,7 +113,7 @@ return array (
       'type' => 'chart',
       'title' => 'Approved Requests by Leave Type',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveRequest',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'group_by' => 'leave_type_id',
       'chart_type' => 'bar',
       'description' => 'Most used leave categories',
@@ -134,7 +134,7 @@ return array (
       'type' => 'trend',
       'title' => 'Leave Requests Trend (Last 6 Months)',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveRequest',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'group_by' => 'month',
       'icon' => 'fas fa-chart-line',
       'description' => 'Monthly request volume',
@@ -148,7 +148,7 @@ return array (
       'type' => 'list',
       'title' => 'Recent Leave Requests',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveRequest',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'icon' => 'fas fa-list-alt',
       'description' => 'Latest 5 requests submitted',
       'limit' => 5,
@@ -184,14 +184,14 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/hr/leave-requests',
+      'view_all_link' => '/leave/leave-requests',
     ),
     8 => 
     array (
       'type' => 'list',
       'title' => 'Pending Approvals',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveRequest',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'icon' => 'fas fa-user-check',
       'description' => 'Awaiting manager action',
       'limit' => 5,
@@ -236,7 +236,7 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/hr/leave-requests?status=Pending',
+      'view_all_link' => '/leave/leave-requests?status=Pending',
     ),
     9 => 
     array (
@@ -275,7 +275,7 @@ return array (
           'event' => 'navigate',
           'params' => 
           array (
-            'url' => '/hr/my-leave-balance',
+            'url' => '/leave/my-leave-balance',
           ),
           'style' => 'secondary',
         ),
@@ -297,7 +297,7 @@ return array (
           'event' => 'navigate',
           'params' => 
           array (
-            'url' => '/hr/leave-types',
+            'url' => '/leave/leave-types',
           ),
           'style' => 'secondary',
         ),
@@ -319,7 +319,7 @@ return array (
           'event' => 'navigate',
           'params' => 
           array (
-            'url' => '/hr/leave-approvers',
+            'url' => '/leave/leave-approvers',
           ),
           'style' => 'secondary',
         ),
@@ -331,7 +331,7 @@ return array (
       'type' => 'list',
       'title' => 'Upcoming Leave (Next 30 Days)',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveRequest',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'icon' => 'fas fa-calendar-week',
       'description' => 'Approved leave starting soon',
       'limit' => 5,
@@ -387,14 +387,14 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/hr/leave-requests?status=Approved&start_date=upcoming',
+      'view_all_link' => '/leave/leave-requests?status=Approved&start_date=upcoming',
     ),
     14 => 
     array (
       'type' => 'list',
       'title' => 'Employees with Low Balance (<2 days)',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveBalance',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveBalance',
       'icon' => 'fas fa-exclamation-triangle',
       'description' => 'Critical leave balance alert',
       'limit' => 5,
@@ -442,19 +442,19 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/hr/leave-balances?balance_low=true',
+      'view_all_link' => '/leave/leave-balances?balance_low=true',
     ),
     15 => 
     array (
       'type' => 'progress',
       'title' => 'Leave Utilization',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\LeaveBalance',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveBalance',
       'icon' => 'fas fa-chart-pie',
       'description' => 'Average balance used vs total entitlement',
       'aggregate' => 'sum',
       'field' => 'balance',
-      'target_model' => 'App\\Modules\\Hr\\Models\\LeaveBalance',
+      'target_model' => 'App\\Modules\\Leave\\Models\\LeaveBalance',
       'target_aggregate' => 'sum',
       'target_field' => 'balance',
       'target_conditions' => 
