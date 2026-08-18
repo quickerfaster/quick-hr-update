@@ -11,6 +11,11 @@ class OrganizationServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Unset the 'core' flag inherited from the library's default config so
+        // that ModuleServiceProvider and DiscoveryRegistrar discover this
+        // app-level Organization module under app/Modules/Organization/.
+        config()->set('ui-library.modules.organization.core', false);
+
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/settings.php',
             'organization.settings'
