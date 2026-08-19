@@ -4,6 +4,12 @@ use Illuminate\Support\Facades\Route;
 
 use App\Modules\Hr\Http\Controllers\EmployeePrintController;
 
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('/hr/dashboard', function () {
+        return view('hr::dashboard');
+    })->name('hr.dashboard');
+});
+
 Route::middleware([
     'web',
     // InitializeTenancyByDomain::class,
