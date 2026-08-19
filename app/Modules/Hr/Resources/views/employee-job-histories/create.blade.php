@@ -1,4 +1,4 @@
-<x-qf::navigation-layout configKey="hr.employee_job_history" context="people" moduleName="hr" :overrides="[
+<x-qf::navigation-layout configKey="hr.employee_job_history" context="manage" moduleName="hr" :overrides="[
         'top_bar' => ['enabled' => true],
         'breadcrumb' => ['enabled' => false],
         'title' => ['enabled' => false],
