@@ -4,6 +4,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth'])->group(function () {
 
+    Route::get('/leave/dashboard', function () {
+        return view('leave::dashboard');
+    })->name('leave.dashboard');
+
     // Routes for LeaveType
     Route::get('leave-types/create', function (\Illuminate\Http\Request $request) {
         return view('leave::leave-types.create', [

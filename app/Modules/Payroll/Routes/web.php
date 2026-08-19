@@ -12,6 +12,10 @@ Route::middleware([
     'web',
 ])->group(function () {
 
+    Route::get('/payroll/dashboard', function () {
+        return view('payroll::dashboard');
+    })->name('payroll.dashboard');
+
     // Preview modal
     Route::get('/payroll/payroll-runs/{payrollRun}/preview', [PayrollRunController::class, 'preview'])
         ->name('payroll.runs.preview');

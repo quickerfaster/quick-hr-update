@@ -3,6 +3,10 @@
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('/holiday/dashboard', function () {
+        return view('holiday::dashboard');
+    })->name('holiday.dashboard');
+
     // Holiday Calendars
     Route::get('/holiday/holiday-calendars', function () {
         return view('holiday::holiday-calendars');

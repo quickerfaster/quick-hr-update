@@ -18,6 +18,10 @@ Route::middleware([
 
 Route::middleware(['web', 'auth'])->group(function () {
 
+    Route::get('/attendance/dashboard', function () {
+        return view('attendance::dashboard');
+    })->name('attendance.dashboard');
+
     // Routes for AttendancePolicy
     Route::get('attendance-policies/create', function (\Illuminate\Http\Request $request) {
         return view('attendance::attendance-policies.create', [
