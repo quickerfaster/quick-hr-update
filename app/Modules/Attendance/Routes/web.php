@@ -31,6 +31,10 @@ Route::middleware(['web', 'auth'])->group(function () {
         return view('attendance::dashboard-policies-overview');
     })->name('attendance.dashboard-policies-overview');
 
+    Route::get('/attendance/dashboard-scheduling-overview', function () {
+        return view('attendance::dashboard-scheduling-overview');
+    })->name('attendance.dashboard-scheduling-overview');
+
     // Routes for AttendancePolicy
     Route::get('attendance-policies/create', function (\Illuminate\Http\Request $request) {
         return view('attendance::attendance-policies.create', [

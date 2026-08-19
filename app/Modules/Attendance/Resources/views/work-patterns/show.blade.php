@@ -5,7 +5,7 @@
     $customComponent = !empty($config['detailComponent']) ? $config['detailComponent'] : 'qf.data-table-detail';
 @endphp
 
-<x-qf::navigation-layout configKey="attendance.work_pattern" context="policies" moduleName="attendance" :overrides="[
+<x-qf::navigation-layout configKey="attendance.work_pattern" context="scheduling" moduleName="attendance" :overrides="[
         'top_bar' => ['enabled' => true],
         'breadcrumb' => ['enabled' => false],
         'title' => ['enabled' => false],
