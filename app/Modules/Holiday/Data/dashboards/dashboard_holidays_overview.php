@@ -93,7 +93,7 @@ return array (
       'title' => 'Holidays by Calendar',
       'size' => 'col-12',
       'model' => 'App\\Modules\\Holiday\\Models\\Holiday',
-      'group_by' => 'holiday_calendar_id',
+      'group_by' => 'calendar_id',
       'chart_type' => 'bar',
       'description' => 'Holiday count per calendar',
       'aggregate' => 'count',
