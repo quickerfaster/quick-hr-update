@@ -7,6 +7,35 @@ Route::middleware(['web', 'auth'])->group(function () {
         return view('organization::organization.dashboard');
     })->name('organization.dashboard');
 
+    // Overview dashboards
+    Route::get('/organization/dashboard-overview', function () {
+        return view('organization::organization.dashboard');
+    })->name('organization.dashboard-overview');
+
+    Route::get('/organization/dashboard-companies-overview', function () {
+        return view('organization::organization.dashboard-companies-overview');
+    })->name('organization.dashboard-companies-overview');
+
+    Route::get('/organization/dashboard-structure-overview', function () {
+        return view('organization::organization.dashboard-structure-overview');
+    })->name('organization.dashboard-structure-overview');
+
+    Route::get('/organization/dashboard-locations-overview', function () {
+        return view('organization::organization.dashboard-locations-overview');
+    })->name('organization.dashboard-locations-overview');
+
+    Route::get('/organization/dashboard-classification-overview', function () {
+        return view('organization::organization.dashboard-classification-overview');
+    })->name('organization.dashboard-classification-overview');
+
+    Route::get('/organization/dashboard-reports-overview', function () {
+        return view('organization::organization.dashboard-reports-overview');
+    })->name('organization.dashboard-reports-overview');
+
+    Route::get('/organization/dashboard-teams-overview', function () {
+        return view('organization::organization.dashboard-teams-overview');
+    })->name('organization.dashboard-teams-overview');
+
     Route::get('/organization/companies', function () {
         return view('organization::organization.companies');
     })->name('organization.companies');

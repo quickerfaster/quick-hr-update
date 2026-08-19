@@ -1,8 +1,8 @@
 
 <x-qf::navigation-layout
-    configKey="hr.employee"
+    configKey="holiday.employee"
     context="time"
-    moduleName="hr"
+    moduleName="holiday"
     :overrides="[
         'top_bar' => ['enabled' => false],
         'breadcrumb' => ['enabled' => false],
@@ -11,5 +11,5 @@
         'context_menu' => ['enabled' => false],
     ]"
 >
-    <livewire:qf.wizard configKey="hr.wizards.holiday_batch_creation" />
+    <livewire:qf.wizard configKey="holiday.wizards.holiday_batch_creation" />
 </x-qf::navigation-layout>

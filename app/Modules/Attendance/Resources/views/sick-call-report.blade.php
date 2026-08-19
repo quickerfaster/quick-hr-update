@@ -1,8 +1,8 @@
 
 <x-qf::navigation-layout
-    configKey="hr.employee"
+    configKey="attendance.employee"
     context="self_service"
-    moduleName="hr"
+    moduleName="attendance"
     :overrides="[
         'top_bar' => ['enabled' => false],
         'breadcrumb' => ['enabled' => false],
@@ -11,5 +11,5 @@
         'context_menu' => ['enabled' => false],
     ]"
 >
-    <livewire:qf.wizard configKey="hr.wizards.sick_call_report" />
+    <livewire:qf.wizard configKey="attendance.wizards.sick_call_report" />
 </x-qf::navigation-layout>

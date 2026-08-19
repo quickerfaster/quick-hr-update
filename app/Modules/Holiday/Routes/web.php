@@ -7,6 +7,11 @@ Route::middleware(['web', 'auth'])->group(function () {
         return view('holiday::dashboard');
     })->name('holiday.dashboard');
 
+    // Overview dashboard
+    Route::get('/holiday/dashboard-holidays-overview', function () {
+        return view('holiday::dashboard-holidays-overview');
+    })->name('holiday.dashboard-holidays-overview');
+
     // Holiday Calendars
     Route::get('/holiday/holiday-calendars', function () {
         return view('holiday::holiday-calendars');

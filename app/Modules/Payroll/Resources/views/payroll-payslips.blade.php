@@ -1,6 +1,6 @@
-<x-qf::navigation-layout configKey="hr.payroll_payslip" context="payroll" moduleName="hr" :overrides=[]>
+<x-qf::navigation-layout configKey="payroll.payroll_payslip" context="payroll" moduleName="payroll" :overrides=[]>
     <livewire:qf.data-table
-        configKey="hr.payroll_payslip"
+        configKey="payroll.payroll_payslip"
         :queryFilters="request()->query('filters', [])"
     />
 </x-qf::navigation-layout>

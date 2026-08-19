@@ -104,9 +104,9 @@ Route::middleware(['web', 'auth'])->group(function () {
         ]);
     })->name('leave-approvers.edit')->where('id', '[0-9]+');
 
-    // Dashboard
-    Route::get('dashboard-leave-overview', function () {
+    // Overview dashboard
+    Route::get('/leave/dashboard-leave-overview', function () {
         return view('leave::dashboard-leave-overview');
-    })->name('dashboard-leave-overview');
+    })->name('leave.dashboard-leave-overview');
 
 });

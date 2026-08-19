@@ -8,6 +8,15 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/hr/dashboard', function () {
         return view('hr::dashboard');
     })->name('hr.dashboard');
+
+    // Overview dashboards
+    Route::get('/hr/dashboard-organization-overview', function () {
+        return view('hr::dashboard-organization-overview');
+    })->name('hr.dashboard-organization-overview');
+
+    Route::get('/hr/dashboard-people-overview', function () {
+        return view('hr::dashboard-people-overview');
+    })->name('hr.dashboard-people-overview');
 });
 
 Route::middleware([

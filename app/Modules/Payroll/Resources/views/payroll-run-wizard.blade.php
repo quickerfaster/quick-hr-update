@@ -1,8 +1,8 @@
 
 <x-qf::navigation-layout
-    configKey="hr.employee"
+    configKey="payroll.employee"
     context="payroll"
-    moduleName="hr"
+    moduleName="payroll"
     :overrides="[
         'top_bar' => ['enabled' => false],
         'breadcrumb' => ['enabled' => false],
@@ -11,5 +11,5 @@
         'context_menu' => ['enabled' => false],
     ]"
 >
-    <livewire:qf.wizard configKey="hr.wizards.payroll_run_wizard" />
+    <livewire:qf.wizard configKey="payroll.wizards.payroll_run_wizard" />
 </x-qf::navigation-layout>

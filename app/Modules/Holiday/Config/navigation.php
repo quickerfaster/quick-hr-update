@@ -7,18 +7,27 @@ return [
             'icon' => 'fas fa-calendar-alt',
             'order' => 10000,
             'route' => NULL,
-            'url' => 'holiday/holiday-calendars',
+            'url' => 'holiday/dashboard-holidays-overview',
         ],
     ],
     'contexts' => [
         'holidays' => [
+            [
+                'key' => 'holiday_overview',
+                'label' => 'Overview',
+                'icon' => 'fas fa-chart-bar',
+                'route' => '/holiday/dashboard-holidays-overview',
+                'permission' => 'view_holiday_overview',
+                'order' => 1,
+                'page_title' => NULL,
+            ],
             [
                 'key' => 'holiday_calendar',
                 'label' => 'Holiday Calendars',
                 'icon' => 'fas fa-calendar',
                 'route' => '/holiday/holiday-calendars',
                 'permission' => 'view_holiday_calendar',
-                'order' => 1,
+                'order' => 10,
                 'page_title' => NULL,
             ],
             [
@@ -27,7 +36,7 @@ return [
                 'icon' => 'fas fa-umbrella-beach',
                 'route' => '/holiday/holidays',
                 'permission' => 'view_holiday',
-                'order' => 2,
+                'order' => 20,
                 'page_title' => NULL,
             ],
             [
@@ -36,7 +45,7 @@ return [
                 'icon' => 'fas fa-magic',
                 'route' => '/holiday/holiday-batch-creation',
                 'permission' => 'create_holiday',
-                'order' => 3,
+                'order' => 30,
                 'page_title' => NULL,
             ],
         ],

@@ -1,4 +1,4 @@
-<x-qf::navigation-layout configKey="hr.payroll_run" context="payroll" moduleName="hr" :overrides="[
+<x-qf::navigation-layout configKey="payroll.payroll_run" context="payroll" moduleName="payroll" :overrides="[
     'top_bar' => ['enabled' => false],
     'breadcrumb' => ['enabled' => false],
     'title' => ['enabled' => false],

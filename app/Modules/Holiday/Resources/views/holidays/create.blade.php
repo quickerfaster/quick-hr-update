@@ -1,4 +1,4 @@
-<x-qf::navigation-layout configKey="hr.holiday" context="time" moduleName="hr" :overrides="[
+<x-qf::navigation-layout configKey="holiday.holiday" context="time" moduleName="holiday" :overrides="[
         'top_bar' => ['enabled' => true],
         'breadcrumb' => ['enabled' => false],
         'title' => ['enabled' => false],
@@ -10,5 +10,5 @@
             ->except(['page', 'perPage', 'search', 'sort', 'activeFilters'])
             ->toArray();
     @endphp
-    <livewire:qf.data-table-form :inline="true" configKey="hr.holiday" :prefilledData="$prefilled" :returnParams="$returnParams" />
+    <livewire:qf.data-table-form :inline="true" configKey="holiday.holiday" :prefilledData="$prefilled" :returnParams="$returnParams" />
 </x-qf::navigation-layout>

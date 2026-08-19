@@ -22,6 +22,15 @@ Route::middleware(['web', 'auth'])->group(function () {
         return view('attendance::dashboard');
     })->name('attendance.dashboard');
 
+    // Overview dashboards
+    Route::get('/attendance/dashboard-time-overview', function () {
+        return view('attendance::dashboard-time-overview');
+    })->name('attendance.dashboard-time-overview');
+
+    Route::get('/attendance/dashboard-policies-overview', function () {
+        return view('attendance::dashboard-policies-overview');
+    })->name('attendance.dashboard-policies-overview');
+
     // Routes for AttendancePolicy
     Route::get('attendance-policies/create', function (\Illuminate\Http\Request $request) {
         return view('attendance::attendance-policies.create', [

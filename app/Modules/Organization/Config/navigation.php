@@ -28,7 +28,7 @@ return [
             'icon' => 'fas fa-users',
             'order' => 40,
             'route' => NULL,
-            'url' => 'organization/teams',
+            'url' => 'organization/dashboard-teams-overview',
         ],
         'locations' => [
             'label' => 'Locations',
@@ -169,6 +169,15 @@ return [
             ],
         ],
         'teams' => [
+            [
+                'key' => 'teams_overview',
+                'label' => 'Overview',
+                'icon' => 'fas fa-chart-bar',
+                'route' => '/organization/dashboard-teams-overview',
+                'permission' => 'view_teams_overview',
+                'order' => 1,
+                'page_title' => NULL,
+            ],
             [
                 'key' => 'team',
                 'label' => 'All Teams',

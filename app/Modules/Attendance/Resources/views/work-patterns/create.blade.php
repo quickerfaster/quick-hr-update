@@ -1,4 +1,4 @@
-<x-qf::navigation-layout configKey="hr.work_pattern" context="policies" moduleName="hr" :overrides="[
+<x-qf::navigation-layout configKey="attendance.work_pattern" context="policies" moduleName="attendance" :overrides="[
         'top_bar' => ['enabled' => true],
         'breadcrumb' => ['enabled' => false],
         'title' => ['enabled' => false],
@@ -10,5 +10,5 @@
             ->except(['page', 'perPage', 'search', 'sort', 'activeFilters'])
             ->toArray();
     @endphp
-    <livewire:qf.data-table-form :inline="true" configKey="hr.work_pattern" :prefilledData="$prefilled" :returnParams="$returnParams" />
+    <livewire:qf.data-table-form :inline="true" configKey="attendance.work_pattern" :prefilledData="$prefilled" :returnParams="$returnParams" />
 </x-qf::navigation-layout>

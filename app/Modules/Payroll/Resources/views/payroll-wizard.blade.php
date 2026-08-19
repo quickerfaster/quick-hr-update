@@ -1,8 +1,8 @@
 
 <x-qf::navigation-layout
-    configKey="hr.employee"
+    configKey="payroll.employee"
     context="payroll"
-    moduleName="hr"
+    moduleName="payroll"
     :overrides="[
         'top_bar' => ['enabled' => false],
         'breadcrumb' => ['enabled' => false],

@@ -16,6 +16,11 @@ Route::middleware([
         return view('payroll::dashboard');
     })->name('payroll.dashboard');
 
+    // Overview dashboard
+    Route::get('/payroll/dashboard-payroll-overview', function () {
+        return view('payroll::dashboard-payroll-overview');
+    })->name('payroll.dashboard-payroll-overview');
+
     // Preview modal
     Route::get('/payroll/payroll-runs/{payrollRun}/preview', [PayrollRunController::class, 'preview'])
         ->name('payroll.runs.preview');

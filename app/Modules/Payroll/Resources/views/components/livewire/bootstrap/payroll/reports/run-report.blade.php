@@ -1,14 +1,14 @@
 <x-layout>
     <x-slot name="topNav">
-        <livewire:qf.top-nav moduleName="hr">
+        <livewire:qf.top-nav moduleName="payroll">
     </x-slot>
 
     <x-slot name="sidebar">
-        <livewire:qf.sidebar context="payroll"  moduleName="hr">
+        <livewire:qf.sidebar context="payroll"  moduleName="payroll">
     </x-slot>
 
     <x-slot name="bottomBar">
-        <livewire:qf.bottom-bar context="payroll" moduleName="hr">
+        <livewire:qf.bottom-bar context="payroll" moduleName="payroll">
     </x-slot>
 
 

@@ -1,4 +1,4 @@
-<x-qf::navigation-layout configKey="hr.payroll_policy" context="payroll" moduleName="hr" :overrides="[
+<x-qf::navigation-layout configKey="payroll.payroll_policy" context="payroll" moduleName="payroll" :overrides="[
         'top_bar' => ['enabled' => true],
         'breadcrumb' => ['enabled' => false],
         'title' => ['enabled' => false],
@@ -10,5 +10,5 @@
             ->except(['page', 'perPage', 'search', 'sort', 'activeFilters'])
             ->toArray();
     @endphp
-    <livewire:qf.data-table-form :inline="true" configKey="hr.payroll_policy" :prefilledData="$prefilled" :returnParams="$returnParams" />
+    <livewire:qf.data-table-form :inline="true" configKey="payroll.payroll_policy" :prefilledData="$prefilled" :returnParams="$returnParams" />
 </x-qf::navigation-layout>

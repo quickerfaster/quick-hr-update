@@ -1,7 +1,7 @@
-<x-qf::navigation-layout 
-    configKey="hr.dashboards.dashboard_payroll_overview" 
-    context="payroll" 
-    moduleName="hr" 
+<x-qf::navigation-layout
+    configKey="payroll.dashboards.dashboard_payroll_overview"
+    context="payroll"
+    moduleName="payroll"
     :overrides="[
         'top_bar' => ['enabled' => true],
         'breadcrumb' => ['enabled' => false],
@@ -10,5 +10,5 @@
         'context_menu' => ['enabled' => true],
     ]"
 >
-    <livewire:qf.dashboard config-key="hr.dashboards.dashboard_payroll_overview" />
+    <livewire:qf.dashboard config-key="payroll.dashboards.dashboard_payroll_overview" />
 </x-qf::navigation-layout>
