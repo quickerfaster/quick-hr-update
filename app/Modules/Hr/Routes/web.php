@@ -17,6 +17,10 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/hr/dashboard-people-overview', function () {
         return view('hr::dashboard-people-overview');
     })->name('hr.dashboard-people-overview');
+
+    Route::get('/hr/dashboard-manage-overview', function () {
+        return view('hr::dashboard-manage-overview');
+    })->name('hr.dashboard-manage-overview');
 });
 
 Route::middleware([
