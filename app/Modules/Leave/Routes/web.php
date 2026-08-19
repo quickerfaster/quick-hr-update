@@ -9,6 +9,10 @@ Route::middleware(['web', 'auth'])->group(function () {
     })->name('leave.dashboard');
 
     // Routes for LeaveType
+    Route::get('/leave/leave-types', function () {
+        return view('leave::leave-types');
+    })->name('leave.leave-types');
+
     Route::get('leave-types/create', function (\Illuminate\Http\Request $request) {
         return view('leave::leave-types.create', [
             'configKey' => 'leave.leave_type',
