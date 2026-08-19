@@ -104,9 +104,17 @@ Route::middleware(['web', 'auth'])->group(function () {
         ]);
     })->name('leave-approvers.edit')->where('id', '[0-9]+');
 
-    // Overview dashboard
+    // Overview dashboards
     Route::get('/leave/dashboard-leave-overview', function () {
         return view('leave::dashboard-leave-overview');
     })->name('leave.dashboard-leave-overview');
+
+    Route::get('/leave/dashboard-requests-overview', function () {
+        return view('leave::dashboard-requests-overview');
+    })->name('leave.dashboard-requests-overview');
+
+    Route::get('/leave/dashboard-configuration-overview', function () {
+        return view('leave::dashboard-configuration-overview');
+    })->name('leave.dashboard-configuration-overview');
 
 });
