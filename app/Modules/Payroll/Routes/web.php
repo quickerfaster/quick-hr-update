@@ -16,10 +16,15 @@ Route::middleware([
         return view('payroll::dashboard');
     })->name('payroll.dashboard');
 
-    // Overview dashboard
-    Route::get('/payroll/dashboard-payroll-overview', function () {
-        return view('payroll::dashboard-payroll-overview');
-    })->name('payroll.dashboard-payroll-overview');
+    // Processing overview dashboard
+    Route::get('/payroll/dashboard-processing-overview', function () {
+        return view('payroll::dashboard-processing-overview');
+    })->name('payroll.dashboard-processing-overview');
+
+    // Configuration overview dashboard
+    Route::get('/payroll/dashboard-configuration-overview', function () {
+        return view('payroll::dashboard-configuration-overview');
+    })->name('payroll.dashboard-configuration-overview');
 
     // Preview modal
     Route::get('/payroll/payroll-runs/{payrollRun}/preview', [PayrollRunController::class, 'preview'])

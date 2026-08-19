@@ -4,11 +4,11 @@
     </x-slot>
 
     <x-slot name="sidebar">
-        <livewire:qf.sidebar context="payroll"  moduleName="payroll">
+        <livewire:qf.sidebar context="processing"  moduleName="payroll">
     </x-slot>
 
     <x-slot name="bottomBar">
-        <livewire:qf.bottom-bar context="payroll" moduleName="payroll">
+        <livewire:qf.bottom-bar context="processing" moduleName="payroll">
     </x-slot>
 
 

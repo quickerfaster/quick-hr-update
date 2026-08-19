@@ -1,7 +1,7 @@
 
 <x-qf::navigation-layout
     configKey="payroll.employee"
-    context="payroll"
+    context="processing"
     moduleName="payroll"
     :overrides="[
         'top_bar' => ['enabled' => false],

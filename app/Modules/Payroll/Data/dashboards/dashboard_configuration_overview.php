@@ -1,0 +1,136 @@
+<?php
+
+return [
+    'title' => 'Payroll Configuration Overview',
+    'description' => 'Pay schedules, policies, payslip items, assignments, and employee profiles',
+    'widgets' => [
+        0 => [
+            'type' => 'stat',
+            'title' => 'Pay Schedules',
+            'size' => 'col-12',
+            'model' => 'App\\Modules\\Payroll\\Models\\PaySchedule',
+            'icon' => 'fas fa-calendar-alt',
+            'aggregate' => 'count',
+            'width' => 3,
+        ],
+        1 => [
+            'type' => 'stat',
+            'title' => 'Payroll Policies',
+            'size' => 'col-12',
+            'model' => 'App\\Modules\\Payroll\\Models\\PayrollPolicy',
+            'icon' => 'fas fa-gavel',
+            'aggregate' => 'count',
+            'width' => 3,
+        ],
+        2 => [
+            'type' => 'stat',
+            'title' => 'Payslip Items',
+            'size' => 'col-12',
+            'model' => 'App\\Modules\\Payroll\\Models\\PayslipItem',
+            'icon' => 'fas fa-list-ul',
+            'aggregate' => 'count',
+            'width' => 3,
+        ],
+        3 => [
+            'type' => 'stat',
+            'title' => 'Policy Assignments',
+            'size' => 'col-12',
+            'model' => 'App\\Modules\\Payroll\\Models\\PayrollPolicyAssignment',
+            'icon' => 'fas fa-link',
+            'aggregate' => 'count',
+            'width' => 3,
+        ],
+        4 => [
+            'type' => 'stat',
+            'title' => 'Active Employee Profiles',
+            'size' => 'col-12',
+            'model' => 'App\\Modules\\Payroll\\Models\\EmployeePayrollProfile',
+            'icon' => 'fas fa-user-tie',
+            'aggregate' => 'count',
+            'conditions' => [
+                0 => ['is_active', '=', true],
+            ],
+            'width' => 3,
+        ],
+        5 => [
+            'type' => 'list',
+            'title' => 'Upcoming Pay Dates',
+            'size' => 'col-12',
+            'model' => 'App\\Modules\\Payroll\\Models\\PaySchedule',
+            'icon' => 'fas fa-calendar-alt',
+            'description' => 'Next 5 scheduled pay days',
+            'limit' => 5,
+            'sort' => [
+                0 => 'next_pay_date',
+                1 => 'asc',
+            ],
+            'conditions' => [
+                0 => ['is_active', '=', true],
+            ],
+            'columns' => [
+                0 => ['label' => 'Schedule', 'field' => 'name'],
+                1 => ['label' => 'Frequency', 'field' => 'frequency'],
+                2 => ['label' => 'Next Pay Date', 'field' => 'next_pay_date', 'format' => 'date'],
+            ],
+            'width' => 6,
+            'show_view_all' => true,
+            'view_all_link' => '/payroll/pay-schedules',
+        ],
+        6 => [
+            'type' => 'list',
+            'title' => 'Employees Missing Payroll Profile',
+            'size' => 'col-12',
+            'model' => 'App\\Modules\\Hr\\Models\\Employee',
+            'icon' => 'fas fa-user-plus',
+            'description' => 'Active employees without payroll profile',
+            'limit' => 5,
+            'sort' => [
+                0 => 'employee_number',
+                1 => 'asc',
+            ],
+            'conditions' => [
+                0 => [
+                    'id',
+                    'not in',
+                    [
+                        'subquery' => 'SELECT employee_id FROM employee_payroll_profiles',
+                    ],
+                ],
+            ],
+            'columns' => [
+                0 => ['label' => 'Employee #', 'field' => 'employee_number'],
+                1 => ['label' => 'Name', 'field' => 'first_name'],
+                2 => ['label' => 'Hire Date', 'field' => 'hire_date', 'format' => 'date'],
+            ],
+            'width' => 6,
+            'show_view_all' => true,
+            'view_all_link' => '/payroll/employee-payroll-profiles?filter[missing]=true',
+        ],
+        7 => [
+            'type' => 'action_card',
+            'title' => 'Bulk Import Profiles',
+            'size' => 'col-12',
+            'icon' => 'fas fa-file-import',
+            'description' => 'Import employee payroll data',
+            'actions' => [
+                0 => [
+                    'label' => 'Import',
+                    'event' => 'openImportModal',
+                    'params' => ['type' => 'payroll_profiles'],
+                    'style' => 'secondary',
+                ],
+            ],
+            'width' => 3,
+        ],
+    ],
+    'roles' => [
+        'admin' => 'full',
+        'hr_manager' => 'full',
+        'payroll_officer' => 'full',
+        'manager' => 'limited',
+    ],
+    'layout' => [
+        'columns' => 12,
+        'gutter' => 3,
+    ],
+];
