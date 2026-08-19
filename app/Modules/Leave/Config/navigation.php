@@ -2,22 +2,29 @@
 
 return [
     'context_groups' => [
-        'leave' => [
-            'label' => 'Leave',
-            'icon' => 'fas fa-user-check',
+        'requests' => [
+            'label' => 'Requests',
+            'icon' => 'fas fa-calendar-alt',
+            'order' => 999,
+            'route' => NULL,
+            'url' => 'leave/dashboard-requests-overview',
+        ],
+        'configuration' => [
+            'label' => 'Configuration',
+            'icon' => 'fas fa-cogs',
             'order' => 1000,
             'route' => NULL,
-            'url' => 'leave/dashboard-leave-overview',
+            'url' => 'leave/dashboard-configuration-overview',
         ],
     ],
     'contexts' => [
-        'leave' => [
+        'requests' => [
             [
-                'key' => 'leave_overview',
+                'key' => 'requests_overview',
                 'label' => 'Overview',
                 'icon' => 'fas fa-chart-bar',
-                'route' => '/leave/dashboard-leave-overview',
-                'permission' => 'view_leave_overview',
+                'route' => '/leave/dashboard-requests-overview',
+                'permission' => 'view_requests_overview',
                 'order' => 1,
                 'page_title' => NULL,
             ],
@@ -31,21 +38,32 @@ return [
                 'page_title' => NULL,
             ],
             [
-                'key' => 'leave_type',
-                'label' => 'Leave Types',
-                'icon' => 'fas fa-tags',
-                'route' => '/leave/leave-types',
-                'permission' => 'view_leave_type',
-                'order' => 3,
-                'page_title' => NULL,
-            ],
-            [
                 'key' => 'leave_balance',
                 'label' => 'Leave Balances',
                 'icon' => 'fas fa-balance-scale',
                 'route' => '/leave/leave-balances',
                 'permission' => 'view_leave_balance',
-                'order' => 4,
+                'order' => 3,
+                'page_title' => NULL,
+            ],
+        ],
+        'configuration' => [
+            [
+                'key' => 'configuration_overview',
+                'label' => 'Overview',
+                'icon' => 'fas fa-chart-bar',
+                'route' => '/leave/dashboard-configuration-overview',
+                'permission' => 'view_configuration_overview',
+                'order' => 1,
+                'page_title' => NULL,
+            ],
+            [
+                'key' => 'leave_type',
+                'label' => 'Leave Types',
+                'icon' => 'fas fa-tags',
+                'route' => '/leave/leave-types',
+                'permission' => 'view_leave_type',
+                'order' => 2,
                 'page_title' => NULL,
             ],
             [
@@ -54,7 +72,7 @@ return [
                 'icon' => 'fas fa-user-check',
                 'route' => '/leave/leave-approvers',
                 'permission' => 'view_leave_approver',
-                'order' => 5,
+                'order' => 3,
                 'page_title' => NULL,
             ],
         ],
