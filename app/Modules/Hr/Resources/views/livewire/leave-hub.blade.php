@@ -4,7 +4,9 @@
         <h2>Leave Hub</h2>
     </div>
 
-    <ul class="nav nav-tabs mb-3">
+    <ul class="nav nav-tabs mb-3"
+        x-data
+        @update-url.window="history.replaceState(null, '', '?tab=' + $event.detail.tab)">
         <li class="nav-item">
             <button class="nav-link {{ $activeTab === 'overview' ? 'active' : '' }}" wire:click="switchTab('overview')">
                 <i class="fas fa-chart-pie"></i> Overview

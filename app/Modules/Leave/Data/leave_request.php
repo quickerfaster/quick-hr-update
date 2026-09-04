@@ -532,4 +532,7 @@ return [
     ],
   ],
   'report' => [],
+  'view' => [
+    'route' => 'leave-requests.show',
+  ],
 ];

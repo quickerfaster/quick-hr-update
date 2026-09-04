@@ -47,14 +47,6 @@ return array (
     ),
     1 =>
     array (
-      'title' => 'Supporting Documents',
-      'description' => 'Upload any supporting documents for your leave request.',
-      'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
-      'formComponent' => 'leave-document-upload-wizard-step',
-      'requiresLink' => true,
-    ),
-    2 =>
-    array (
       'title' => 'Review & Submit',
       'preview' =>
       array (
@@ -98,7 +90,7 @@ return array (
   'linkFields' =>
   array (
     'userField' => 'employee_number',
-    'databaseField' => 'employee_id',
+    'databaseField' => 'leave_request_id',
   ),
   'models' =>
   array (

@@ -10,7 +10,7 @@ class LeaveDocumentUpload extends Component
 {
     use WithFileUploads;
 
-    public LeaveRequest $leaveRequest;
+    public ?LeaveRequest $leaveRequest = null;
     public $newFile;
     public $documents = [];
 
@@ -18,9 +18,18 @@ class LeaveDocumentUpload extends Component
         'documentUploaded' => 'refreshDocuments',
     ];
 
-    public function mount(LeaveRequest $leaveRequest)
+    /**
+     * Accept either a LeaveRequest model or an int ID.
+     * When nested inside wizard steps, passing an ID avoids
+     * cross-component model serialization failures.
+     */
+    public function mount(int|LeaveRequest $leaveRequest)
     {
-        $this->leaveRequest = $leaveRequest;
+        if ($leaveRequest instanceof LeaveRequest) {
+            $this->leaveRequest = $leaveRequest;
+        } else {
+            $this->leaveRequest = LeaveRequest::findOrFail($leaveRequest);
+        }
         $this->refreshDocuments();
     }
 

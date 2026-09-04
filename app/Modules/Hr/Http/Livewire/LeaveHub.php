@@ -27,11 +27,17 @@ class LeaveHub extends Component
         $this->employeeId = $employee->id;
         $this->employeeNumber = $employee->employee_number;
         $this->employeeName = $employee->full_name ?? $employee->first_name . ' ' . $employee->last_name;
+
+        // Read tab from query string to persist active tab on refresh
+        if (request()->has('tab') && in_array(request()->query('tab'), ['overview', 'my-leaves', 'apply'])) {
+            $this->activeTab = request()->query('tab');
+        }
     }
 
     public function switchTab(string $tab): void
     {
         $this->activeTab = $tab;
+        $this->dispatch('update-url', tab: $tab);
     }
 
     public function render()

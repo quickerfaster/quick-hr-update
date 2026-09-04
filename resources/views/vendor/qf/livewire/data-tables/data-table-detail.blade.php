@@ -102,6 +102,11 @@
                   {{-- Fallback logic similar to above but with the new grid style --}}
               @endforelse
           </div>
+
+          {{-- Leave Request: Document Upload --}}
+          @if ($this->configKey === 'leave.leave_request' && $record)
+              @livewire('leave-document-upload', ['leaveRequest' => $record])
+          @endif
       </div>
 
       <style>

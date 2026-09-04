@@ -365,7 +365,21 @@
                         @endphp
 
                         <tr wire:key="row-{{ $record->id }}-{{ $loop->index }}"
-                            class="align-middle transition-base {{ $isTrashed ? 'bg-light opacity-75' : 'hover-bg-subtle' }}">
+                            class="align-middle transition-base {{ $isTrashed ? 'bg-light opacity-75' : 'hover-bg-subtle' }}"
+                            @if ($crudType === 'drawers')
+                                onclick="if(!event.target.closest('.stop-propagation') && !event.target.closest('button') && !event.target.closest('a') && !event.target.closest('input') && !event.target.closest('select')) {
+                                    Livewire.dispatch('openDrawer', {
+                                        component: 'qf.data-table-detail',
+                                        params: { configKey: '{{ $configKey }}', recordId: {{ $record->id }}, inline: true, crudType: '{{ $crudType }}' },
+                                        title: 'View {{ $modelName }}'
+                                    })
+                                }"
+                            @elseif ($crudType === 'pages')
+                                onclick="if(!event.target.closest('.stop-propagation') && !event.target.closest('button') && !event.target.closest('a') && !event.target.closest('input') && !event.target.closest('select')) { window.location='{{ $this->getShowUrl($record->id) }}' }"
+                            @else
+                                wire:click="show({{ $record->id }})"
+                            @endif
+                            style="cursor: pointer;">
 
                             @if (!empty($controls['bulkActions']))
                                 <td class="ps-3" style="width: 40px;">
@@ -461,6 +475,8 @@
             'controls' => $controls,
             'bulkSelection' => $bulkSelection,
             'configKey' => $configKey,
+            'crudType' => $crudType,
+            'modelName' => $modelName,
         ])
 
         {{-- Card View --}}
@@ -473,6 +489,8 @@
             'controls' => $controls,
             'bulkSelection' => $bulkSelection,
             'configKey' => $configKey,
+            'crudType' => $crudType,
+            'modelName' => $modelName,
         ])
     @endif
 
