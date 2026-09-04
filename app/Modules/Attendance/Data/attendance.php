@@ -14,7 +14,7 @@ return [
       'searchable' => true,
       'editable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\Employee',
+        'model' => 'App\Modules\Hr\Models\Employee',
         'type' => 'belongsTo',
         'display_field' => 'employee_number',
         'dynamic_property' => 'employee',
@@ -22,7 +22,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\Employee',
+        'model' => 'App\Modules\Hr\Models\Employee',
         'column' => 'employee_number',
         'hintField' => 'first_name,last_name',
       ],
@@ -48,7 +48,7 @@ return [
       'searchable' => true,
       'editable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'company',
@@ -56,7 +56,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -71,7 +71,7 @@ return [
       'searchable' => true,
       'editable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\Department',
+        'model' => 'App\Modules\Hr\Models\Department',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'departmentRelation',
@@ -79,7 +79,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\Department',
+        'model' => 'App\Modules\Hr\Models\Department',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -220,7 +220,7 @@ return [
       'filterable' => true,
       'editable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\LeaveRequest',
+        'model' => 'App\Modules\Leave\Models\LeaveRequest',
         'type' => 'belongsTo',
         'display_field' => 'id',
         'dynamic_property' => 'leaveRequest',
@@ -228,7 +228,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\LeaveRequest',
+        'model' => 'App\Modules\Leave\Models\LeaveRequest',
         'column' => 'id',
         'hintField' => '',
       ],
@@ -495,7 +495,7 @@ return [
   ],
 
   'isTransaction' => false,
-  'crudType' => 'pages',
+  'crudType' => 'drawers',
   'includeControllers' => false,
   'tableDefaultFields' => [
     '0' => 'employee_id',
@@ -511,21 +511,7 @@ return [
   'dispatchEvents' => false,
 
   'controls' => [
-    'addButton' => [
-      '0' => [
-        'label' => 'Add Attendance Record',
-        'type' => 'quick_add',
-        'icon' => 'fas fa-plus-circle',
-        'primary' => true,
-      ],
-      '1' => [
-        'label' => 'Bulk Upload',
-        'type' => 'modal',
-        'icon' => 'fas fa-file-import',
-        'url' => '/hr/attendance/import',
-        'modalSize' => 'lg',
-      ],
-    ],
+    'addButton' => false,
     'files' => [
       'export' => [
         '0' => 'xls',
@@ -658,7 +644,7 @@ return [
     '3' => [
       'title' => 'Adjust Attendance',
       'icon' => 'fas fa-edit',
-      'url' => 'adjust-attendance',
+      'url' => '/attendance/adjust-attendance',
       'params' => ['attendance_id' => '{id}'],
       'requiredRole' => ['manager', 'hr_admin'],
       'condition' => ['is_approved' => false],
@@ -681,7 +667,7 @@ return [
     '5' => [
       'title' => 'View Work Sessions',
       'icon' => 'fas fa-history',
-      'url' => 'hr/attendance-work-sessions',
+      'url' => '/attendance/attendance-work-sessions',
       'newTab' => true,
       'params' => ['attendance_id' => '{id}'],
       'requiredRole' => ['employee', 'supervisor', 'manager', 'hr_admin', 'payroll_officer'],
@@ -770,12 +756,12 @@ return [
   'relations' => [
     'employee' => [
       'type' => 'belongsTo',
-      'model' => 'App\Modules\Attendance\Models\Employee',
+      'model' => 'App\Modules\Hr\Models\Employee',
       'foreignKey' => 'employee_id',
     ],
     'department' => [
       'type' => 'belongsTo',
-      'model' => 'App\Modules\Attendance\Models\Department',
+      'model' => 'App\Modules\Hr\Models\Department',
       'foreignKey' => 'department_id',
     ],
     'attendanceSessions' => [
@@ -790,7 +776,7 @@ return [
     ],
     'leaveRequest' => [
       'type' => 'belongsTo',
-      'model' => 'App\Modules\Attendance\Models\LeaveRequest',
+      'model' => 'App\Modules\Leave\Models\LeaveRequest',
       'foreignKey' => 'leave_request_id',
     ],
     'shift' => [

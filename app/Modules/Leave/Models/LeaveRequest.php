@@ -12,11 +12,12 @@ use App\Modules\Hr\Models\Employee;
 use App\Modules\Leave\Models\LeaveType;
 use App\Modules\Attendance\Models\Attendance;
 use QuickerFaster\UILibrary\Contracts\Workflow\Workflowable;
+use QuickerFaster\UILibrary\Contracts\Documents\Documentable;
 use QuickerFaster\UILibrary\Traits\Workflows\HasWorkflow;
 use Illuminate\Database\Eloquent\Model;
 
 
-class LeaveRequest extends Model implements Workflowable
+class LeaveRequest extends Model implements Workflowable, Documentable
 {
     use HasCompanyScope;
     use HasFactory;
@@ -34,7 +35,7 @@ class LeaveRequest extends Model implements Workflowable
 
 
     protected $fillable = [
-        'company_id', 'employee_id', 'leave_type_id', 'start_date', 'end_date', 'reason', 'status', 'approved_by', 'approved_at', 'denial_reason', 'attendance_synced', 'attendance_records_count', 'last_sync_at', 'is_retroactive', 'reported_after_absence', 'workdays_count', 'overlap_with_holiday'
+        'company_id', 'employee_id', 'leave_type_id', 'start_date', 'end_date', 'is_half_day', 'half_day_period', 'reason', 'status', 'approved_by', 'approved_at', 'denial_reason', 'attendance_synced', 'attendance_records_count', 'last_sync_at', 'is_retroactive', 'reported_after_absence', 'workdays_count', 'overlap_with_holiday'
     ];
 
     protected $guarded = [
@@ -44,6 +45,7 @@ class LeaveRequest extends Model implements Workflowable
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'is_half_day' => 'boolean',
         'approved_at' => 'datetime',
         'attendance_synced' => 'boolean',
         'attendance_records_count' => 'integer',
@@ -60,7 +62,8 @@ class LeaveRequest extends Model implements Workflowable
         'attendance_records_count' => 0,
         'is_retroactive' => false,
         'reported_after_absence' => false,
-        'overlap_with_holiday' => false
+        'overlap_with_holiday' => false,
+        'is_half_day' => false
     ];
 
     protected $dispatchesEvents = [
@@ -166,5 +169,72 @@ class LeaveRequest extends Model implements Workflowable
     protected static function newFactory()
     {
         return \App\Modules\Leave\Database\Factories\LeaveRequestFactory::new();
+    }
+
+    /**
+     * Polymorphic relationship to uploaded documents/attachments.
+     */
+    public function documents()
+    {
+        return $this->morphMany(\QuickerFaster\UILibrary\Models\Document::class, 'documentable');
+    }
+
+    /**
+     * Get the unique identifier for this documentable entity.
+     */
+    public function getDocumentableId(): int|string
+    {
+        return $this->id;
+    }
+
+    /**
+     * Get the document type key for this entity.
+     */
+    public function getDocumentType(): string
+    {
+        return 'leave_request';
+    }
+
+    /**
+     * Get the storage folder path for uploaded documents.
+     */
+    public function getDocumentStoragePath(): string
+    {
+        return 'documents/leave_requests/' . $this->id;
+    }
+
+    /**
+     * Get template data for document generation.
+     */
+    public function getDocumentTemplateData(): array
+    {
+        return [
+            'leave_request_id' => $this->id,
+            'employee_name' => $this->employee?->full_name ?? '',
+            'leave_type' => $this->leaveType?->name ?? '',
+            'start_date' => $this->start_date?->toDateString() ?? '',
+            'end_date' => $this->end_date?->toDateString() ?? '',
+            'status' => $this->status,
+        ];
+    }
+
+    /**
+     * Get the effective status, considering the active workflow.
+     *
+     * When the leave request is under approval, returns the workflow status
+     * (pending/approved/rejected/cancelled). Otherwise returns the model's
+     * own status field (Pending/Approved/Denied/Cancelled).
+     *
+     * Note: This may return lowercase workflow statuses or PascalCase model
+     * statuses depending on whether a workflow is active. For display purposes,
+     * consider normalizing with ucfirst().
+     */
+    public function effectiveStatus(): string
+    {
+        if ($this->activeWorkflow) {
+            return $this->activeWorkflow->status;
+        }
+
+        return $this->status;
     }
 }

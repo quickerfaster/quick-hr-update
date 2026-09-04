@@ -21,7 +21,7 @@
         <!-- Download Buttons -->
         <div>
             <!-- Back Button -->
-            <a href="/hr/payroll-runs" class="btn btn-sm btn-outline-secondary">
+            <a href="/payroll/payroll-runs" class="btn btn-sm btn-outline-secondary">
                 <i class="fas fa-arrow-left"></i> Back to Pay Runs
             </a>
             <a href="{{ route('payroll.reports.download.pdf', $payrollRun) }}" class="btn btn-outline-danger btn-sm">

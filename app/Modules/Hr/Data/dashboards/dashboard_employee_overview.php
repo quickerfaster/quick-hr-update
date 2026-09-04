@@ -3,9 +3,9 @@
 return array (
   'title' => 'Employee Overview',
   'description' => 'Personal dashboard – your leave, attendance, documents, and key metrics at a glance',
-  'widgets' => 
+  'widgets' =>
   array (
-    0 => 
+    0 =>
     array (
       'type' => 'stat',
       'title' => 'Tenure',
@@ -15,7 +15,7 @@ return array (
       'custom_value' => '{{ tenure_years }} years',
       'width' => 3,
     ),
-    1 => 
+    1 =>
     array (
       'type' => 'stat',
       'title' => 'Hours This Month',
@@ -24,21 +24,21 @@ return array (
       'icon' => 'fas fa-clock',
       'aggregate' => 'sum',
       'field' => 'net_hours',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'employee.employee_number',
           1 => '=',
           2 => '{{ employee_number }}',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'date',
           1 => '>=',
           2 => 'first day of this month',
         ),
-        2 => 
+        2 =>
         array (
           0 => 'date',
           1 => '<=',
@@ -47,7 +47,7 @@ return array (
       ),
       'width' => 3,
     ),
-    2 => 
+    2 =>
     array (
       'type' => 'stat',
       'title' => 'Remaining PTO',
@@ -56,15 +56,15 @@ return array (
       'icon' => 'fas fa-umbrella-beach',
       'aggregate' => 'sum',
       'field' => 'balance',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'employee_id',
           1 => '=',
           2 => '{{ employee_number }}',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'leave_type_id',
           1 => '=',
@@ -73,7 +73,7 @@ return array (
       ),
       'width' => 3,
     ),
-    3 => 
+    3 =>
     array (
       'type' => 'stat',
       'title' => 'Pending Approvals',
@@ -81,15 +81,15 @@ return array (
       'model' => 'App\\Modules\\Hr\\Models\\LeaveRequest',
       'icon' => 'fas fa-hourglass-half',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'employee_id',
           1 => '=',
           2 => '{{ employee_number }}',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'status',
           1 => '=',
@@ -98,7 +98,7 @@ return array (
       ),
       'width' => 3,
     ),
-    4 => 
+    4 =>
     array (
       'type' => 'list',
       'title' => 'Upcoming Time Off',
@@ -107,52 +107,52 @@ return array (
       'icon' => 'fas fa-calendar-week',
       'description' => 'Future approved leave',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'start_date',
         1 => 'asc',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'employee_id',
           1 => '=',
           2 => '{{ employee_number }}',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'status',
           1 => '=',
           2 => 'Approved',
         ),
-        2 => 
+        2 =>
         array (
           0 => 'start_date',
           1 => '>=',
           2 => 'today',
         ),
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Type',
           'field' => 'leaveType.name',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Start',
           'field' => 'start_date',
           'format' => 'date',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'End',
           'field' => 'end_date',
           'format' => 'date',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'Days',
           'field' => 'workdays_count',
@@ -160,9 +160,10 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/hr/leave-requests?employee={{ employee_number }}',
+      'view_all_link' => '/hr/my-leave-requests',
+      'view_all_link_target' => '_self',
     ),
-    5 => 
+    5 =>
     array (
       'type' => 'list',
       'title' => 'Recent Attendance',
@@ -171,34 +172,34 @@ return array (
       'icon' => 'fas fa-user-check',
       'description' => 'Last 5 records',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'date',
         1 => 'desc',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'employee.employee_number',
           1 => '=',
           2 => '{{ employee_number }}',
         ),
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Date',
           'field' => 'date',
           'format' => 'date',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Status',
           'field' => 'status',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Net Hours',
           'field' => 'net_hours',
@@ -206,21 +207,22 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/hr/attendance?employee={{ employee_number }}',
+      'view_all_link' => '/hr/my-attendance',
+      'view_all_link_target' => '_self',
     ),
-    6 => 
+    6 =>
     array (
       'type' => 'action_card',
       'title' => 'Quick Contact',
       'size' => 'col-12',
       'icon' => 'fas fa-address-card',
       'description' => '{{ employee_email }}<br>{{ employee_phone }}',
-      'actions' => 
+      'actions' =>
       array (
       ),
       'width' => 3,
     ),
-    7 => 
+    7 =>
     array (
       'type' => 'list',
       'title' => 'Recent Clock Events',
@@ -229,34 +231,34 @@ return array (
       'icon' => 'fas fa-history',
       'description' => 'Latest clock events',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'timestamp',
         1 => 'desc',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'employee_id',
           1 => '=',
           2 => '{{ employee_number }}',
         ),
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Event',
           'field' => 'event_type',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Time',
           'field' => 'timestamp',
           'format' => 'datetime',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Method',
           'field' => 'method',
@@ -264,9 +266,10 @@ return array (
       ),
       'width' => 3,
       'show_view_all' => true,
-      'view_all_link' => '/hr/clock-events?employee={{ employee_number }}',
+      'view_all_link' => '/hr/my-clock-events',
+      'view_all_link_target' => '_self',
     ),
-    8 => 
+    8 =>
     array (
       'type' => 'progress',
       'title' => 'Next Work Anniversary',
@@ -278,7 +281,7 @@ return array (
       'target_value' => 365,
       'width' => 3,
     ),
-    9 => 
+    9 =>
     array (
       'type' => 'list',
       'title' => 'Expiring Documents (Next 30 Days)',
@@ -287,45 +290,45 @@ return array (
       'icon' => 'fas fa-file-exclamation',
       'description' => 'Documents requiring attention',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'expiry_date',
         1 => 'asc',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'employee_id',
           1 => '=',
           2 => '{{ employee_number }}',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'expiry_date',
           1 => '>=',
           2 => 'today',
         ),
-        2 => 
+        2 =>
         array (
           0 => 'expiry_date',
           1 => '<=',
           2 => '+30 days',
         ),
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Name',
           'field' => 'name',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Type',
           'field' => 'type',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Expiry Date',
           'field' => 'expiry_date',
@@ -334,9 +337,10 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/hr/documents?employee={{ employee_number }}&filter=expiring',
+      'view_all_link' => '/hr/my-documents-view',
+      'view_all_link_target' => '_self',
     ),
-    10 => 
+    10 =>
     array (
       'type' => 'activity_log',
       'title' => 'Recent Location Activity',
@@ -345,11 +349,10 @@ return array (
       'log_name' => 'hr.location',
       'limit' => 5,
       'width' => 6,
-      'show_view_all' => true,
-      'view_all_link' => '/admin/activity-logs?filters[log_name]=hr.location',
+      'show_view_all' => false,
     ),
   ),
-  'layout' => 
+  'layout' =>
   array (
     'columns' => 12,
     'gutter' => 3,

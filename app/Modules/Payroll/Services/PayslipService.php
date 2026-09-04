@@ -48,7 +48,7 @@ class PayslipService
         ];
 
 
-        return PDF::loadView('hr::components.livewire.bootstrap.payroll.payslips.payslip-pdf', $data);
+        return PDF::loadView('payroll::components.livewire.bootstrap.payroll.payslips.payslip-pdf', $data);
     }
 
     private function formatEmployeeAddress($employee): string

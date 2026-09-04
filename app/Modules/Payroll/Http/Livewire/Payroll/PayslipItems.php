@@ -25,6 +25,6 @@ class PayslipItems extends Component
 
     public function render()
     {
-        return view('hr::livewire.payroll.payslip-items');
+        return view('payroll::livewire.payroll.payslip-items');
     }
 }

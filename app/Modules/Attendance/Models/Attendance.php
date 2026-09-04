@@ -163,7 +163,7 @@ protected static function boot()
 
     public function department(): BelongsTo
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(\App\Modules\Hr\Models\Department::class);
     }
 
     public function attendanceSessions()

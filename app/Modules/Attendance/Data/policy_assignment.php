@@ -12,7 +12,7 @@ return [
       'filterable' => true,
       'searchable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'company',
@@ -20,7 +20,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -69,9 +69,9 @@ return [
       'searchable' => true,
       'morph_relation' => 'assignable',
       'morph_map' => [
-        'company' => 'App\Modules\Attendance\Models\Company',
-        'location' => 'App\Modules\Attendance\Models\Location',
-        'department' => 'App\Modules\Attendance\Models\Department',
+        'company' => 'App\Modules\Hr\Models\Company',
+        'location' => 'App\Modules\Hr\Models\Location',
+        'department' => 'App\Modules\Hr\Models\Department',
         'shift' => 'App\Modules\Attendance\Models\Shift',
       ],
       'display_field' => 'name',
@@ -87,11 +87,9 @@ return [
   'detailComponent' => '',
   'hiddenFields' => [
     'onTable' => [
-      '0' => 'assignable_type',
-      '1' => 'created_at',
-      '2' => 'updated_at',
-      '3' => 'deleted_at',
-      '4' => 'company_id',
+      '0' => 'created_at',
+      '1' => 'updated_at',
+      '2' => 'deleted_at',
     ],
     'onNewForm' => [
       '0' => 'created_at',
@@ -114,7 +112,7 @@ return [
     '2' => 'delete',
   ],
   'isTransaction' => false,
-  'crudType' => 'modals',
+  'crudType' => 'drawers',
   'includeControllers' => false,
   'tableDefaultFields' => [
     '0' => 'company_id',
@@ -236,9 +234,9 @@ return [
       'typeField' => 'assignable_type',
       'idField' => 'assignable_id',
       'morphMap' => [
-        'company' => 'App\Modules\Attendance\Models\Company',
-        'location' => 'App\Modules\Attendance\Models\Location',
-        'department' => 'App\Modules\Attendance\Models\Department',
+        'company' => 'App\Modules\Hr\Models\Company',
+        'location' => 'App\Modules\Hr\Models\Location',
+        'department' => 'App\Modules\Hr\Models\Department',
         'shift' => 'App\Modules\Attendance\Models\Shift',
       ],
       'displayField' => 'name',

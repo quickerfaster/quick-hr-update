@@ -3,7 +3,7 @@
 namespace App\Modules\Attendance\Traits;
 
 use App\Modules\Attendance\Models\Attendance;
-use App\Modules\Attendance\Models\Employee;
+use App\Modules\Hr\Models\Employee;
 use Carbon\Carbon;
 
 trait HandlesAttendanceRecord

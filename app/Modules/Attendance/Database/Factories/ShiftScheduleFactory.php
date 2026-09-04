@@ -2,7 +2,7 @@
 namespace App\Modules\Attendance\Database\Factories;
 
 use App\Modules\Attendance\Models\ShiftSchedule;
-use App\Modules\Attendance\Models\Company;
+use App\Modules\Hr\Models\Company;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ShiftScheduleFactory extends Factory

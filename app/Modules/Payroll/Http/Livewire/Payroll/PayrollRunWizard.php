@@ -96,14 +96,15 @@ class PayrollRunWizard extends Component
             $this->title = $run->title;
             $this->period_start = $run->period_start->format('Y-m-d');
             $this->period_end = $run->period_end->format('Y-m-d');
-            $this->currentStep = $run->current_step ?? 1;
+            $this->currentStep = min($run->current_step ?? 1, 3);
             $this->isMultiCompany = $run->is_multi_company ?? false;
             $this->companyId = $run->company_id;
             $this->stepData = ['payroll_run_id' => $run->id];
             $this->saveToSession();
         } else {
             // NEW wizard
-            $this->companyId = session('current_company_id') ?: null;
+            $cid = session('current_company_id');
+            $this->companyId = ($cid !== null) ? (int)$cid : null;
             $this->saveToSession();
         }
 
@@ -380,7 +381,7 @@ public function goToStep3()
     $this->saveToSession();
 
     // Build the URL with proper query parameters
-    $url = url('/hr/payroll-wizard') . '?payrollRunId=' . $this->payrollRunId . '&step=3';
+    $url = url('/payroll/payroll-wizard') . '?payrollRunId=' . $this->payrollRunId . '&step=3';
 
     return redirect()->to($url);
 }
@@ -454,7 +455,7 @@ public function finalize()
     public function cancelKeep(): void
     {
         session()->forget($this->getWizardId());
-        $this->redirect('/hr/payroll-runs');
+        $this->redirect('/payroll/payroll-runs');
     }
 
     public function cancelDelete(): void
@@ -467,12 +468,12 @@ public function finalize()
             }
         });
         session()->forget($this->getWizardId());
-        $this->redirect('/hr/payroll-runs');
+        $this->redirect('/payroll/payroll-runs');
     }
 
     public function render()
     {
-        return view('hr::livewire.payroll.payroll-run-wizard', [
+        return view('payroll::livewire.payroll.payroll-run-wizard', [
             'currentStep' => $this->currentStep,
             'title' => $this->title,
             'payrollRunId' => $this->payrollRunId,

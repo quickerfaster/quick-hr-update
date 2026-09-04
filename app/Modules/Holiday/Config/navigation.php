@@ -7,7 +7,7 @@ return [
             'icon' => 'fas fa-calendar-alt',
             'order' => 10000,
             'route' => NULL,
-            'url' => 'holiday/dashboard-holidays-overview',
+            'url' => '/holiday/dashboard-holidays-overview',
         ],
     ],
     'contexts' => [

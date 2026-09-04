@@ -200,7 +200,7 @@ return [
             'field' => 'phone',
             'sortable' => true,
             'type' => 'text',
-            'visible' => true,
+            'visible' => false,
         ],
         'city' => [
             'label' => 'City',
@@ -208,7 +208,7 @@ return [
             'sortable' => true,
             'searchable' => true,
             'type' => 'text',
-            'visible' => true,
+            'visible' => false,
         ],
         'country' => [
             'label' => 'Country',
@@ -216,7 +216,7 @@ return [
             'sortable' => true,
             'searchable' => true,
             'type' => 'text',
-            'visible' => true,
+            'visible' => false,
         ],
         'is_active' => [
             'label' => 'Active',
@@ -352,4 +352,16 @@ return [
 
     'per_page_options' => [10, 25, 50, 100],
     'default_per_page' => 25,
+
+    'switchViews' => [
+        'default' => 'list',
+        'table' => ['enabled' => true],
+        'list' => [
+            'enabled' => true,
+            'titleFields' => ['name'],
+            'subtitleFields' => ['code', 'email'],
+            'badgeField' => 'is_active',
+            'badgeColors' => ['1' => 'success', '0' => 'secondary'],
+        ],
+    ],
 ];

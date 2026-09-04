@@ -3,25 +3,25 @@
 return array (
   'title' => 'Time & Attendance Overview',
   'description' => 'Monitor attendance tracking, shift schedules, holidays, and workforce availability',
-  'widgets' => 
+  'widgets' =>
   array (
-    0 => 
+    0 =>
     array (
       'type' => 'stat',
       'title' => 'Present Today',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\Attendance',
+      'model' => 'App\\Modules\\Attendance\\Models\\Attendance',
       'icon' => 'fas fa-user-check',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'date',
           1 => '=',
           2 => 'today',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'status',
           1 => '=',
@@ -30,23 +30,23 @@ return array (
       ),
       'width' => 3,
     ),
-    1 => 
+    1 =>
     array (
       'type' => 'stat',
       'title' => 'Absent Today',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\Attendance',
+      'model' => 'App\\Modules\\Attendance\\Models\\Attendance',
       'icon' => 'fas fa-user-times',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'date',
           1 => '=',
           2 => 'today',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'status',
           1 => '=',
@@ -55,23 +55,23 @@ return array (
       ),
       'width' => 3,
     ),
-    2 => 
+    2 =>
     array (
       'type' => 'stat',
       'title' => 'Pending Approvals',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\Attendance',
+      'model' => 'App\\Modules\\Attendance\\Models\\Attendance',
       'icon' => 'fas fa-clock',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'is_approved',
           1 => '=',
           2 => false,
         ),
-        1 => 
+        1 =>
         array (
           0 => 'date',
           1 => '>=',
@@ -80,7 +80,7 @@ return array (
       ),
       'width' => 3,
     ),
-    3 => 
+    3 =>
     array (
       'type' => 'stat',
       'title' => 'Upcoming Holidays',
@@ -88,21 +88,21 @@ return array (
       'model' => 'App\\Modules\\Holiday\\Models\\Holiday',
       'icon' => 'fas fa-gift',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'date',
           1 => '>=',
           2 => 'today',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'date',
           1 => '<=',
           2 => '+30 days',
         ),
-        2 => 
+        2 =>
         array (
           0 => 'is_active',
           1 => '=',
@@ -111,19 +111,19 @@ return array (
       ),
       'width' => 3,
     ),
-    4 => 
+    4 =>
     array (
       'type' => 'chart',
       'title' => 'Attendance Status (This Month)',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\Attendance',
+      'model' => 'App\\Modules\\Attendance\\Models\\Attendance',
       'group_by' => 'status',
       'chart_type' => 'pie',
       'description' => 'Distribution of attendance records',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'date',
           1 => '>=',
@@ -132,12 +132,12 @@ return array (
       ),
       'width' => 4,
     ),
-    5 => 
+    5 =>
     array (
       'type' => 'trend',
       'title' => 'Attendance Trend (Last 6 Months)',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\Attendance',
+      'model' => 'App\\Modules\\Attendance\\Models\\Attendance',
       'group_by' => 'month',
       'icon' => 'fas fa-chart-line',
       'description' => 'Monthly attendance count',
@@ -146,71 +146,71 @@ return array (
       'period' => 6,
       'width' => 5,
     ),
-    6 => 
-    array (
-      'type' => 'action_card',
-      'title' => 'Quick Actions',
-      'size' => 'col-12',
-      'icon' => 'fas fa-clock',
-      'description' => 'Clock in/out or manage schedules',
-      'actions' => 
-      array (
-        0 => 
-        array (
-          'label' => 'Clock In',
-          'event' => 'openClockModal',
-          'params' => 
-          array (
-            'action' => 'clock_in',
-          ),
-          'style' => 'primary',
-        ),
-        1 => 
-        array (
-          'label' => 'Clock Out',
-          'event' => 'openClockModal',
-          'params' => 
-          array (
-            'action' => 'clock_out',
-          ),
-          'style' => 'secondary',
-        ),
-      ),
-      'width' => 3,
-    ),
-    7 => 
+    6 =>
+   array (
+     'type' => 'action_card',
+     'title' => 'Quick Actions',
+     'size' => 'col-12',
+     'icon' => 'fas fa-clock',
+     'description' => 'Clock in/out or manage schedules',
+     'actions' =>
+     array (
+       0 =>
+       array (
+         'label' => 'Clock In',
+         'event' => 'navigate',
+         'params' =>
+         array (
+           'url' => '/attendance/clock-events',
+         ),
+         'style' => 'primary',
+       ),
+       1 =>
+       array (
+         'label' => 'Clock Out',
+         'event' => 'navigate',
+         'params' =>
+         array (
+           'url' => '/attendance/clock-events',
+         ),
+         'style' => 'secondary',
+       ),
+     ),
+     'width' => 3,
+   ),
+    7 =>
     array (
       'type' => 'list',
       'title' => 'Recent Attendance Records',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\Attendance',
+      'model' => 'App\\Modules\\Attendance\\Models\\Attendance',
       'icon' => 'fas fa-calendar-alt',
       'description' => 'Latest 5 records',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'date',
         1 => 'desc',
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Employee',
           'field' => 'employee.employee_number',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Date',
           'field' => 'date',
           'format' => 'date',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Status',
           'field' => 'status',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'Net Hours',
           'field' => 'net_hours',
@@ -218,9 +218,9 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/hr/attendances',
+      'view_all_link' => '/attendance/attendances',
     ),
-    8 => 
+    8 =>
     array (
       'type' => 'list',
       'title' => 'Upcoming Holidays',
@@ -229,40 +229,40 @@ return array (
       'icon' => 'fas fa-calendar-week',
       'description' => 'Next 5 holidays',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'date',
         1 => 'asc',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'date',
           1 => '>=',
           2 => 'today',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'is_active',
           1 => '=',
           2 => true,
         ),
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Holiday',
           'field' => 'name',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Date',
           'field' => 'date',
           'format' => 'date',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Type',
           'field' => 'holiday_type',
@@ -272,24 +272,24 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/hr/holidays',
     ),
-    9 => 
+    9 =>
     array (
       'type' => 'progress',
       'title' => 'Attendance Completion',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\Attendance',
+      'model' => 'App\\Modules\\Attendance\\Models\\Attendance',
       'icon' => 'fas fa-chart-simple',
       'description' => '% of employees with attendance recorded today',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'date',
           1 => '=',
           2 => 'today',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'status',
           1 => '!=',
@@ -300,42 +300,42 @@ return array (
       'target_aggregate' => 'count',
       'width' => 3,
     ),
-    10 => 
+    10 =>
     array (
       'type' => 'list',
       'title' => 'Today\'s Shift Schedules',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\ShiftSchedule',
+      'model' => 'App\\Modules\\Attendance\\Models\\ShiftSchedule',
       'icon' => 'fas fa-calendar-check',
       'description' => 'Shifts scheduled for today',
       'limit' => 10,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'schedule_date',
         1 => 'asc',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'schedule_date',
           1 => '=',
           2 => 'today',
         ),
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Employee',
           'field' => 'employee.employee_number',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Shift',
           'field' => 'shift.name',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Status',
           'field' => 'status',
@@ -343,25 +343,25 @@ return array (
       ),
       'width' => 9,
       'show_view_all' => true,
-      'view_all_link' => '/hr/shift-schedules',
+      'view_all_link' => '/attendance/shift-schedules',
     ),
-    11 => 
+    11 =>
     array (
       'type' => 'chart',
       'title' => 'Overtime vs Regular Hours (This Month)',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\Attendance',
+      'model' => 'App\\Modules\\Attendance\\Models\\Attendance',
       'chart_type' => 'bar',
       'description' => 'Comparison of regular and overtime hours',
       'group_by' => NULL,
-      'aggregates' => 
+      'aggregates' =>
       array (
         'regular_hours' => 'sum',
         'overtime_hours' => 'sum',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'date',
           1 => '>=',
@@ -370,39 +370,39 @@ return array (
       ),
       'width' => 5,
     ),
-    12 => 
+    12 =>
     array (
       'type' => 'list',
       'title' => 'Recent Shift Schedules',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\ShiftSchedule',
+      'model' => 'App\\Modules\\Attendance\\Models\\ShiftSchedule',
       'icon' => 'fas fa-calendar-alt',
       'description' => 'Latest 5 schedule assignments',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'created_at',
         1 => 'desc',
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Employee',
           'field' => 'employee.employee_number',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Date',
           'field' => 'schedule_date',
           'format' => 'date',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Shift',
           'field' => 'shift.name',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'Status',
           'field' => 'status',
@@ -410,17 +410,17 @@ return array (
       ),
       'width' => 7,
       'show_view_all' => true,
-      'view_all_link' => '/hr/shift-schedules',
+      'view_all_link' => '/attendance/shift-schedules',
     ),
   ),
-  'roles' => 
+  'roles' =>
   array (
     'admin' => 'full',
     'manager' => 'limited',
     'payroll_officer' => 'limited',
     'employee' => 'basic',
   ),
-  'layout' => 
+  'layout' =>
   array (
     'columns' => 12,
     'gutter' => 3,

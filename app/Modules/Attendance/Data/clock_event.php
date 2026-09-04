@@ -12,7 +12,7 @@ return [
       'filterable' => true,
       'searchable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\Employee',
+        'model' => 'App\Modules\Hr\Models\Employee',
         'type' => 'belongsTo',
         'display_field' => 'employee_number',
         'dynamic_property' => 'employee',
@@ -20,7 +20,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\Employee',
+        'model' => 'App\Modules\Hr\Models\Employee',
         'column' => 'employee_number',
         'hintField' => 'first_name,last_name',
       ],
@@ -43,7 +43,7 @@ return [
       'filterable' => true,
       'searchable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'company',
@@ -51,7 +51,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -178,7 +178,6 @@ return [
       '5' => 'created_at',
       '6' => 'updated_at',
       '7' => 'deleted_at',
-      '8' => 'company_id',
     ],
     'onNewForm' => [
       '0' => 'ip_address',
@@ -209,7 +208,7 @@ return [
     '0' => 'show',
   ],
   'isTransaction' => false,
-  'crudType' => 'modals',
+  'crudType' => 'drawers',
   'includeControllers' => false,
   'tableDefaultFields' => [
     '0' => 'company_id',
@@ -221,6 +220,7 @@ return [
   'addRoutes' => false,
   'dispatchEvents' => false,
   'controls' => [
+    'addButton' => false,
     'files' => [
       'export' => [
         '0' => 'xls',

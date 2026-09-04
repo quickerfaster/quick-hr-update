@@ -1,0 +1,200 @@
+<?php
+
+/**
+ * HR Module — Quick Actions Configuration
+ *
+ * Registers HR management actions for the command palette.
+ * These actions appear when the user presses Cmd+K / Ctrl+K.
+ *
+ * Categories:
+ *  - Self Service: Employee/manager actions (ESS)
+ *  - Dashboard: Admin overview actions
+ *  - People: Employee management actions
+ *  - Organization: Org structure actions
+ *  - Manage: Configuration actions
+ */
+return [
+    'quick_actions' => [
+        /*
+         * ─── Self Service (Employee / Manager) ───────────────────
+         */
+        [
+            'id'          => 'ess.my_portal',
+            'label'       => 'My Portal',
+            'description' => 'Go to your personal HR dashboard',
+            'icon'        => 'fas fa-user',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['portal', 'home', 'dashboard', 'self service', 'ess'],
+            'category'    => 'Self Service',
+            'url'         => '/hr/my-portal',
+            'roles'       => ['employee', 'manager'],
+        ],
+        [
+            'id'          => 'ess.request_leave',
+            'label'       => 'Request Leave',
+            'description' => 'Submit a new leave request',
+            'icon'        => 'fas fa-calendar-plus',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['leave', 'time off', 'vacation', 'pto', 'request'],
+            'category'    => 'Self Service',
+            'url'         => '/hr/leave-hub',
+            'roles'       => ['employee', 'manager'],
+        ],
+        [
+            'id'          => 'ess.clock_in',
+            'label'       => 'Clock In / Out',
+            'description' => 'Record your attendance',
+            'icon'        => 'fas fa-sign-in-alt',
+            'action'      => 'drawer',
+            'module'      => 'hr',
+            'keywords'    => ['clock', 'time', 'attendance', 'punch', 'in', 'out'],
+            'category'    => 'Self Service',
+            'livewire_event' => 'openClockInOutDrawer',
+            'roles'       => ['employee', 'manager'],
+        ],
+        [
+            'id'          => 'ess.view_payslip',
+            'label'       => 'View Payslip',
+            'description' => 'View your latest payslip',
+            'icon'        => 'fas fa-receipt',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['pay', 'payslip', 'salary', 'stub', 'payroll'],
+            'category'    => 'Self Service',
+            'url'         => '/hr/my-profile',
+            'roles'       => ['employee', 'manager'],
+        ],
+        [
+            'id'          => 'ess.my_info',
+            'label'       => 'Update My Info',
+            'description' => 'Edit your personal details',
+            'icon'        => 'fas fa-user-edit',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['profile', 'account', 'personal', 'info', 'edit'],
+            'category'    => 'Self Service',
+            'url'         => '/hr/my-profile',
+            'roles'       => ['employee', 'manager'],
+        ],
+        [
+            'id'          => 'ess.my_schedule',
+            'label'       => 'View My Schedule',
+            'description' => 'See your work schedule',
+            'icon'        => 'fas fa-calendar-week',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['schedule', 'shift', 'roster', 'calendar'],
+            'category'    => 'Self Service',
+            'url'         => '/attendance/my-attendance',
+            'roles'       => ['employee', 'manager'],
+        ],
+        [
+            'id'          => 'ess.my_documents',
+            'label'       => 'My Documents',
+            'description' => 'View your HR documents',
+            'icon'        => 'fas fa-file-alt',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['documents', 'files', 'downloads', 'my docs'],
+            'category'    => 'Self Service',
+            'url'         => '/hr/my-profile',
+            'roles'       => ['employee', 'manager'],
+        ],
+
+        /*
+         * ─── Admin Actions ───────────────────────────────────────
+         */
+        [
+            'id'          => 'hr.view_dashboard',
+            'label'       => 'View HR Dashboard',
+            'description' => 'Go to the HR dashboard overview',
+            'icon'        => 'fas fa-tachometer-alt',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['dashboard', 'home', 'overview', 'hr', 'human resources'],
+            'category'    => 'Dashboard',
+            'route'       => '/hr/dashboard-people-overview',
+            'roles'       => ['super_admin', 'company_admin'],
+        ],
+        [
+            'id'          => 'hr.add_employee',
+            'label'       => 'Add Employee',
+            'description' => 'Add a new employee to the organization',
+            'icon'        => 'fas fa-user-plus',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['employee', 'add', 'create', 'new', 'hire', 'staff', 'person'],
+            'category'    => 'People',
+            'route'       => '/hr/employees',
+            'permission'  => 'view_employee',
+            'roles'       => ['super_admin', 'company_admin'],
+        ],
+        [
+            'id'          => 'hr.add_department',
+            'label'       => 'Add Department',
+            'description' => 'Create a new department in the organization',
+            'icon'        => 'fas fa-sitemap',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['department', 'add', 'create', 'new', 'structure', 'org'],
+            'category'    => 'Organization',
+            'route'       => '/hr/departments',
+            'permission'  => 'view_department',
+            'roles'       => ['super_admin', 'company_admin'],
+        ],
+        [
+            'id'          => 'hr.add_location',
+            'label'       => 'Add Location',
+            'description' => 'Add a new office or work location',
+            'icon'        => 'fas fa-map-marker-alt',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['location', 'add', 'create', 'new', 'office', 'site', 'address'],
+            'category'    => 'Organization',
+            'route'       => '/hr/locations',
+            'permission'  => 'view_location',
+            'roles'       => ['super_admin', 'company_admin'],
+        ],
+        [
+            'id'          => 'hr.add_job_title',
+            'label'       => 'Add Job Title',
+            'description' => 'Create a new job title for employees',
+            'icon'        => 'fas fa-briefcase',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['job', 'title', 'add', 'create', 'new', 'position', 'role'],
+            'category'    => 'Manage',
+            'route'       => '/hr/job-titles',
+            'permission'  => 'view_job_title',
+            'roles'       => ['super_admin', 'company_admin'],
+        ],
+        [
+            'id'          => 'hr.add_employee_group',
+            'label'       => 'Add Employee Group',
+            'description' => 'Create a new employee group for categorization',
+            'icon'        => 'fas fa-layer-group',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['group', 'employee', 'add', 'create', 'new', 'category', 'classification'],
+            'category'    => 'People',
+            'route'       => '/hr/employee-groups',
+            'permission'  => 'view_employee_group',
+            'roles'       => ['super_admin', 'company_admin'],
+        ],
+        [
+            'id'          => 'hr.documents',
+            'label'       => 'Documents',
+            'description' => 'View and manage HR documents',
+            'icon'        => 'fas fa-folder-open',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['documents', 'files', 'records', 'paperwork', 'hr'],
+            'category'    => 'Manage',
+            'route'       => '/hr/documents',
+            'permission'  => 'view_document',
+            'roles'       => ['super_admin', 'company_admin'],
+        ],
+    ],
+];

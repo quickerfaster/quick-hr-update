@@ -37,7 +37,7 @@ return [
             'icon' => 'fas fa-times-circle',
             'aggregate' => 'count',
             'conditions' => [
-                0 => ['status', '=', 'Rejected'],
+                0 => ['status', '=', 'Denied'],
             ],
             'width' => 3,
         ],
@@ -152,8 +152,15 @@ return [
             'actions' => [
                 0 => [
                     'label' => 'Request',
-                    'event' => 'navigate',
-                    'params' => ['url' => '/leave/leave-requests/create'],
+                    'event' => 'openDrawer',
+                    'params' => [
+                        'component' => 'qf.data-table-form',
+                        'params' => [
+                            'configKey' => 'leave.leave_request',
+                            'recordId' => null,
+                        ],
+                        'title' => 'Request Leave',
+                    ],
                     'style' => 'primary',
                 ],
             ],

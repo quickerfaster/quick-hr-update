@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['web', 'auth'])->group(function () {
+    // NOTE: This route is not linked in the sidebar navigation.
+    // The context group landing page uses /holiday/dashboard-holidays-overview instead.
     Route::get('/holiday/dashboard', function () {
         return view('holiday::dashboard');
     })->name('holiday.dashboard');

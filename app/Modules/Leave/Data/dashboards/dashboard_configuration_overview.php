@@ -18,27 +18,6 @@ return [
         ],
         1 => [
             'type' => 'stat',
-            'title' => 'Leave Approvers',
-            'size' => 'col-12',
-            'model' => 'App\\Modules\\Leave\\Models\\LeaveApprover',
-            'icon' => 'fas fa-user-shield',
-            'aggregate' => 'count',
-            'width' => 3,
-        ],
-        2 => [
-            'type' => 'stat',
-            'title' => 'Active Approvers',
-            'size' => 'col-12',
-            'model' => 'App\\Modules\\Leave\\Models\\LeaveApprover',
-            'icon' => 'fas fa-user-check',
-            'aggregate' => 'count',
-            'conditions' => [
-                0 => ['is_active', '=', true],
-            ],
-            'width' => 3,
-        ],
-        3 => [
-            'type' => 'stat',
             'title' => 'Total Leave Types',
             'size' => 'col-12',
             'model' => 'App\\Modules\\Leave\\Models\\LeaveType',
@@ -99,29 +78,43 @@ return [
             'actions' => [
                 0 => [
                     'label' => 'Add',
-                    'event' => 'navigate',
-                    'params' => ['url' => '/leave/leave-types/create'],
+                    'event' => 'openDrawer',
+                    'params' => [
+                        'component' => 'qf.data-table-form',
+                        'params' => [
+                            'configKey' => 'leave.leave_type',
+                            'recordId' => null,
+                        ],
+                        'title' => 'Add Leave Type',
+                    ],
                     'style' => 'primary',
                 ],
             ],
             'width' => 3,
         ],
         7 => [
-            'type' => 'action_card',
-            'title' => 'Configure Approvers',
-            'size' => 'col-12',
-            'icon' => 'fas fa-user-check',
-            'description' => 'Assign leave approval workflows',
-            'actions' => [
-                0 => [
-                    'label' => 'Configure',
-                    'event' => 'navigate',
-                    'params' => ['url' => '/leave/leave-approvers/create'],
-                    'style' => 'secondary',
-                ],
-            ],
-            'width' => 3,
-        ],
+           'type' => 'action_card',
+           'title' => 'Configure Approvers',
+           'size' => 'col-12',
+           'icon' => 'fas fa-user-check',
+           'description' => 'Assign leave approval workflows',
+           'actions' => [
+               0 => [
+                   'label' => 'Add Approver',
+                   'event' => 'openDrawer',
+                   'params' => [
+                       'component' => 'qf.data-table-form',
+                       'params' => [
+                           'configKey' => 'leave.leave_approver',
+                           'recordId' => null,
+                       ],
+                       'title' => 'Add Leave Approver',
+                   ],
+                   'style' => 'secondary',
+               ],
+           ],
+           'width' => 3,
+       ],
     ],
     'roles' => [
         'admin' => 'full',

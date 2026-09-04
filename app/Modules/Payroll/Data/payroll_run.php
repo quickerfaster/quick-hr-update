@@ -366,7 +366,7 @@ return [
       '4' => 'total_cash_required',
       '5' => 'processed_by',
       '6' => 'processed_at',
-      '7' => 'approved_by',
+      '7' => 'approved_by_user_id',
       '8' => 'approved_at',
       '9' => 'notes',
       '10' => 'created_by',
@@ -374,7 +374,6 @@ return [
       '12' => 'current_step',
       '13' => 'created_at',
       '14' => 'updated_at',
-      '15' => 'company_id',
     ],
     'onNewForm' => [
       '0' => 'total_gross_pay',
@@ -432,7 +431,7 @@ return [
       '0' => [
         'label' => 'New Payroll Run',
         'type' => 'wizard',
-        'url' => '/hr/payroll-wizard',
+        'url' => '/payroll/payroll-wizard',
         'icon' => 'fas fa-plus-circle',
         'primary' => true,
       ],
@@ -460,22 +459,6 @@ return [
         '0' => 'xls',
         '1' => 'csv',
         '2' => 'pdf',
-      ],
-      'approve' => [
-        'label' => 'Approve Selected',
-        'icon' => 'fas fa-check-double',
-        'updateModelField' => 'status',
-        'fieldValue' => 'approved',
-        'confirm' => 'Approve selected payroll runs? This will lock them.',
-        'condition' => ['status' => ['draft', 'verification_complete', 'adjustments_pending', 'ready_for_review']],
-      ],
-      'cancel' => [
-        'label' => 'Cancel Selected',
-        'icon' => 'fas fa-ban',
-        'updateModelField' => 'status',
-        'fieldValue' => 'cancelled',
-        'confirm' => 'Cancel selected payroll runs? This cannot be undone.',
-        'condition' => ['status' => ['draft', 'verification_complete', 'adjustments_pending', 'ready_for_review']],
       ],
       'archive' => [
         'label' => 'Archive Selected',
@@ -578,26 +561,13 @@ return [
     [
         'title' => 'Continue Wizard',
         'icon' => 'fas fa-edit',
-        'url' => '/hr/payroll-wizard?id={id}',
+        'url' => '/payroll/payroll-wizard?id={id}',
+        'action' => 'continue_wizard',
         'condition' => [
             // 'status' => ['draft', 'verification_complete', 'adjustments_pending', 'ready_for_review'],
-            'status' => ['draft'],
+            'status' => ['draft', 'cancelled'],
         ],
         'requiredRole' => ['payroll_officer', 'hr_admin'],
-    ],
-    [
-        'title' => 'Approve Run',
-        'icon' => 'fas fa-check-circle',
-        'updateModelField' => true,
-        'fieldName' => 'status',
-        'fieldValue' => 'approved',
-        'actionName' => 'approve_payroll_run',
-        'confirm' => 'Approve this payroll run? All data will be locked.',
-        'condition' => [
-            // 'status' => ['draft', 'verification_complete', 'adjustments_pending', 'ready_for_review'],
-            'status' => ['verification_complete', 'ready_for_review'],
-        ],
-        'requiredRole' => ['hr_admin', 'payroll_manager'],
     ],
     [
         'title' => 'Mark as Paid',
@@ -613,23 +583,9 @@ return [
         'requiredRole' => ['payroll_officer', 'hr_admin'],
     ],
     [
-        'title' => 'Cancel Run',
-        'icon' => 'fas fa-ban',
-        'updateModelField' => true,
-        'fieldName' => 'status',
-        'fieldValue' => 'cancelled',
-        'actionName' => 'cancel_payroll_run',
-        'confirm' => 'Cancel this payroll run? This cannot be undone.',
-        'condition' => [
-            // 'status' => ['draft', 'verification_complete', 'adjustments_pending', 'ready_for_review', 'approved'],
-            'status' => ['draft', 'verification_complete', 'adjustments_pending', 'ready_for_review', 'approved'],
-        ],
-        'requiredRole' => ['hr_admin'],
-    ],
-    [
         'title' => 'View Payslips',
         'icon' => 'fas fa-receipt',
-        'url' => '/hr/payroll-payslips?filters[payroll_run_id]={id}',
+        'url' => '/payroll/payroll-payslips?filters[payroll_run_id]={id}',
         'newTab' => true,
         // No condition – available for all statuses
     ],

@@ -3,9 +3,9 @@
 return array (
   'title' => 'Holiday Dashboard',
   'description' => 'Overview of holiday calendars, upcoming holidays, and holiday distribution',
-  'widgets' => 
+  'widgets' =>
   array (
-    0 => 
+    0 =>
     array (
       'type' => 'stat',
       'title' => 'Total Holidays',
@@ -15,7 +15,7 @@ return array (
       'aggregate' => 'count',
       'width' => 3,
     ),
-    1 => 
+    1 =>
     array (
       'type' => 'stat',
       'title' => 'Holiday Calendars',
@@ -25,7 +25,7 @@ return array (
       'aggregate' => 'count',
       'width' => 3,
     ),
-    2 => 
+    2 =>
     array (
       'type' => 'stat',
       'title' => 'Upcoming Holidays',
@@ -33,9 +33,9 @@ return array (
       'model' => 'App\\Modules\\Holiday\\Models\\Holiday',
       'icon' => 'fas fa-gift',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'date',
           1 => '>=',
@@ -44,7 +44,7 @@ return array (
       ),
       'width' => 3,
     ),
-    3 => 
+    3 =>
     array (
       'type' => 'stat',
       'title' => 'Holidays This Month',
@@ -52,15 +52,15 @@ return array (
       'model' => 'App\\Modules\\Holiday\\Models\\Holiday',
       'icon' => 'fas fa-calendar-check',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'date',
           1 => '>=',
           2 => 'first day of this month',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'date',
           1 => '<=',
@@ -69,7 +69,7 @@ return array (
       ),
       'width' => 3,
     ),
-    4 => 
+    4 =>
     array (
       'type' => 'stat',
       'title' => 'Public Holidays',
@@ -77,9 +77,9 @@ return array (
       'model' => 'App\\Modules\\Holiday\\Models\\Holiday',
       'icon' => 'fas fa-flag',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'holiday_type',
           1 => '=',
@@ -88,7 +88,7 @@ return array (
       ),
       'width' => 3,
     ),
-    5 => 
+    5 =>
     array (
       'type' => 'chart',
       'title' => 'Holidays by Calendar',
@@ -100,7 +100,7 @@ return array (
       'aggregate' => 'count',
       'width' => 4,
     ),
-    6 => 
+    6 =>
     array (
       'type' => 'trend',
       'title' => 'Holidays by Month (Last 12 Months)',
@@ -114,7 +114,7 @@ return array (
       'period' => 12,
       'width' => 4,
     ),
-    7 => 
+    7 =>
     array (
       'type' => 'chart',
       'title' => 'Holidays by Type',
@@ -126,7 +126,7 @@ return array (
       'aggregate' => 'count',
       'width' => 4,
     ),
-    8 => 
+    8 =>
     array (
       'type' => 'list',
       'title' => 'Upcoming Holidays',
@@ -135,39 +135,39 @@ return array (
       'icon' => 'fas fa-gift',
       'description' => 'Next 5 upcoming holidays',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'date',
         1 => 'asc',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'date',
           1 => '>=',
           2 => 'today',
         ),
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Holiday',
           'field' => 'name',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Date',
           'field' => 'date',
           'format' => 'date',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Type',
           'field' => 'holiday_type',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'Calendar',
           'field' => 'calendar.name',
@@ -177,7 +177,7 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/holiday/holidays',
     ),
-    9 => 
+    9 =>
     array (
       'type' => 'list',
       'title' => 'Recent Holiday Calendars',
@@ -186,29 +186,29 @@ return array (
       'icon' => 'fas fa-calendar',
       'description' => 'Latest 5 calendars',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'created_at',
         1 => 'desc',
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Name',
           'field' => 'name',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Year',
           'field' => 'year',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Country',
           'field' => 'country_code',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'Holidays',
           'field' => 'holiday_count',
@@ -218,64 +218,76 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/holiday/holiday-calendars',
     ),
-    10 => 
-    array (
-      'type' => 'action_card',
-      'title' => 'Add Holiday',
-      'size' => 'col-12',
-      'icon' => 'fas fa-plus-circle',
-      'description' => 'Create a new holiday entry',
-      'actions' => 
-      array (
-        0 => 
-        array (
-          'label' => 'Add',
-          'event' => 'navigate',
-          'params' => 
-          array (
-            'url' => '/holiday/holidays/create',
-          ),
-          'style' => 'primary',
-        ),
-      ),
-      'width' => 3,
-    ),
-    11 => 
+    10 =>
+   array (
+     'type' => 'action_card',
+     'title' => 'Add Holiday',
+     'size' => 'col-12',
+     'icon' => 'fas fa-plus-circle',
+     'description' => 'Create a new holiday entry',
+     'actions' =>
+     array (
+       0 =>
+       array (
+         'label' => 'Add',
+         'event' => 'openDrawer',
+         'params' =>
+         array (
+           'component' => 'qf.data-table-form',
+           'params' =>
+           array (
+             'configKey' => 'holiday.holiday',
+             'recordId' => null,
+           ),
+           'title' => 'Add Holiday',
+         ),
+         'style' => 'primary',
+       ),
+     ),
+     'width' => 3,
+   ),
+    11 =>
     array (
       'type' => 'action_card',
       'title' => 'Create Calendar',
       'size' => 'col-12',
       'icon' => 'fas fa-calendar-plus',
       'description' => 'Set up a new holiday calendar',
-      'actions' => 
+      'actions' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Create',
-          'event' => 'navigate',
-          'params' => 
+          'event' => 'openDrawer',
+          'params' =>
           array (
-            'url' => '/holiday/holiday-calendars/create',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'holiday.holiday_calendar',
+              'recordId' => null,
+            ),
+            'title' => 'Create Calendar',
           ),
           'style' => 'secondary',
         ),
       ),
       'width' => 3,
     ),
-    12 => 
+    12 =>
     array (
       'type' => 'action_card',
       'title' => 'Batch Create Holidays',
       'size' => 'col-12',
       'icon' => 'fas fa-magic',
       'description' => 'Generate multiple holidays at once',
-      'actions' => 
+      'actions' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Batch',
           'event' => 'navigate',
-          'params' => 
+          'params' =>
           array (
             'url' => '/holiday/holiday-batch-creation',
           ),
@@ -285,14 +297,14 @@ return array (
       'width' => 3,
     ),
   ),
-  'roles' => 
+  'roles' =>
   array (
     'admin' => 'full',
     'hr_manager' => 'full',
     'manager' => 'limited',
     'employee' => 'basic',
   ),
-  'layout' => 
+  'layout' =>
   array (
     'columns' => 12,
     'gutter' => 3,

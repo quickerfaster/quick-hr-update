@@ -22,6 +22,11 @@ Route::middleware(['web', 'auth'])->group(function () {
         return view('attendance::dashboard');
     })->name('attendance.dashboard');
 
+    // My Attendance — Employee Self-Service view
+    Route::get('/attendance/my-attendance', function () {
+        return view('attendance::attendance.my-attendance');
+    })->name('attendance.my-attendance');
+
     // Overview dashboards
     Route::get('/attendance/dashboard-time-overview', function () {
         return view('attendance::dashboard-time-overview');
@@ -34,6 +39,16 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/attendance/dashboard-scheduling-overview', function () {
         return view('attendance::dashboard-scheduling-overview');
     })->name('attendance.dashboard-scheduling-overview');
+
+    // Adjust Attendance view
+    Route::get('/attendance/adjust-attendance', function () {
+        return view('attendance::adjust-attendance');
+    })->name('attendance.adjust-attendance');
+
+    // Attendance Work Sessions view
+    Route::get('/attendance/attendance-work-sessions', function () {
+        return view('attendance::attendance-work-sessions');
+    })->name('attendance.attendance-work-sessions');
 
     // Routes for AttendancePolicy
     Route::get('attendance-policies/create', function (\Illuminate\Http\Request $request) {

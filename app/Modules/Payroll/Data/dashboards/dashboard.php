@@ -3,9 +3,9 @@
 return array (
   'title' => 'Payroll Dashboard',
   'description' => 'Overview of payroll runs, pay schedules, policies, payslips, and payroll costs',
-  'widgets' => 
+  'widgets' =>
   array (
-    0 => 
+    0 =>
     array (
       'type' => 'stat',
       'title' => 'Active Payroll Profiles',
@@ -13,9 +13,9 @@ return array (
       'model' => 'App\\Modules\\Payroll\\Models\\EmployeePayrollProfile',
       'icon' => 'fas fa-user-tie',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'is_active',
           1 => '=',
@@ -24,7 +24,7 @@ return array (
       ),
       'width' => 3,
     ),
-    1 => 
+    1 =>
     array (
       'type' => 'stat',
       'title' => 'Active Pay Schedules',
@@ -32,9 +32,9 @@ return array (
       'model' => 'App\\Modules\\Payroll\\Models\\PaySchedule',
       'icon' => 'fas fa-calendar-alt',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'is_active',
           1 => '=',
@@ -43,7 +43,7 @@ return array (
       ),
       'width' => 3,
     ),
-    2 => 
+    2 =>
     array (
       'type' => 'stat',
       'title' => 'Payroll Policies',
@@ -53,7 +53,7 @@ return array (
       'aggregate' => 'count',
       'width' => 3,
     ),
-    3 => 
+    3 =>
     array (
       'type' => 'stat',
       'title' => 'Total Payroll Runs',
@@ -63,7 +63,7 @@ return array (
       'aggregate' => 'count',
       'width' => 3,
     ),
-    4 => 
+    4 =>
     array (
       'type' => 'stat',
       'title' => 'Draft Pay Runs',
@@ -71,9 +71,9 @@ return array (
       'model' => 'App\\Modules\\Payroll\\Models\\PayrollRun',
       'icon' => 'fas fa-pencil-alt',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'status',
           1 => '=',
@@ -82,7 +82,7 @@ return array (
       ),
       'width' => 3,
     ),
-    5 => 
+    5 =>
     array (
       'type' => 'stat',
       'title' => 'Paid Runs (This Month)',
@@ -90,15 +90,15 @@ return array (
       'model' => 'App\\Modules\\Payroll\\Models\\PayrollRun',
       'icon' => 'fas fa-check-circle',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'status',
           1 => '=',
           2 => 'paid',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'period_start',
           1 => '>=',
@@ -107,7 +107,7 @@ return array (
       ),
       'width' => 3,
     ),
-    6 => 
+    6 =>
     array (
       'type' => 'stat',
       'title' => 'Total Payslips',
@@ -117,7 +117,7 @@ return array (
       'aggregate' => 'count',
       'width' => 3,
     ),
-    7 => 
+    7 =>
     array (
       'type' => 'stat',
       'title' => 'Payslips (This Month)',
@@ -125,9 +125,9 @@ return array (
       'model' => 'App\\Modules\\Payroll\\Models\\PayrollPayslip',
       'icon' => 'fas fa-file-invoice',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'created_at',
           1 => '>=',
@@ -136,7 +136,7 @@ return array (
       ),
       'width' => 3,
     ),
-    8 => 
+    8 =>
     array (
       'type' => 'chart',
       'title' => 'Payroll Runs by Status',
@@ -148,7 +148,7 @@ return array (
       'aggregate' => 'count',
       'width' => 4,
     ),
-    9 => 
+    9 =>
     array (
       'type' => 'chart',
       'title' => 'Payroll Cost by Pay Schedule',
@@ -161,7 +161,7 @@ return array (
       'field' => 'total_cash_required',
       'width' => 4,
     ),
-    10 => 
+    10 =>
     array (
       'type' => 'trend',
       'title' => 'Payroll Cost Trend (Last 6 Months)',
@@ -176,7 +176,7 @@ return array (
       'period' => 6,
       'width' => 4,
     ),
-    11 => 
+    11 =>
     array (
       'type' => 'grouped_list',
       'title' => 'Payslips by Payment Status',
@@ -185,25 +185,25 @@ return array (
       'icon' => 'fas fa-tags',
       'description' => 'Payslip volume and net pay by payment status',
       'group_by' => 'payment_status',
-      'aggregates' => 
+      'aggregates' =>
       array (
         'id' => 'count',
         'net_pay' => 'sum',
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Status',
           'field' => 'group_label',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Payslips',
           'field' => 'id_count',
           'format' => 'number',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Net Pay',
           'field' => 'net_pay_sum',
@@ -214,7 +214,7 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/payroll/payroll-payslips',
     ),
-    12 => 
+    12 =>
     array (
       'type' => 'list',
       'title' => 'Recent Payroll Runs',
@@ -223,31 +223,31 @@ return array (
       'icon' => 'fas fa-file-invoice-dollar',
       'description' => 'Latest 5 runs',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'created_at',
         1 => 'desc',
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Period Start',
           'field' => 'period_start',
           'format' => 'date',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Period End',
           'field' => 'period_end',
           'format' => 'date',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Status',
           'field' => 'status',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'Total Gross',
           'field' => 'total_gross_pay',
@@ -258,7 +258,7 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/payroll/payroll-runs',
     ),
-    13 => 
+    13 =>
     array (
       'type' => 'list',
       'title' => 'Upcoming Pay Dates',
@@ -267,33 +267,33 @@ return array (
       'icon' => 'fas fa-calendar-alt',
       'description' => 'Next 5 scheduled pay days',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'next_pay_date',
         1 => 'asc',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'is_active',
           1 => '=',
           2 => true,
         ),
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Schedule',
           'field' => 'name',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Frequency',
           'field' => 'frequency',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Next Pay Date',
           'field' => 'next_pay_date',
@@ -304,7 +304,7 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/payroll/pay-schedules',
     ),
-    14 => 
+    14 =>
     array (
       'type' => 'list',
       'title' => 'Recent Payslips',
@@ -313,25 +313,25 @@ return array (
       'icon' => 'fas fa-receipt',
       'description' => 'Last 5 generated payslips',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'created_at',
         1 => 'desc',
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Payslip #',
           'field' => 'payslip_number',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Period End',
           'field' => 'payrollRun.period_end',
           'format' => 'date',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Net Pay',
           'field' => 'net_pay',
@@ -342,20 +342,20 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/payroll/payroll-payslips',
     ),
-    15 => 
+    15 =>
     array (
       'type' => 'action_card',
       'title' => 'Run Payroll',
       'size' => 'col-12',
       'icon' => 'fas fa-play-circle',
       'description' => 'Create a new payroll run',
-      'actions' => 
+      'actions' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Create',
           'event' => 'openPayrollWizard',
-          'params' => 
+          'params' =>
           array (
             'type' => 'new',
           ),
@@ -364,64 +364,76 @@ return array (
       ),
       'width' => 3,
     ),
-    16 => 
-    array (
-      'type' => 'action_card',
-      'title' => 'Create Pay Schedule',
-      'size' => 'col-12',
-      'icon' => 'fas fa-calendar-plus',
-      'description' => 'Set up a new pay frequency',
-      'actions' => 
-      array (
-        0 => 
-        array (
-          'label' => 'Create',
-          'event' => 'navigate',
-          'params' => 
-          array (
-            'url' => '/pay-schedules/create',
-          ),
-          'style' => 'secondary',
-        ),
-      ),
-      'width' => 3,
-    ),
-    17 => 
-    array (
-      'type' => 'action_card',
-      'title' => 'Add Payroll Policy',
-      'size' => 'col-12',
-      'icon' => 'fas fa-gavel',
-      'description' => 'Define a new payroll rule',
-      'actions' => 
-      array (
-        0 => 
-        array (
-          'label' => 'Add',
-          'event' => 'navigate',
-          'params' => 
-          array (
-            'url' => '/payroll-policies/create',
-          ),
-          'style' => 'secondary',
-        ),
-      ),
-      'width' => 3,
-    ),
-    18 => 
+    16 =>
+   array (
+     'type' => 'action_card',
+     'title' => 'Create Pay Schedule',
+     'size' => 'col-12',
+     'icon' => 'fas fa-calendar-plus',
+     'description' => 'Set up a new pay frequency',
+     'actions' =>
+     array (
+       0 =>
+       array (
+         'label' => 'Create',
+         'event' => 'openDrawer',
+         'params' =>
+         array (
+           'component' => 'qf.data-table-form',
+           'params' =>
+           array (
+             'configKey' => 'payroll.pay_schedule',
+             'recordId' => null,
+           ),
+           'title' => 'Create Pay Schedule',
+         ),
+         'style' => 'secondary',
+       ),
+     ),
+     'width' => 3,
+   ),
+    17 =>
+   array (
+     'type' => 'action_card',
+     'title' => 'Add Payroll Policy',
+     'size' => 'col-12',
+     'icon' => 'fas fa-gavel',
+     'description' => 'Define a new payroll rule',
+     'actions' =>
+     array (
+       0 =>
+       array (
+         'label' => 'Add',
+         'event' => 'openDrawer',
+         'params' =>
+         array (
+           'component' => 'qf.data-table-form',
+           'params' =>
+           array (
+             'configKey' => 'payroll.payroll_policy',
+             'recordId' => null,
+           ),
+           'title' => 'Add Payroll Policy',
+         ),
+         'style' => 'secondary',
+       ),
+     ),
+     'width' => 3,
+   ),
+    18 =>
     array (
       'type' => 'action_card',
       'title' => 'Export Bank File',
       'size' => 'col-12',
       'icon' => 'fas fa-file-export',
       'description' => 'Generate ACH/SEPA file for approved runs',
-      'actions' => 
+      'actions' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Export',
           'event' => 'openBankFileExport',
-          'params' => 
+          'params' =>
           array (
             'run_status' => 'approved',
           ),
@@ -431,14 +443,14 @@ return array (
       'width' => 3,
     ),
   ),
-  'roles' => 
+  'roles' =>
   array (
     'admin' => 'full',
     'hr_manager' => 'full',
     'payroll_officer' => 'full',
     'manager' => 'limited',
   ),
-  'layout' => 
+  'layout' =>
   array (
     'columns' => 12,
     'gutter' => 3,

@@ -31,7 +31,9 @@ class Document extends Model
 
 
     protected $fillable = [
-        'company_id', 'employee_id', 'name', 'type', 'document', 'uploaded_at', 'expiry_date', 'description'
+        'company_id', 'employee_id', 'name', 'type', 'document', 'file_path', 'file_name',
+        'uploaded_at', 'expiry_date', 'description',
+        'documentable_type', 'documentable_id'
     ];
 
     protected $guarded = [
@@ -72,6 +74,22 @@ class Document extends Model
     {
         parent::boot();
 
+        static::creating(function ($document) {
+            if (empty($document->documentable_type) && !empty($document->employee_id)) {
+                $document->documentable_type = \App\Modules\Hr\Models\Employee::class;
+                $document->documentable_id = $document->employee_id;
+            }
+
+            // Copy file upload path to the NOT NULL database columns
+            // The form field 'document' stores the upload path, but the
+            // library's base migration requires 'file_path' and 'file_name'.
+            if (empty($document->file_path) && !empty($document->document)) {
+                $document->file_path = $document->document;
+                $document->file_name = pathinfo($document->document, PATHINFO_BASENAME);
+            }
+
+            $document->uploaded_at = $document->uploaded_at ?? now();
+        });
     }
 
     /**
@@ -105,6 +123,14 @@ class Document extends Model
     public function company()
     {
         return $this->belongsTo(\App\Modules\Hr\Models\Company::class, 'company_id', 'id');
+    }
+
+    /**
+     * Polymorphic relationship for the documentable entity.
+     */
+    public function documentable()
+    {
+        return $this->morphTo();
     }
 
     /**

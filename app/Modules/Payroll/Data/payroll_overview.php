@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Payroll Overview — Placeholder Stub
+ *
+ * This data config is a stub and is not actively used in the current
+ * Payroll module. It exists as a placeholder for a future payroll
+ * overview / summary view. The model `PayrollOverview` referenced
+ * here may not yet exist or be fully implemented.
+ *
+ * Do not rely on this config for production data tables or forms.
+ */
+
 return [
   'model' => 'App\Modules\Payroll\Models\PayrollOverview',
   'fieldDefinitions' => [
@@ -35,9 +46,7 @@ return [
   ],
   'detailComponent' => '',
   'hiddenFields' => [
-    'onTable' => [
-      '0' => 'company_id',
-    ],
+    'onTable' => [],
     'onNewForm' => [
       '0' => 'company_id',
     ],

@@ -33,7 +33,7 @@ class PayrollRunSummaryExport implements ShouldQueue
         // We'll use chunking and concatenation if needed. For now, we assume
         // the total records fit within memory if we process lazily.
 
-        $pdf = Pdf::loadView('hr::livewire.payroll.exports.payroll_run_summary_pdf', [
+        $pdf = Pdf::loadView('payroll::livewire.payroll.exports.payroll_run_summary_pdf', [
             'run' => $this->run,
             'payslips' => $payslips,
             'currencySymbol' => $this->currencySymbol,

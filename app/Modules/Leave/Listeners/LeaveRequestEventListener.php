@@ -8,9 +8,40 @@ use QuickerFaster\UILibrary\Listeners\DataTableRecordListener;
 use App\Modules\Leave\Services\LeaveAttendanceSync;
 use App\Modules\Leave\Models\LeaveRequest;
 use App\Modules\Attendance\Services\AttendanceAggregator;
+use QuickerFaster\UILibrary\Models\Document;
 
 class LeaveRequestEventListener extends DataTableRecordListener
 {
+    protected function handleCreated(DataTableRecordSaved $event): void
+    {
+        if (!str_contains($event->model, 'LeaveRequest')) {
+            return;
+        }
+
+        if (!isset($event->newRecord['id']) || empty($event->newRecord['attachments'] ?? null)) {
+            return;
+        }
+
+        $leaveRequest = LeaveRequest::find($event->newRecord['id']);
+        if (!$leaveRequest) {
+            return;
+        }
+
+        $filePath = $event->newRecord['attachments'];
+
+        Document::create([
+            'documentable_type' => LeaveRequest::class,
+            'documentable_id' => $leaveRequest->id,
+            'name' => basename($filePath),
+            'file_path' => $filePath,
+            'file_name' => basename($filePath),
+            'mime_type' => \Illuminate\Support\Facades\Storage::disk('public')->mimeType($filePath) ?? 'application/octet-stream',
+            'size' => \Illuminate\Support\Facades\Storage::disk('public')->size($filePath) ?? 0,
+            'document_type' => 'leave_request',
+            'disk' => 'public',
+        ]);
+    }
+
     protected function handleUpdated(DataTableRecordSaved $event): void
     {
         if (!str_contains($event->model, 'LeaveRequest')) {

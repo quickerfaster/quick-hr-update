@@ -115,7 +115,7 @@ class PayrollPolicyAssignment extends Model
 
     public function company()
     {
-        return $this->belongsTo(\App\Modules\Payroll\Models\Company::class, 'company_id', 'id');
+        return $this->belongsTo(\App\Modules\Hr\Models\Company::class, 'company_id', 'id');
     }
 
     /**

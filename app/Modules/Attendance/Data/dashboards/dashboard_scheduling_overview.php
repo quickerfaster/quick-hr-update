@@ -3,9 +3,9 @@
 return array (
   'title' => 'Scheduling Overview',
   'description' => 'Configure shifts, shift schedules, and employee work patterns',
-  'widgets' => 
+  'widgets' =>
   array (
-    0 => 
+    0 =>
     array (
       'type' => 'stat',
       'title' => 'Active Shifts',
@@ -13,9 +13,9 @@ return array (
       'model' => 'App\\Modules\\Attendance\\Models\\Shift',
       'icon' => 'fas fa-calendar-day',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'is_active',
           1 => '=',
@@ -24,7 +24,7 @@ return array (
       ),
       'width' => 3,
     ),
-    1 => 
+    1 =>
     array (
       'type' => 'stat',
       'title' => 'Published Shift Schedules',
@@ -32,9 +32,9 @@ return array (
       'model' => 'App\\Modules\\Attendance\\Models\\ShiftSchedule',
       'icon' => 'fas fa-calendar-check',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'is_published',
           1 => '=',
@@ -43,7 +43,7 @@ return array (
       ),
       'width' => 3,
     ),
-    2 => 
+    2 =>
     array (
       'type' => 'stat',
       'title' => 'Active Work Patterns',
@@ -51,9 +51,9 @@ return array (
       'model' => 'App\\Modules\\Attendance\\Models\\WorkPattern',
       'icon' => 'fas fa-calendar-week',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'is_active',
           1 => '=',
@@ -62,7 +62,7 @@ return array (
       ),
       'width' => 3,
     ),
-    3 => 
+    3 =>
     array (
       'type' => 'stat',
       'title' => 'Employee Work Pattern Assignments',
@@ -72,7 +72,7 @@ return array (
       'aggregate' => 'count',
       'width' => 3,
     ),
-    4 => 
+    4 =>
     array (
       'type' => 'chart',
       'title' => 'Work Patterns by Type',
@@ -84,7 +84,7 @@ return array (
       'aggregate' => 'count',
       'width' => 4,
     ),
-    5 => 
+    5 =>
     array (
       'type' => 'chart',
       'title' => 'Shifts by Category',
@@ -94,9 +94,9 @@ return array (
       'chart_type' => 'bar',
       'description' => 'Active shifts across categories',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'is_active',
           1 => '=',
@@ -105,7 +105,7 @@ return array (
       ),
       'width' => 4,
     ),
-    6 => 
+    6 =>
     array (
       'type' => 'list',
       'title' => 'Upcoming Shift Schedules',
@@ -114,45 +114,45 @@ return array (
       'icon' => 'fas fa-calendar-check',
       'description' => 'Next 5 scheduled shifts',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'schedule_date',
         1 => 'asc',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'schedule_date',
           1 => '>=',
           2 => 'today',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'is_published',
           1 => '=',
           2 => true,
         ),
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Employee',
           'field' => 'employee.employee_number',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Date',
           'field' => 'schedule_date',
           'format' => 'date',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Shift',
           'field' => 'shift.name',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'Status',
           'field' => 'status',
@@ -162,7 +162,7 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/attendance/shift-schedules',
     ),
-    7 => 
+    7 =>
     array (
       'type' => 'list',
       'title' => 'Recent Work Patterns',
@@ -171,29 +171,29 @@ return array (
       'icon' => 'fas fa-calendar-week',
       'description' => 'Latest 5 work patterns',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'created_at',
         1 => 'desc',
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Pattern',
           'field' => 'name',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Type',
           'field' => 'pattern_type',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Shift',
           'field' => 'shift.name',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'Active',
           'field' => 'is_active',
@@ -204,59 +204,71 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/attendance/work-patterns',
     ),
-    8 => 
+    8 =>
     array (
       'type' => 'action_card',
       'title' => 'Create Shift',
       'size' => 'col-12',
       'icon' => 'fas fa-calendar-plus',
       'description' => 'Define a new shift template',
-      'actions' => 
+      'actions' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Create',
-          'event' => 'navigate',
-          'params' => 
+          'event' => 'openDrawer',
+          'params' =>
           array (
-            'url' => '/attendance/shifts',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'attendance.shift',
+              'recordId' => null,
+            ),
+            'title' => 'Create Shift',
           ),
           'style' => 'primary',
         ),
       ),
       'width' => 3,
     ),
-    9 => 
-    array (
-      'type' => 'action_card',
-      'title' => 'Add Work Pattern',
-      'size' => 'col-12',
-      'icon' => 'fas fa-calendar-plus',
-      'description' => 'Create a recurring work pattern',
-      'actions' => 
-      array (
-        0 => 
-        array (
-          'label' => 'Add',
-          'event' => 'navigate',
-          'params' => 
-          array (
-            'url' => '/attendance/work-patterns',
-          ),
-          'style' => 'secondary',
-        ),
-      ),
-      'width' => 3,
-    ),
+    9 =>
+   array (
+     'type' => 'action_card',
+     'title' => 'Add Work Pattern',
+     'size' => 'col-12',
+     'icon' => 'fas fa-calendar-plus',
+     'description' => 'Create a recurring work pattern',
+     'actions' =>
+     array (
+       0 =>
+       array (
+         'label' => 'Add',
+         'event' => 'openDrawer',
+         'params' =>
+         array (
+           'component' => 'qf.data-table-form',
+           'params' =>
+           array (
+             'configKey' => 'attendance.work_pattern',
+             'recordId' => null,
+           ),
+           'title' => 'Add Work Pattern',
+         ),
+         'style' => 'secondary',
+       ),
+     ),
+     'width' => 3,
+   ),
   ),
-  'roles' => 
+  'roles' =>
   array (
     'admin' => 'full',
     'hr_manager' => 'full',
     'hr_admin' => 'limited',
     'manager' => 'limited',
   ),
-  'layout' => 
+  'layout' =>
   array (
     'columns' => 12,
     'gutter' => 3,

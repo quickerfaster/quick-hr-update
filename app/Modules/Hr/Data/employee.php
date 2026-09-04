@@ -312,7 +312,7 @@ return [
     ],
   ],
   'switchViews' => [
-    'default' => 'table',
+    'default' => 'list',
     'table' => [
       'enabled' => true,
     ],

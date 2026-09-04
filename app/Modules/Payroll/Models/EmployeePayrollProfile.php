@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use App\Modules\Payroll\Models\Employee;
+use App\Modules\Hr\Models\Employee;
 use App\Modules\Payroll\Models\PaySchedule;
 
 use Illuminate\Database\Eloquent\Model;
@@ -119,7 +119,7 @@ class EmployeePayrollProfile extends Model
 
     public function employee()
     {
-        return $this->belongsTo(\App\Modules\Payroll\Models\Employee::class, 'employee_id', 'id');
+        return $this->belongsTo(\App\Modules\Hr\Models\Employee::class, 'employee_id', 'id');
     }
 
     public function paySchedule()
@@ -129,7 +129,7 @@ class EmployeePayrollProfile extends Model
 
     public function company()
     {
-        return $this->belongsTo(\App\Modules\Payroll\Models\Company::class, 'company_id', 'id');
+        return $this->belongsTo(\App\Modules\Hr\Models\Company::class, 'company_id', 'id');
     }
 
     /**

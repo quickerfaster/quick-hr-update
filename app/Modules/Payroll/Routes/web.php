@@ -7,6 +7,7 @@ use App\Modules\Payroll\Http\Controllers\PayrollReportController;
 use App\Modules\Payroll\Http\Controllers\PayslipController;
 use App\Modules\Payroll\Http\Controllers\BankFileController;
 use App\Modules\Payroll\Models\PayrollRun;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 Route::middleware([
     'web',
@@ -15,6 +16,16 @@ Route::middleware([
     Route::get('/payroll/dashboard', function () {
         return view('payroll::dashboard');
     })->name('payroll.dashboard');
+
+    // Payroll Approvals
+    Route::get('/payroll/approvals', function () {
+        return view('payroll::approvals');
+    })->name('payroll.approvals');
+
+    // My Payslips — Employee Self-Service view
+    Route::get('/payroll/my-payslips', function () {
+        return view('payroll::payroll.my-payslips');
+    })->name('payroll.my-payslips');
 
     // Processing overview dashboard
     Route::get('/payroll/dashboard-processing-overview', function () {
@@ -34,9 +45,9 @@ Route::middleware([
     Route::post('/payroll/payroll-runs/{payrollRun}/approve', [PayrollRunController::class, 'approve'])
         ->name('payroll.runs.approve');
 
-    // Preview modal
+    // Edit payroll run
     Route::get('/payroll/payroll-runs/{payrollRun}/edit', [PayrollRunController::class, 'edit'])
-        ->name('payroll.payroll-employees.edit');
+        ->name('payroll.payroll-runs.edit');
 
     // Payroll Reports
     Route::get('/payroll/payroll-runs/{payrollRun}/report', [PayrollReportController::class, 'show'])
@@ -116,7 +127,30 @@ Route::middleware([
         return view('payroll::livewire.payroll.payroll-executive-summary', ['run' => $run]);
     })->name('payroll-run.executive-summary');
 
+    // Summary PDF download
+    Route::get('/payroll/payroll-run/{run}/summary-pdf', function (PayrollRun $run) {
+        $currencyCode = $run->paySchedule?->currency_code ?? $run->base_currency ?? 'USD';
+        $companyName = $run->paySchedule?->company?->name ?? ($run->is_multi_company ? 'All Companies' : config('app.name', 'Quick HR'));
+        $currencySymbol = "N";
+        $run->load('payslips.employee');
+
+        $pdf = Pdf::loadView('payroll::livewire.payroll.print.payroll-run-summary', [
+            'run' => $run,
+            'currencySymbol' => $currencySymbol,
+            'companyName' => $companyName,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('payroll-run-summary-' . $run->id . '.pdf');
+    })->name('payroll-run.summary-pdf');
+
+    // Payroll Wizard
+    Route::get('/payroll/payroll-wizard', function () {
+        return view('payroll::payroll-wizard');
+    })->name('payroll.payroll-wizard');
+
 })->middleware(['auth']);
+
+Route::middleware(['web', 'auth'])->group(function () {
 
 // Routes for PaySchedule
 
@@ -175,6 +209,11 @@ Route::get('employee-payroll-profiles/{id}/edit', function (\Illuminate\Http\Req
 })->name('employee-payroll-profiles.edit')->where('id', '[0-9]+');
 
 // Routes for PayrollRun
+
+// Index (List) Route
+Route::get('payroll-runs', function () {
+    return view('payroll::payroll-runs');
+})->name('payroll-runs.index');
 
 // Create Route
 Route::get('payroll-runs/create', function (\Illuminate\Http\Request $request) {
@@ -257,3 +296,23 @@ Route::get('payroll-policies/{id}/edit', function (\Illuminate\Http\Request $req
         'returnParams' => $request->only(['page', 'perPage', 'search', 'sort', 'activeFilters'])
     ]);
 })->name('payroll-policies.edit')->where('id', '[0-9]+');
+
+// Index routes for navigation items without explicit index routes
+
+Route::get('/payroll/payroll-run-adjustments', function () {
+    return view('payroll::payroll-run-adjustments');
+})->name('payroll.payroll-run-adjustments');
+
+Route::get('/payroll/employee-adjustment-profiles', function () {
+    return view('payroll::employee-adjustment-profiles');
+})->name('payroll.employee-adjustment-profiles');
+
+Route::get('/payroll/payslip-items', function () {
+    return view('payroll::payslip-items');
+})->name('payroll.payslip-items');
+
+Route::get('/payroll/payroll-policy-assignments', function () {
+    return view('payroll::payroll-policy-assignments');
+})->name('payroll.payroll-policy-assignments');
+
+});

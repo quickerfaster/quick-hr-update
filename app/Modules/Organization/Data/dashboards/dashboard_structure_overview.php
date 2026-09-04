@@ -155,10 +155,16 @@ return array (
         0 =>
         array (
           'label' => 'Create',
-          'event' => 'navigate',
+          'event' => 'openDrawer',
           'params' =>
           array (
-            'url' => '/organization/departments',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'hr.department',
+              'recordId' => null,
+            ),
+            'title' => 'Add Department',
           ),
           'style' => 'primary',
         ),
@@ -166,27 +172,33 @@ return array (
       'width' => 3,
     ),
     9 =>
-    array (
-      'type' => 'action_card',
-      'title' => 'Add Division',
-      'size' => 'col-12',
-      'icon' => 'fas fa-diagram-project',
-      'description' => 'Create a new division under a department',
-      'actions' =>
-      array (
-        0 =>
-        array (
-          'label' => 'Create',
-          'event' => 'navigate',
-          'params' =>
-          array (
-            'url' => '/organization/divisions',
-          ),
-          'style' => 'secondary',
-        ),
-      ),
-      'width' => 3,
-    ),
+   array (
+     'type' => 'action_card',
+     'title' => 'Add Division',
+     'size' => 'col-12',
+     'icon' => 'fas fa-diagram-project',
+     'description' => 'Create a new division under a department',
+     'actions' =>
+     array (
+       0 =>
+       array (
+         'label' => 'Create',
+         'event' => 'openDrawer',
+         'params' =>
+         array (
+           'component' => 'qf.data-table-form',
+           'params' =>
+           array (
+             'configKey' => 'organization.division',
+             'recordId' => null,
+           ),
+           'title' => 'Add Division',
+         ),
+         'style' => 'secondary',
+       ),
+     ),
+     'width' => 3,
+   ),
   ),
   'roles' =>
   array (

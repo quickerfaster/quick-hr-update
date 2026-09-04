@@ -146,7 +146,6 @@ return [
         '4' => 'created_at',
         '5' => 'updated_at',
         '6' => 'deleted_at',
-        '7' => 'company_id',
     ],
     'onNewForm' => [
         '0' => 'created_by',

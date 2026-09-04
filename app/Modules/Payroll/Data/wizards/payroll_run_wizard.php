@@ -4,32 +4,32 @@ return array (
   'id' => 'payroll_run_wizard',
   'title' => 'Process Payroll',
   'description' => 'Run payroll for a selected pay schedule',
-  'returnPath' => '/hr/payroll-runs',
-  'steps' => 
+  'returnPath' => '/payroll/payroll-runs',
+  'steps' =>
   array (
-    0 => 
+    0 =>
     array (
       'title' => 'Verification',
       'model' => 'App\\Modules\\Hr\\Models\\PayrollRun',
-      'groups' => 
+      'groups' =>
       array (
         0 => 'schedule_period',
       ),
       'isLinkSource' => true,
-      'customValidation' => 
+      'customValidation' =>
       array (
         0 => 'checkNoConflictingRun',
         1 => 'checkEmployeesHaveBankAccounts',
       ),
     ),
-    1 => 
+    1 =>
     array (
       'title' => 'Adjustments',
       'model' => NULL,
       'customComponent' => 'qf.payroll-wizard-adjustments',
       'description' => 'Add one‑time bonuses, deductions, or corrections',
     ),
-    2 => 
+    2 =>
     array (
       'title' => 'Review & Preview',
       'model' => NULL,
@@ -37,43 +37,43 @@ return array (
       'description' => 'Verify all calculations before finalising',
     ),
   ),
-  'completion' => 
+  'completion' =>
   array (
     'title' => 'Payroll Run Ready for Review!',
     'message' => 'Payroll for {period_start} to {period_end} has been calculated. A manager must approve it before payments can be made.',
-    'actions' => 
+    'actions' =>
     array (
-      0 => 
+      0 =>
       array (
         'label' => 'View Payroll Run',
-        'url' => '/hr/payroll-runs?id={id}',
+        'url' => '/payroll/payroll-runs?id={id}',
         'primary' => true,
       ),
-      1 => 
+      1 =>
       array (
         'label' => 'Notify Manager',
         'event' => 'notifyManager',
-        'eventParams' => 
+        'eventParams' =>
         array (
           'payroll_run_id' => '{id}',
         ),
       ),
-      2 => 
+      2 =>
       array (
         'label' => 'Start Another Run',
-        'url' => '/hr/payroll-wizard',
+        'url' => '/payroll/payroll-wizard',
       ),
     ),
   ),
-  'linkFields' => 
+  'linkFields' =>
   array (
     'userField' => 'payroll_run_id',
     'databaseField' => 'payroll_run_id',
   ),
-  'models' => 
+  'models' =>
   array (
     'primary' => 'App\\Modules\\Hr\\Models\\PayrollRun',
-    'related' => 
+    'related' =>
     array (
     ),
   ),

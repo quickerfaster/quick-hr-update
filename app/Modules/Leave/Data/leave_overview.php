@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Placeholder stub — not actively used.
+ * Scaffolded for a future LeaveOverview data table config.
+ */
 return [
   'model' => 'App\Modules\Leave\Models\LeaveOverview',
   'fieldDefinitions' => [

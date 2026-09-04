@@ -370,7 +370,7 @@ public function render()
     $run = PayrollRun::withoutCompanyScope()->find($this->payrollRunId);
     if (!$run) {
         $this->redirectRoute('payroll-runs.create', ['error' => 'Payroll run not found.']);
-        return view('hr::livewire.payroll.wizard-adjustments', [
+        return view('payroll::livewire.payroll.wizard-adjustments', [
             'employees'        => collect(),
             'companies'        => collect(),
             'departments'      => collect(),
@@ -422,7 +422,7 @@ public function render()
         $companyName = $company ? $company->name : 'Unknown Company';
     }
 
-    return view('hr::livewire.payroll.wizard-adjustments', [
+    return view('payroll::livewire.payroll.wizard-adjustments', [
         'employees'        => $this->employees,
         'companies'        => $companies,
         'departments'      => $departments,

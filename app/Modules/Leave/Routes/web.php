@@ -8,6 +8,11 @@ Route::middleware(['web', 'auth'])->group(function () {
         return view('leave::dashboard');
     })->name('leave.dashboard');
 
+    // My Leave — Employee Self-Service view
+    Route::get('/leave/my-leave', function () {
+        return view('leave::leave.my-leave');
+    })->name('leave.my-leave');
+
     // Routes for LeaveType
     Route::get('/leave/leave-types', function () {
         return view('leave::leave-types');
@@ -37,6 +42,10 @@ Route::middleware(['web', 'auth'])->group(function () {
     })->name('leave-types.edit')->where('id', '[0-9]+');
 
     // Routes for LeaveRequest
+    Route::get('/leave/leave-requests', function () {
+        return view('leave::leave-requests');
+    })->name('leave.leave-requests');
+
     Route::get('leave-requests/create', function (\Illuminate\Http\Request $request) {
         return view('leave::leave-requests.create', [
             'configKey' => 'leave.leave_request',
@@ -52,6 +61,11 @@ Route::middleware(['web', 'auth'])->group(function () {
         ]);
     })->name('leave-requests.show')->where('id', '[0-9]+');
 
+    // Approvals
+    Route::get('/leave/approvals', function () {
+        return view('leave::approvals');
+    })->name('leave.approvals');
+
     Route::get('leave-requests/{id}/edit', function (\Illuminate\Http\Request $request, $id) {
         return view('leave::leave-requests.edit', [
             'recordId' => (int) $id,
@@ -61,6 +75,10 @@ Route::middleware(['web', 'auth'])->group(function () {
     })->name('leave-requests.edit')->where('id', '[0-9]+');
 
     // Routes for LeaveBalance
+    Route::get('/leave/leave-balances', function () {
+        return view('leave::leave-balances');
+    })->name('leave.leave-balances');
+
     Route::get('leave-balances/create', function (\Illuminate\Http\Request $request) {
         return view('leave::leave-balances.create', [
             'configKey' => 'leave.leave_balance',
@@ -83,30 +101,6 @@ Route::middleware(['web', 'auth'])->group(function () {
             'returnParams' => $request->only(['page', 'perPage', 'search', 'sort', 'activeFilters'])
         ]);
     })->name('leave-balances.edit')->where('id', '[0-9]+');
-
-    // Routes for LeaveApprover
-    Route::get('leave-approvers/create', function (\Illuminate\Http\Request $request) {
-        return view('leave::leave-approvers.create', [
-            'configKey' => 'leave.leave_approver',
-            'returnParams' => $request->only(['page', 'perPage', 'search', 'sort', 'activeFilters'])
-        ]);
-    })->name('leave-approvers.create');
-
-    Route::get('leave-approvers/{id}', function (\Illuminate\Http\Request $request, $id) {
-        return view('leave::leave-approvers.show', [
-            'recordId' => (int) $id,
-            'configKey' => 'leave.leave_approver',
-            'returnParams' => $request->only(['page', 'perPage', 'search', 'sort', 'activeFilters'])
-        ]);
-    })->name('leave-approvers.show')->where('id', '[0-9]+');
-
-    Route::get('leave-approvers/{id}/edit', function (\Illuminate\Http\Request $request, $id) {
-        return view('leave::leave-approvers.edit', [
-            'recordId' => (int) $id,
-            'configKey' => 'leave.leave_approver',
-            'returnParams' => $request->only(['page', 'perPage', 'search', 'sort', 'activeFilters'])
-        ]);
-    })->name('leave-approvers.edit')->where('id', '[0-9]+');
 
     // Overview dashboards
     Route::get('/leave/dashboard-leave-overview', function () {

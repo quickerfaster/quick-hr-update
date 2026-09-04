@@ -12,7 +12,7 @@ return [
       'filterable' => true,
       'searchable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'company',
@@ -20,7 +20,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -193,7 +193,6 @@ return [
       '8' => 'created_at',
       '9' => 'updated_at',
       '10' => 'deleted_at',
-      '11' => 'company_id',
     ],
     'onNewForm' => [
       '0' => 'assigned_employee_count',
@@ -222,7 +221,7 @@ return [
     '2' => 'delete',
   ],
   'isTransaction' => false,
-  'crudType' => 'pages',
+  'crudType' => 'drawers',
   'includeControllers' => false,
   'tableDefaultFields' => [
     '0' => 'company_id',

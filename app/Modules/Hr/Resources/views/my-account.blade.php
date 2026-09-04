@@ -10,7 +10,7 @@
 
 @endphp
 
-<x-qf::navigation-layout configKey="hr.employee" context="people" moduleName="hr" :overrides="[
+<x-qf::navigation-layout configKey="hr.employee" context="my-portal" moduleName="hr" :overrides="[
     'top_bar' => ['enabled' => true],
     'breadcrumb' => ['enabled' => false],
     'title' => ['enabled' => false],

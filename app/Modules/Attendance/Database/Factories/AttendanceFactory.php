@@ -3,9 +3,9 @@
 namespace App\Modules\Attendance\Database\Factories;
 
 use App\Modules\Attendance\Models\Attendance;
-use App\Modules\Attendance\Models\Employee;
-use App\Modules\Attendance\Models\Company;
-use App\Modules\Attendance\Models\Department;
+use App\Modules\Hr\Models\Employee;
+use App\Modules\Hr\Models\Company;
+use App\Modules\Hr\Models\Department;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AttendanceFactory extends Factory

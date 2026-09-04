@@ -163,7 +163,6 @@ return [
       '3' => 'calculation_metadata',
       '4' => 'created_at',
       '5' => 'updated_at',
-      '6' => 'company_id',
     ],
     'onNewForm' => [
       '0' => 'calculation_metadata',

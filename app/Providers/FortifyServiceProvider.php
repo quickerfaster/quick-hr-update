@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
+use Laravel\Fortify\Contracts\LoginResponse;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -51,6 +52,33 @@ class FortifyServiceProvider extends ServiceProvider
             return Limit::perMinute(10)->by(
                 ($credentialId ?: $request->session()->getId()).'|'.$request->ip()
             );
+        });
+
+        $this->app->singleton(LoginResponse::class, function () {
+            return new class implements LoginResponse {
+                public function toResponse($request)
+                {
+                    $user = $request->user();
+
+                    return match (true) {
+                        // ESS employees → My Portal
+                        $user->hasRole('employee') && !$user->hasAnyRole(['super_admin', 'admin', 'company_admin'])
+                            => redirect()->intended('/hr/my-portal'),
+
+                        // Payroll officers → Payroll dashboard
+                        $user->hasRole('payroll_officer')
+                            => redirect()->intended('/payroll/dashboard-processing-overview'),
+
+                        // HR managers → People overview
+                        $user->hasRole('hr_manager')
+                            => redirect()->intended('/hr/dashboard-people-overview'),
+
+                        // Admins and everyone else → default /home
+                        default
+                            => redirect()->intended('/home'),
+                    };
+                }
+            };
         });
     }
 }

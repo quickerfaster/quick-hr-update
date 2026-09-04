@@ -242,6 +242,9 @@ class PolicyCalculationBuilder extends Component
             $data['calculation_type'] = $this->calculationType;
             $data['employee_value'] = (float) $this->employeeValue;
             $data['employer_value'] = (float) $this->employerValue;
+            // Alias for the form validator, which reads individual_value / organization_value
+            $data['individual_value'] = (float) $this->employeeValue;
+            $data['organization_value'] = (float) $this->employerValue;
         }
 
         return json_encode($data);
@@ -255,6 +258,6 @@ class PolicyCalculationBuilder extends Component
 
     public function render()
     {
-        return view('hr::livewire.payroll.policy-calculation-builder');
+        return view('payroll::livewire.payroll.policy-calculation-builder');
     }
 }

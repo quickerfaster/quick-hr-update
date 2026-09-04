@@ -32,6 +32,22 @@ Route::middleware(['web', 'auth'])->group(function () {
         return view('organization::organization.dashboard-reports-overview');
     })->name('organization.dashboard-reports-overview');
 
+    Route::get('/organization/reports/companies', function () {
+        return view('organization::organization.reports-companies');
+    })->name('organization.reports.companies');
+
+    Route::get('/organization/reports/departments', function () {
+        return view('organization::organization.reports-departments');
+    })->name('organization.reports.departments');
+
+    Route::get('/organization/reports/locations', function () {
+        return view('organization::organization.reports-locations');
+    })->name('organization.reports.locations');
+
+    Route::get('/organization/reports/growth', function () {
+        return view('organization::organization.reports-growth');
+    })->name('organization.reports.growth');
+
     Route::get('/organization/dashboard-teams-overview', function () {
         return view('organization::organization.dashboard-teams-overview');
     })->name('organization.dashboard-teams-overview');
@@ -63,4 +79,21 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('/organization/teams', function () {
         return view('organization::organization.teams');
     })->name('organization.teams');
+
+    // Dashboard sub-pages (3-segment URLs not handled by catch-all)
+    Route::get('/organization/dashboard/organization-summary', function () {
+        return view('organization::organization.dashboard.organization-summary');
+    })->name('organization.dashboard.organization-summary');
+
+    Route::get('/organization/dashboard/growth', function () {
+        return view('organization::organization.dashboard.growth');
+    })->name('organization.dashboard.growth');
+
+    Route::get('/organization/dashboard/recent-changes', function () {
+        return view('organization::organization.dashboard.recent-changes');
+    })->name('organization.dashboard.recent-changes');
+
+    Route::get('/organization/organization-chart', function () {
+        return view('organization::organization.organization-chart');
+    })->name('organization.organization-chart');
 });

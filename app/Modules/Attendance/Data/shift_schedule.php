@@ -12,7 +12,7 @@ return [
       'filterable' => true,
       'searchable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'company',
@@ -20,7 +20,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -34,7 +34,7 @@ return [
       'filterable' => true,
       'searchable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\Employee',
+        'model' => 'App\Modules\Hr\Models\Employee',
         'type' => 'belongsTo',
         'display_field' => 'employee_number',
         'dynamic_property' => 'employee',
@@ -42,7 +42,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\Employee',
+        'model' => 'App\Modules\Hr\Models\Employee',
         'column' => 'employee_number',
         'hintField' => 'first_name,last_name',
       ],
@@ -154,7 +154,7 @@ return [
       'filterable' => true,
       'searchable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\Employee',
+        'model' => 'App\Modules\Hr\Models\Employee',
         'type' => 'belongsTo',
         'display_field' => 'employee_number',
         'dynamic_property' => 'coverEmployee',
@@ -162,7 +162,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\Employee',
+        'model' => 'App\Modules\Hr\Models\Employee',
         'column' => 'employee_number',
         'hintField' => 'first_name,last_name',
       ],
@@ -260,7 +260,6 @@ return [
       '9' => 'created_at',
       '10' => 'updated_at',
       '11' => 'deleted_at',
-      '12' => 'company_id',
     ],
     'onNewForm' => [
       '0' => 'actual_start_time',
@@ -564,7 +563,7 @@ return [
   'relations' => [
     'employee' => [
       'type' => 'belongsTo',
-      'model' => 'App\Modules\Attendance\Models\Employee',
+      'model' => 'App\Modules\Hr\Models\Employee',
       'foreignKey' => 'employee_id',
       'localKey' => '',
     ],
@@ -576,7 +575,7 @@ return [
     ],
     'coverEmployee' => [
       'type' => 'belongsTo',
-      'model' => 'App\Modules\Attendance\Models\Employee',
+      'model' => 'App\Modules\Hr\Models\Employee',
       'foreignKey' => 'cover_employee_id',
       'localKey' => '',
     ],

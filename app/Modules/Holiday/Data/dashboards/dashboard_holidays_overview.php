@@ -198,27 +198,33 @@ return array (
       'view_all_link' => '/holiday/holiday-calendars',
     ),
     9 =>
-    array (
-      'type' => 'action_card',
-      'title' => 'Add Holiday',
-      'size' => 'col-12',
-      'icon' => 'fas fa-plus-circle',
-      'description' => 'Create a new holiday entry',
-      'actions' =>
-      array (
-        0 =>
-        array (
-          'label' => 'Create',
-          'event' => 'navigate',
-          'params' =>
-          array (
-            'url' => '/holiday/holidays/create',
-          ),
-          'style' => 'primary',
-        ),
-      ),
-      'width' => 3,
-    ),
+   array (
+     'type' => 'action_card',
+     'title' => 'Add Holiday',
+     'size' => 'col-12',
+     'icon' => 'fas fa-plus-circle',
+     'description' => 'Create a new holiday entry',
+     'actions' =>
+     array (
+       0 =>
+       array (
+         'label' => 'Create',
+         'event' => 'openDrawer',
+         'params' =>
+         array (
+           'component' => 'qf.data-table-form',
+           'params' =>
+           array (
+             'configKey' => 'holiday.holiday',
+             'recordId' => null,
+           ),
+           'title' => 'Add Holiday',
+         ),
+         'style' => 'primary',
+       ),
+     ),
+     'width' => 3,
+   ),
     10 =>
     array (
       'type' => 'action_card',
@@ -253,10 +259,16 @@ return array (
         0 =>
         array (
           'label' => 'Manage',
-          'event' => 'navigate',
+          'event' => 'openDrawer',
           'params' =>
           array (
-            'url' => '/holiday/holiday-calendars',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'holiday.holiday_calendar',
+              'recordId' => null,
+            ),
+            'title' => 'Create Calendar',
           ),
           'style' => 'secondary',
         ),

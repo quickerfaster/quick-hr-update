@@ -22,7 +22,7 @@ public function __construct(
     {
 
         $data = $this->reportService->generateReportData($payrollRun);
-        return view('hr::components.livewire.bootstrap.payroll.reports.run-report', [
+        return view('payroll::components.livewire.bootstrap.payroll.reports.run-report', [
             'reportData' => $data,
             'payrollRun' => $payrollRun
         ]);
@@ -31,7 +31,7 @@ public function __construct(
     public function downloadPdf(PayrollRun $payrollRun)
     {
         $data = $this->reportService->generateReportData($payrollRun);
-        $pdf = PDF::loadView('hr::components.livewire.bootstrap.payroll.reports.run-report-pdf', $data);
+        $pdf = PDF::loadView('payroll::components.livewire.bootstrap.payroll.reports.run-report-pdf', $data);
 
         return $pdf->download("payroll-report-{$payrollRun->payroll_number}.pdf");
     }

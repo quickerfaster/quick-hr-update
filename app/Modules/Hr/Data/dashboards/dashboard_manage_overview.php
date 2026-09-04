@@ -173,9 +173,14 @@ return [
             'actions' => [
                 0 => [
                     'label' => 'Manage',
-                    'event' => 'navigate',
+                    'event' => 'openDrawer',
                     'params' => [
-                        'url' => '/hr/job-titles',
+                        'component' => 'qf.data-table-form',
+                        'params' => [
+                            'configKey' => 'hr.job_title',
+                            'recordId' => null,
+                        ],
+                        'title' => 'Add Job Title',
                     ],
                     'style' => 'primary',
                 ],
@@ -191,9 +196,14 @@ return [
             'actions' => [
                 0 => [
                     'label' => 'Manage',
-                    'event' => 'navigate',
+                    'event' => 'openDrawer',
                     'params' => [
-                        'url' => '/hr/tags',
+                        'component' => 'qf.data-table-form',
+                        'params' => [
+                            'configKey' => 'hr.tag',
+                            'recordId' => null,
+                        ],
+                        'title' => 'Add Tag',
                     ],
                     'style' => 'secondary',
                 ],
@@ -201,23 +211,28 @@ return [
             'width' => 3,
         ],
         10 => [
-            'type' => 'action_card',
-            'title' => 'Job History',
-            'size' => 'col-12',
-            'icon' => 'fas fa-history',
-            'description' => 'Review employee job history records',
-            'actions' => [
-                0 => [
-                    'label' => 'View',
-                    'event' => 'navigate',
-                    'params' => [
-                        'url' => '/hr/employee-job-histories',
-                    ],
-                    'style' => 'secondary',
-                ],
-            ],
-            'width' => 3,
-        ],
+           'type' => 'action_card',
+           'title' => 'Job History',
+           'size' => 'col-12',
+           'icon' => 'fas fa-history',
+           'description' => 'Review employee job history records',
+           'actions' => [
+               0 => [
+                   'label' => 'Add Entry',
+                   'event' => 'openDrawer',
+                   'params' => [
+                       'component' => 'qf.data-table-form',
+                       'params' => [
+                           'configKey' => 'hr.employee_job_history',
+                           'recordId' => null,
+                       ],
+                       'title' => 'Add Job History',
+                   ],
+                   'style' => 'secondary',
+               ],
+           ],
+           'width' => 3,
+       ],
     ],
     'roles' => [
         'admin' => 'full',

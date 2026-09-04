@@ -38,7 +38,7 @@ return [
             'route' => 'organization.dashboard',
             'order' => 100,
             'roles' => ['*'],
-            'core' => true,
+            'core' => false,
             'user_facing' => true,
             'depends_on' => [],
         ],
@@ -279,7 +279,7 @@ return [
         'bottom_bar' => [
             'enabled' => true,
         ],
-        'company_provider' => \QuickerFaster\UILibrary\Services\Navigation\DefaultCompanyProvider::class,
+        'company_provider' => \QuickerFaster\UILibrary\Services\Navigation\NullCompanyProvider::class,
         'show_company_switcher' => true,
 
         /*
@@ -410,6 +410,32 @@ return [
             'submitted_at' => ['label' => 'Submitted', 'enabled' => true],
             'actions' => ['label' => 'Actions', 'enabled' => true],
         ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Module Dashboard Access Control
+    |--------------------------------------------------------------------------
+    |
+    | Maps URL prefixes to allowed roles for module dashboard access.
+    | Override the library's generic defaults with business-specific role
+    | mappings.
+    |
+    | Roles use spatie/laravel-permission. Users with 'super_admin' or
+    | 'admin' roles automatically bypass all checks.
+    |
+    */
+    'module_access' => [
+        'hr/my-'       => ['employee', 'manager'],
+        'hr/leave-hub' => ['employee', 'manager'],
+        'hr'           => ['hr_manager', 'admin', 'super_admin'],
+        'leave'        => ['hr_manager', 'admin', 'super_admin'],
+        'holiday'      => ['hr_manager', 'admin', 'super_admin'],
+        'attendance'   => ['hr_manager', 'admin', 'super_admin'],
+        'payroll'      => ['payroll_officer', 'admin', 'super_admin'],
+        'organization' => ['admin', 'super_admin'],
+        'system'       => ['admin', 'super_admin'],
+        'admin'        => ['admin', 'super_admin'],
     ],
 
     /*
@@ -547,7 +573,7 @@ return [
         | Use an array of role names (e.g. ['super_admin', 'admin']) to
         | restrict visibility to specific roles.
         */
-        'roles' => '*',
+        'roles' => 'admin|super_admin|company_admin|hr_manager',
 
         /*
         |------------------------------------------------------------------
@@ -685,13 +711,12 @@ return [
     'user_menu' => [
         'enabled' => true,
         'links' => [
-            /* This might be needed in a consuming app to give access to user profile
             [
                 'label' => 'My Profile',
-                'url' => null,
+                'url' => '/hr/my-profile',
                 'icon' => 'fas fa-user',
-                'route' => 'profile',
-            ],*/
+                'route' => null,
+            ],
             [
                 'label' => 'Edit My Account',
                 'url' => null,

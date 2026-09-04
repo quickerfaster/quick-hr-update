@@ -1,11 +1,11 @@
 <?php
 
 return array (
-  'title' => 'Leave Management Dashboard',
+  'title' => 'Leave Dashboard',
   'description' => 'Overview of leave requests, balances, types, and approvals',
-  'widgets' => 
+  'widgets' =>
   array (
-    0 => 
+    0 =>
     array (
       'type' => 'stat',
       'title' => 'Pending Requests',
@@ -13,9 +13,9 @@ return array (
       'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'icon' => 'fas fa-clock',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'status',
           1 => '=',
@@ -24,7 +24,7 @@ return array (
       ),
       'width' => 3,
     ),
-    1 => 
+    1 =>
     array (
       'type' => 'stat',
       'title' => 'Approved This Month',
@@ -32,15 +32,15 @@ return array (
       'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'icon' => 'fas fa-check-circle',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'status',
           1 => '=',
           2 => 'Approved',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'approved_at',
           1 => '>=',
@@ -49,7 +49,7 @@ return array (
       ),
       'width' => 3,
     ),
-    2 => 
+    2 =>
     array (
       'type' => 'stat',
       'title' => 'Active Leave Types',
@@ -57,9 +57,9 @@ return array (
       'model' => 'App\\Modules\\Leave\\Models\\LeaveType',
       'icon' => 'fas fa-tags',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'is_active',
           1 => '=',
@@ -68,17 +68,17 @@ return array (
       ),
       'width' => 3,
     ),
-    3 => 
+    3 =>
     array (
       'type' => 'stat',
-      'title' => 'Leave Approvers',
+      'title' => 'Leave Balances',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Leave\\Models\\LeaveApprover',
-      'icon' => 'fas fa-user-shield',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveBalance',
+      'icon' => 'fas fa-scale-balanced',
       'aggregate' => 'count',
       'width' => 3,
     ),
-    4 => 
+    4 =>
     array (
       'type' => 'stat',
       'title' => 'Rejected Requests',
@@ -86,18 +86,18 @@ return array (
       'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'icon' => 'fas fa-times-circle',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'status',
           1 => '=',
-          2 => 'Rejected',
+          2 => 'Denied',
         ),
       ),
       'width' => 3,
     ),
-    5 => 
+    5 =>
     array (
       'type' => 'stat',
       'title' => 'Available Balances',
@@ -108,7 +108,7 @@ return array (
       'field' => 'balance',
       'width' => 3,
     ),
-    6 => 
+    6 =>
     array (
       'type' => 'chart',
       'title' => 'Leave Requests by Status',
@@ -120,7 +120,7 @@ return array (
       'aggregate' => 'count',
       'width' => 4,
     ),
-    7 => 
+    7 =>
     array (
       'type' => 'chart',
       'title' => 'Leave by Type',
@@ -132,7 +132,7 @@ return array (
       'aggregate' => 'count',
       'width' => 4,
     ),
-    8 => 
+    8 =>
     array (
       'type' => 'trend',
       'title' => 'Leave Requests Trend (Last 6 Months)',
@@ -146,7 +146,7 @@ return array (
       'period' => 6,
       'width' => 4,
     ),
-    9 => 
+    9 =>
     array (
       'type' => 'list',
       'title' => 'Recent Leave Requests',
@@ -155,30 +155,30 @@ return array (
       'icon' => 'fas fa-calendar-alt',
       'description' => 'Latest 5 requests',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'created_at',
         1 => 'desc',
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Employee',
           'field' => 'employee.employee_number',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Type',
           'field' => 'leaveType.name',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Start',
           'field' => 'start_date',
           'format' => 'date',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'Status',
           'field' => 'status',
@@ -188,7 +188,7 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/leave/leave-requests',
     ),
-    10 => 
+    10 =>
     array (
       'type' => 'list',
       'title' => 'Upcoming Approved Leaves',
@@ -197,45 +197,45 @@ return array (
       'icon' => 'fas fa-calendar-check',
       'description' => 'Next 5 approved leaves',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'start_date',
         1 => 'asc',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'status',
           1 => '=',
           2 => 'Approved',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'start_date',
           1 => '>=',
           2 => 'today',
         ),
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Employee',
           'field' => 'employee.employee_number',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Type',
           'field' => 'leaveType.name',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Start',
           'field' => 'start_date',
           'format' => 'date',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'End',
           'field' => 'end_date',
@@ -246,81 +246,99 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/leave/leave-requests?filter[status]=Approved',
     ),
-    11 => 
+    11 =>
     array (
       'type' => 'action_card',
       'title' => 'Request Leave',
       'size' => 'col-12',
       'icon' => 'fas fa-plus-circle',
       'description' => 'Submit a new leave request',
-      'actions' => 
+      'actions' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Request',
-          'event' => 'navigate',
-          'params' => 
+          'event' => 'openDrawer',
+          'params' =>
           array (
-            'url' => '/leave/leave-requests/create',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'leave.leave_request',
+              'recordId' => null,
+            ),
+            'title' => 'Request Leave',
           ),
           'style' => 'primary',
         ),
       ),
       'width' => 3,
     ),
-    12 => 
+    12 =>
     array (
       'type' => 'action_card',
       'title' => 'Add Leave Type',
       'size' => 'col-12',
       'icon' => 'fas fa-tags',
       'description' => 'Define a new leave category',
-      'actions' => 
+      'actions' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Add',
-          'event' => 'navigate',
-          'params' => 
+          'event' => 'openDrawer',
+          'params' =>
           array (
-            'url' => '/leave/leave-types/create',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'leave.leave_type',
+              'recordId' => null,
+            ),
+            'title' => 'Add Leave Type',
           ),
           'style' => 'secondary',
         ),
       ),
       'width' => 3,
     ),
-    13 => 
-    array (
-      'type' => 'action_card',
-      'title' => 'Configure Approvers',
-      'size' => 'col-12',
-      'icon' => 'fas fa-user-check',
-      'description' => 'Assign leave approval workflows',
-      'actions' => 
-      array (
-        0 => 
-        array (
-          'label' => 'Configure',
-          'event' => 'navigate',
-          'params' => 
-          array (
-            'url' => '/leave/leave-approvers/create',
-          ),
-          'style' => 'secondary',
-        ),
-      ),
-      'width' => 3,
-    ),
+    13 =>
+   array (
+     'type' => 'action_card',
+     'title' => 'Configure Approvers',
+     'size' => 'col-12',
+     'icon' => 'fas fa-user-check',
+     'description' => 'Assign leave approval workflows',
+     'actions' =>
+     array (
+       0 =>
+       array (
+         'label' => 'Add Approver',
+         'event' => 'openDrawer',
+         'params' =>
+         array (
+           'component' => 'qf.data-table-form',
+           'params' =>
+           array (
+             'configKey' => 'leave.leave_approver',
+             'recordId' => null,
+           ),
+           'title' => 'Add Leave Approver',
+         ),
+         'style' => 'secondary',
+       ),
+     ),
+     'width' => 3,
+   ),
   ),
-  'roles' => 
+  'roles' =>
   array (
     'admin' => 'full',
     'hr_manager' => 'full',
     'manager' => 'limited',
     'employee' => 'basic',
   ),
-  'layout' => 
+  'layout' =>
   array (
     'columns' => 12,
     'gutter' => 3,

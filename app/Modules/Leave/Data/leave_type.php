@@ -54,7 +54,7 @@ return [
     'deducts_from_balance' => [
       'display' => 'inline',
       'fillable' => true,
-      'field_type' => 'radio',
+      'field_type' => 'boolradio',
       'label' => 'Deducts from Balance',
       'validation' => 'required',
       'options' => [
@@ -66,7 +66,7 @@ return [
     'requires_approval' => [
       'display' => 'inline',
       'fillable' => true,
-      'field_type' => 'radio',
+      'field_type' => 'boolradio',
       'label' => 'Requires Approval',
       'validation' => 'required',
       'options' => [
@@ -85,7 +85,7 @@ return [
     'is_active' => [
       'display' => 'inline',
       'fillable' => true,
-      'field_type' => 'radio',
+      'field_type' => 'boolradio',
       'label' => 'Status',
       'validation' => 'required',
       'options' => [

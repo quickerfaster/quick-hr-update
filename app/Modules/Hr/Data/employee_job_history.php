@@ -200,7 +200,7 @@ return [
     '0' => 'show',
   ],
   'isTransaction' => false,
-  'crudType' => 'pages',
+  'crudType' => 'drawers',
   'includeControllers' => false,
   'tableDefaultFields' => [
     '0' => 'company_id',
@@ -278,7 +278,26 @@ return [
     ],
   ],
   'moreActions' => [],
-  'switchViews' => [],
+  'switchViews' => [
+      'default' => 'table',
+      'table' => ['enabled' => true],
+      'list' => [
+          'enabled' => true,
+          'titleFields' => ['job_title'],
+          'subtitleFields' => ['employee.employee_number', 'effective_date'],
+          'badgeField' => 'change_reason',
+          'badgeColors' => [
+              '0' => 'success',
+              '1' => 'warning',
+              '2' => 'info',
+              '3' => 'primary',
+              '4' => 'secondary',
+              '5' => 'info',
+              '6' => 'danger',
+              '7' => 'secondary',
+          ],
+      ],
+  ],
   'relations' => [
     'employee' => [
       'type' => 'belongsTo',

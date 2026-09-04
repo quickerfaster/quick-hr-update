@@ -3,7 +3,7 @@
 namespace App\Modules\Attendance\Database\Factories;
 
 use App\Modules\Attendance\Models\AttendancePolicy;
-use App\Modules\Attendance\Models\Company;
+use App\Modules\Hr\Models\Company;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AttendancePolicyFactory extends Factory

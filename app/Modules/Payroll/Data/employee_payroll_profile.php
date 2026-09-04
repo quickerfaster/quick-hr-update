@@ -316,7 +316,6 @@ return [
       '16' => 'created_at',
       '17' => 'updated_at',
       '18' => 'deleted_at',
-      '19' => 'company_id',
     ],
     'onNewForm' => [
       '0' => 'created_by',

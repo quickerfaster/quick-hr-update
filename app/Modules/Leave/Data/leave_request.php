@@ -71,6 +71,7 @@ return [
         'column' => 'name',
         'hintField' => '',
       ],
+      'hints' => ['showInfo', 'showBalance'],
       'wizard' => [
         'employee_self_service' => true,
       ],
@@ -82,6 +83,9 @@ return [
       'label' => 'Start Date',
       'validation' => 'required|date|after_or_equal:today',
       'filterable' => true,
+      'disableWeekends' => true,
+      'highlightHolidays' => true,
+      'showTeamAbsences' => true,
       'wizard' => [
         'employee_self_service' => true,
       ],
@@ -93,6 +97,38 @@ return [
       'label' => 'End Date',
       'validation' => 'required|date|after_or_equal:start_date',
       'filterable' => true,
+      'disableWeekends' => true,
+      'highlightHolidays' => true,
+      'showTeamAbsences' => true,
+      'hints' => ['showDuration', 'showConflicts'],
+      'wizard' => [
+        'employee_self_service' => true,
+      ],
+    ],
+    'is_half_day' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'boolradio',
+      'label' => 'Half Day',
+      'validation' => 'nullable|boolean',
+      'options' => [
+        '0' => 'Full Day',
+        '1' => 'Half Day',
+      ],
+      'wizard' => [
+        'employee_self_service' => true,
+      ],
+    ],
+    'half_day_period' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'select',
+      'label' => 'Period',
+      'validation' => 'nullable|required_if:is_half_day,1|in:am,pm',
+      'options' => [
+        'am' => 'Morning (AM)',
+        'pm' => 'Afternoon (PM)',
+      ],
       'wizard' => [
         'employee_self_service' => true,
       ],
@@ -115,6 +151,7 @@ return [
       'label' => 'Status',
       'validation' => 'required',
       'options' => [
+        'Draft' => 'Draft',
         'Pending' => 'Pending',
         'Approved' => 'Approved',
         'Denied' => 'Denied',
@@ -182,7 +219,7 @@ return [
     'is_retroactive' => [
       'display' => 'inline',
       'fillable' => true,
-      'field_type' => 'checkbox',
+      'field_type' => 'boolcheckbox',
       'label' => 'Retroactive Request',
       'validation' => 'boolean',
       'filterable' => true,
@@ -190,7 +227,7 @@ return [
     'reported_after_absence' => [
       'display' => 'inline',
       'fillable' => true,
-      'field_type' => 'checkbox',
+      'field_type' => 'boolcheckbox',
       'label' => 'Reported Post-Absence',
       'validation' => 'boolean',
     ],
@@ -235,10 +272,11 @@ return [
       '7' => 'reported_after_absence',
       '8' => 'workdays_count',
       '9' => 'overlap_with_holiday',
-      '10' => 'created_at',
-      '11' => 'updated_at',
-      '12' => 'deleted_at',
-      '13' => 'company_id',
+      '10' => 'is_retroactive',
+      '11' => 'created_at',
+      '12' => 'updated_at',
+      '13' => 'deleted_at',
+      '14' => 'company_id',
     ],
     'onEditForm' => [
       '0' => 'employee_id',
@@ -277,7 +315,7 @@ return [
       '0' => [
         'label' => 'Request Leave',
         'type' => 'wizard',
-        'url' => '/leave/leave-request',
+        'url' => '/leave/leave-requests',
         'wizard' => 'employee_self_service',
         'icon' => 'fas fa-plus',
         'primary' => true,
@@ -315,22 +353,6 @@ return [
         '1' => 'csv',
         '2' => 'pdf',
       ],
-      'approve' => [
-        'label' => 'Approve Selected',
-        'icon' => 'fas fa-check-circle',
-        'updateModelField' => 'status',
-        'fieldValue' => 'Approved',
-        'confirm' => 'Approve selected leave requests?',
-        'condition' => ['status' => ['Pending']],
-      ],
-      'deny' => [
-        'label' => 'Deny Selected',
-        'icon' => 'fas fa-times-circle',
-        'updateModelField' => 'status',
-        'fieldValue' => 'Denied',
-        'confirm' => 'Deny selected leave requests?',
-        'condition' => ['status' => ['Pending']],
-      ],
       'delete' => true,
       'restore' => true,
       'forceDelete' => true,
@@ -354,7 +376,9 @@ return [
         '1' => 'leave_type_id',
         '2' => 'start_date',
         '3' => 'end_date',
-        '4' => 'reason',
+        '4' => 'is_half_day',
+        '5' => 'half_day_period',
+        '6' => 'reason',
       ],
     ],
     'approval_info' => [
@@ -392,6 +416,13 @@ return [
   ],
   'moreActions' => [
     '0' => [
+      'title' => 'Resume',
+      'icon' => 'fas fa-pencil-alt',
+      'action' => 'resume',
+      'wizardUrl' => '/leave/employee-self-service',
+      'condition' => ['status' => ['Draft']],
+    ],
+    '1' => [
       'title' => 'Restore',
       'icon' => 'fas fa-trash-restore',
       'action' => 'restore',
@@ -399,7 +430,7 @@ return [
       'requiredPermission' => 'restore_leave_request',
       'condition' => ['trashed' => [true]],
     ],
-    '1' => [
+    '2' => [
       'title' => 'Permanently Delete',
       'icon' => 'fas fa-skull-crossbones',
       'action' => 'forceDelete',
@@ -425,6 +456,7 @@ return [
       ],
       'badgeField' => 'status',
       'badgeColors' => [
+        'Draft' => 'info',
         'Pending' => 'warning',
         'Approved' => 'success',
         'Denied' => 'danger',
@@ -446,6 +478,26 @@ return [
       ],
       'badgeField' => 'status',
       'badgeColors' => [
+        'Draft' => 'info',
+        'Pending' => 'warning',
+        'Approved' => 'success',
+        'Denied' => 'danger',
+        'Cancelled' => 'secondary',
+      ],
+    ],
+    'monthly' => [
+      'titleFields' => [
+        '0' => 'employee.first_name',
+        '1' => 'employee.last_name',
+      ],
+      'subtitleFields' => [
+        '0' => 'leaveType.name',
+      ],
+      'dateField' => 'start_date',
+      'endDateField' => 'end_date',
+      'badgeField' => 'status',
+      'badgeColors' => [
+        'Draft' => 'info',
         'Pending' => 'warning',
         'Approved' => 'success',
         'Denied' => 'danger',

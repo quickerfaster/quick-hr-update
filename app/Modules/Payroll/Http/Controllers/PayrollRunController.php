@@ -146,7 +146,7 @@ class PayrollRunController extends Controller
         });
 
 
-        return view('hr::livewire.bootstrap.payroll.payroll-run-preview', [
+        return view('payroll::components.livewire.bootstrap.payroll.payroll-run-preview', [
             'run' => $payrollRun,
             'employees' => $employees,
             'totalPayroll' => $totalPayroll,

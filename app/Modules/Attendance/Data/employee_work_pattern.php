@@ -12,7 +12,7 @@ return [
       'filterable' => true,
       'searchable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\Employee',
+        'model' => 'App\Modules\Hr\Models\Employee',
         'type' => 'belongsTo',
         'display_field' => 'employee_number',
         'dynamic_property' => 'employee',
@@ -20,7 +20,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\Employee',
+        'model' => 'App\Modules\Hr\Models\Employee',
         'column' => 'employee_number',
         'hintField' => 'first_name,last_name',
       ],
@@ -34,7 +34,7 @@ return [
       'filterable' => true,
       'searchable' => true,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'company',
@@ -42,7 +42,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -92,7 +92,6 @@ return [
       '0' => 'created_at',
       '1' => 'updated_at',
       '2' => 'deleted_at',
-      '3' => 'company_id',
     ],
     'onNewForm' => [
       '0' => 'created_at',
@@ -115,7 +114,7 @@ return [
     '2' => 'delete',
   ],
   'isTransaction' => false,
-  'crudType' => 'modals',
+  'crudType' => 'drawers',
   'includeControllers' => false,
   'tableDefaultFields' => [
     '0' => 'company_id',
@@ -235,7 +234,7 @@ return [
   'relations' => [
     'employee' => [
       'type' => 'belongsTo',
-      'model' => 'App\Modules\Attendance\Models\Employee',
+      'model' => 'App\Modules\Hr\Models\Employee',
       'foreignKey' => 'employee_id',
       'localKey' => '',
     ],

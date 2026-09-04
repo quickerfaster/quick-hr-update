@@ -2,6 +2,22 @@
 
 return [
     'context_groups' => [
+        'dashboard' => [
+            'label' => 'Dashboard',
+            'icon' => 'fas fa-tachometer-alt',
+            'order' => 0,
+            'route' => NULL,
+            'url' => 'hr/dashboard',
+            'permission' => 'view_hidden_dashboard',
+        ],
+        'my-portal' => [
+            'label' => 'My Portal',
+            'icon' => 'fas fa-user',
+            'order' => 1,
+            'route' => NULL,
+            'url' => 'hr/my-portal',
+            'roles' => ['employee', 'manager'],
+        ],
         'Organization' => [
             'label' => 'Organization',
             'icon' => 'fas fa-building',
@@ -25,6 +41,44 @@ return [
         ],
     ],
     'contexts' => [
+        'my-portal' => [
+            [
+                'key' => 'my_portal_overview',
+                'label' => 'Overview',
+                'icon' => 'fas fa-home',
+                'route' => '/hr/my-portal',
+                'permission' => 'view_my_portal',
+                'order' => 1,
+                'page_title' => NULL,
+            ],
+            [
+                'key' => 'my_profile',
+                'label' => 'My Profile',
+                'icon' => 'fas fa-user',
+                'route' => '/hr/my-profile',
+                'permission' => 'view_my_portal',
+                'order' => 2,
+                'page_title' => NULL,
+            ],
+            [
+                'key' => 'leave_hub',
+                'label' => 'Leave',
+                'icon' => 'fas fa-calendar-alt',
+                'route' => '/hr/leave-hub',
+                'permission' => 'view_leave_hub',
+                'order' => 3,
+                'page_title' => NULL,
+            ],
+            [
+                'key' => 'team_calendar',
+                'label' => 'Team Calendar',
+                'icon' => 'fas fa-calendar-alt',
+                'route' => '/hr/my-team-calendar',
+                'permission' => 'view_team_calendar',
+                'order' => 4,
+                'page_title' => NULL,
+            ],
+        ],
         'Organization' => [
             [
                 'key' => 'company_profile_overview',

@@ -143,7 +143,7 @@ class PayrollExecutiveSummary extends Component
 
     public function render()
     {
-        return view('hr::livewire.payroll.payroll-executive-summary', [
+        return view('payroll::livewire.payroll.payroll-executive-summary', [
             'run' => $this->run,
             'customWidgets' => $this->getCustomWidgets(),
         ]);

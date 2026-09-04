@@ -3,8 +3,8 @@
 namespace App\Modules\Attendance\Database\Factories;
 
 use App\Modules\Attendance\Models\ClockEvent;
-use App\Modules\Attendance\Models\Company;
-use App\Modules\Attendance\Models\Employee;
+use App\Modules\Hr\Models\Company;
+use App\Modules\Hr\Models\Employee;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ClockEventFactory extends Factory

@@ -9,12 +9,13 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use QuickerFaster\UILibrary\Contracts\Notifications\Notifiable as UILibraryNotifiable;
 use QuickerFaster\UILibrary\Traits\HasUILibraryUser;
 use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements UILibraryNotifiable
 {
     use HasUILibraryUser;
     use HasRoles;

@@ -21,7 +21,7 @@ return [
       'searchable' => true,
       'editable' => false,
       'relationship' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'type' => 'belongsTo',
         'display_field' => 'name',
         'dynamic_property' => 'company',
@@ -29,7 +29,7 @@ return [
         'inlineAdd' => false,
       ],
       'options' => [
-        'model' => 'App\Modules\Attendance\Models\Company',
+        'model' => 'App\Modules\Hr\Models\Company',
         'column' => 'name',
         'hintField' => '',
       ],
@@ -37,9 +37,7 @@ return [
   ],
   'detailComponent' => '',
   'hiddenFields' => [
-    'onTable' => [
-      '0' => 'company_id',
-    ],
+    'onTable' => [],
     'onNewForm' => [
       '0' => 'company_id',
     ],

@@ -8,12 +8,12 @@ use App\Modules\Attendance\Models\{
     AttendancePolicy,
     WorkPattern,
     ShiftSchedule,
-    Employee,
-    EmployeePosition,
     AttendanceSession,
     PolicyAssignment
 };
 use App\Modules\Attendance\Models\Shift;
+use App\Modules\Hr\Models\Employee;
+use App\Modules\Hr\Models\EmployeePosition;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;

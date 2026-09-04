@@ -580,10 +580,11 @@
         }
     });
 
-    // Ctrl+K / Cmd+K → focus the sidebar filter input (unless the user is
-    // already focused in another form field).
+    // Ctrl+Shift+K / Cmd+Shift+K → focus the sidebar filter input (unless the
+    // user is already focused in another form field).
+    // NOTE: Cmd+K is reserved for the Quick Actions command palette.
     document.addEventListener('keydown', function (e) {
-        if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === 'k' || e.key === 'K')) {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && !e.altKey && (e.key === 'k' || e.key === 'K')) {
             var active = document.activeElement;
             var tag = active ? active.tagName.toLowerCase() : '';
 

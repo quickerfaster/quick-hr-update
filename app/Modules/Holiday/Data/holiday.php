@@ -298,7 +298,7 @@ return [
     '2' => 'delete',
   ],
   'isTransaction' => false,
-  'crudType' => 'pages',
+  'crudType' => 'drawers',
   'includeControllers' => false,
   'tableDefaultFields' => [
     '0' => 'company_id',
@@ -412,17 +412,6 @@ return [
         '1' => 'affects_payroll',
         '2' => 'holiday_pay_rate',
         '3' => 'minimum_hours_for_pay',
-      ],
-    ],
-    'system_info' => [
-      'title' => 'System Information',
-      'groupType' => 'hr',
-      'icon' => 'fas fa-server',
-      'fields' => [
-        '0' => 'year',
-        '1' => 'generated_from_template',
-        '2' => 'override_id',
-        '3' => 'last_synced_at',
       ],
     ],
   ],

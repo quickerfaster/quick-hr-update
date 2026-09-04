@@ -3,6 +3,7 @@
 namespace App\Modules\Hr\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class HrsServiceProvider extends ServiceProvider
 {
@@ -11,7 +12,15 @@ class HrsServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \QuickerFaster\UILibrary\Contracts\Navigation\CompanyProvider::class,
+            \App\Modules\Hr\Providers\HrsCompanyProvider::class
+        );
+
+        $this->app->bind(
+            \QuickerFaster\UILibrary\Contracts\Approvals\ApproverResolver::class,
+            \App\Modules\Hr\Providers\HrsApproverResolver::class
+        );
     }
 
     /**
@@ -19,6 +28,11 @@ class HrsServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register HR-specific Livewire components
+        Livewire::component('qf.employee-detail', \App\Modules\Hr\Http\Livewire\EmployeeDetail::class);
+        Livewire::component('qf.searchable-employee-dropdown', \App\Modules\Hr\Http\Livewire\SearchableEmployeeDropdown::class);
+        Livewire::component('qf.leave-hub', \App\Modules\Hr\Http\Livewire\LeaveHub::class);
+
         //
         // TODO (Phase 2 — deep integration):
         // - Bind QuickerFaster\UILibrary\Contracts\ApproverResolver
@@ -29,8 +43,7 @@ class HrsServiceProvider extends ServiceProvider
         // - Add Spatie permission seeder for HR permissions.
         // - Register Reportable implementations in
         //   ui-library.reports.report_types.
-        // - Bind WorkspaceResolver + CompanyProvider for
-        //   multi-tenant scoping.
+        // - Bind WorkspaceResolver for multi-tenant scoping.
         //
     }
 }

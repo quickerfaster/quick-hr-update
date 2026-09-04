@@ -121,10 +121,16 @@ return array (
         0 =>
         array (
           'label' => 'Create',
-          'event' => 'navigate',
+          'event' => 'openDrawer',
           'params' =>
           array (
-            'url' => '/organization/teams',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'hr.team',
+              'recordId' => null,
+            ),
+            'title' => 'Add Team',
           ),
           'style' => 'primary',
         ),
@@ -143,10 +149,16 @@ return array (
         0 =>
         array (
           'label' => 'Go',
-          'event' => 'navigate',
+          'event' => 'openDrawer',
           'params' =>
           array (
-            'url' => '/organization/departments',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'hr.department',
+              'recordId' => null,
+            ),
+            'title' => 'Add Department',
           ),
           'style' => 'secondary',
         ),

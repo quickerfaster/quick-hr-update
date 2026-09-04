@@ -151,10 +151,16 @@ return array (
         0 =>
         array (
           'label' => 'Create',
-          'event' => 'navigate',
+          'event' => 'openDrawer',
           'params' =>
           array (
-            'url' => '/organization/companies',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'hr.company',
+              'recordId' => null,
+            ),
+            'title' => 'Add Company',
           ),
           'style' => 'primary',
         ),
@@ -162,27 +168,33 @@ return array (
       'width' => 3,
     ),
     7 =>
-    array (
-      'type' => 'action_card',
-      'title' => 'Add Business Unit',
-      'size' => 'col-12',
-      'icon' => 'fas fa-briefcase',
-      'description' => 'Create a new business unit',
-      'actions' =>
-      array (
-        0 =>
-        array (
-          'label' => 'Create',
-          'event' => 'navigate',
-          'params' =>
-          array (
-            'url' => '/organization/business-units',
-          ),
-          'style' => 'secondary',
-        ),
-      ),
-      'width' => 3,
-    ),
+   array (
+     'type' => 'action_card',
+     'title' => 'Add Business Unit',
+     'size' => 'col-12',
+     'icon' => 'fas fa-briefcase',
+     'description' => 'Create a new business unit',
+     'actions' =>
+     array (
+       0 =>
+       array (
+         'label' => 'Create',
+         'event' => 'openDrawer',
+         'params' =>
+         array (
+           'component' => 'qf.data-table-form',
+           'params' =>
+           array (
+             'configKey' => 'organization.business_unit',
+             'recordId' => null,
+           ),
+           'title' => 'Add Business Unit',
+         ),
+         'style' => 'secondary',
+       ),
+     ),
+     'width' => 3,
+   ),
   ),
   'roles' =>
   array (

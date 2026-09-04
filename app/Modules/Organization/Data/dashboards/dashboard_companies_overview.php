@@ -175,10 +175,16 @@ return array (
         0 =>
         array (
           'label' => 'Create',
-          'event' => 'navigate',
+          'event' => 'openDrawer',
           'params' =>
           array (
-            'url' => '/organization/companies',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'hr.company',
+              'recordId' => null,
+            ),
+            'title' => 'Add Company',
           ),
           'style' => 'primary',
         ),
@@ -186,27 +192,33 @@ return array (
       'width' => 3,
     ),
     10 =>
-    array (
-      'type' => 'action_card',
-      'title' => 'Add Branch',
-      'size' => 'col-12',
-      'icon' => 'fas fa-code-branch',
-      'description' => 'Create a new branch under a company',
-      'actions' =>
-      array (
-        0 =>
-        array (
-          'label' => 'Create',
-          'event' => 'navigate',
-          'params' =>
-          array (
-            'url' => '/organization/branches',
-          ),
-          'style' => 'secondary',
-        ),
-      ),
-      'width' => 3,
-    ),
+   array (
+     'type' => 'action_card',
+     'title' => 'Add Branch',
+     'size' => 'col-12',
+     'icon' => 'fas fa-code-branch',
+     'description' => 'Create a new branch under a company',
+     'actions' =>
+     array (
+       0 =>
+       array (
+         'label' => 'Create',
+         'event' => 'openDrawer',
+         'params' =>
+         array (
+           'component' => 'qf.data-table-form',
+           'params' =>
+           array (
+             'configKey' => 'organization.branch',
+             'recordId' => null,
+           ),
+           'title' => 'Add Branch',
+         ),
+         'style' => 'secondary',
+       ),
+     ),
+     'width' => 3,
+   ),
   ),
   'roles' =>
   array (

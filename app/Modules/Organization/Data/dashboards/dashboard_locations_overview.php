@@ -168,27 +168,33 @@ return array (
       'view_all_link' => '/organization/teams',
     ),
     8 =>
-    array (
-      'type' => 'action_card',
-      'title' => 'Add Location',
-      'size' => 'col-12',
-      'icon' => 'fas fa-plus-circle',
-      'description' => 'Create a new office or site location',
-      'actions' =>
-      array (
-        0 =>
-        array (
-          'label' => 'Create',
-          'event' => 'navigate',
-          'params' =>
-          array (
-            'url' => '/organization/locations',
-          ),
-          'style' => 'primary',
-        ),
-      ),
-      'width' => 3,
-    ),
+   array (
+     'type' => 'action_card',
+     'title' => 'Add Location',
+     'size' => 'col-12',
+     'icon' => 'fas fa-plus-circle',
+     'description' => 'Create a new office or site location',
+     'actions' =>
+     array (
+       0 =>
+       array (
+         'label' => 'Create',
+         'event' => 'openDrawer',
+         'params' =>
+         array (
+           'component' => 'qf.data-table-form',
+           'params' =>
+           array (
+             'configKey' => 'hr.location',
+             'recordId' => null,
+           ),
+           'title' => 'Add Location',
+         ),
+         'style' => 'primary',
+       ),
+     ),
+     'width' => 3,
+   ),
     9 =>
     array (
       'type' => 'action_card',
@@ -201,10 +207,16 @@ return array (
         0 =>
         array (
           'label' => 'Create',
-          'event' => 'navigate',
+          'event' => 'openDrawer',
           'params' =>
           array (
-            'url' => '/organization/teams',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'hr.team',
+              'recordId' => null,
+            ),
+            'title' => 'Add Team',
           ),
           'style' => 'secondary',
         ),

@@ -11,7 +11,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \QuickerFaster\UILibrary\Contracts\Notifications\TemplateVariableRegistry::class,
+            \App\Services\NotificationVariableRegistry::class
+        );
     }
 
     /**

@@ -336,7 +336,6 @@ return [
       '7' => 'updated_by',
       '8' => 'created_at',
       '9' => 'updated_at',
-      '10' => 'company_id',
     ],
     'onNewForm' => [
       '0' => 'created_by',
@@ -518,7 +517,21 @@ return [
       ],
     ],
   ],
-  'moreActions' => [],
+  'moreActions' => [
+    '0' => [
+      'title' => 'View Payslip',
+      'icon' => 'fas fa-eye',
+      'route' => 'payslips.view',
+      'routeParam' => 'payslip',
+      'newTab' => true,
+    ],
+    '1' => [
+      'title' => 'Download PDF',
+      'icon' => 'fas fa-download',
+      'route' => 'payslips.download',
+      'routeParam' => 'payslip',
+    ],
+  ],
   'switchViews' => [
     'default' => 'list',
     'table' => [

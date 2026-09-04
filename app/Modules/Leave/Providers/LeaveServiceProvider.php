@@ -3,6 +3,11 @@
 namespace App\Modules\Leave\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Modules\Leave\Listeners\SyncLeaveRequestStatus;
+use QuickerFaster\UILibrary\Events\Workflows\WorkflowApproved;
+use QuickerFaster\UILibrary\Events\Workflows\WorkflowRejected;
+use QuickerFaster\UILibrary\Events\Workflows\WorkflowRecalled;
+use Illuminate\Support\Facades\Event;
 
 class LeaveServiceProvider extends ServiceProvider
 {
@@ -11,7 +16,10 @@ class LeaveServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \QuickerFaster\UILibrary\Contracts\FieldTypes\CalendarEnhancementProvider::class,
+            \App\Modules\Leave\Services\LeaveCalendarEnhancementProvider::class
+        );
     }
 
     /**
@@ -32,5 +40,21 @@ class LeaveServiceProvider extends ServiceProvider
         }
 
         $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
+
+        // Register Leave-specific Livewire components
+        \Livewire\Livewire::component('leave-wizard-form', \App\Modules\Leave\Http\Livewire\LeaveWizardForm::class);
+
+        Event::listen(
+            WorkflowApproved::class,
+            [SyncLeaveRequestStatus::class, 'handleWorkflowApproved']
+        );
+        Event::listen(
+            WorkflowRejected::class,
+            [SyncLeaveRequestStatus::class, 'handleWorkflowRejected']
+        );
+        Event::listen(
+            WorkflowRecalled::class,
+            [SyncLeaveRequestStatus::class, 'handleWorkflowRecalled']
+        );
     }
 }

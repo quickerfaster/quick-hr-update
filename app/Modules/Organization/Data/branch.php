@@ -167,21 +167,21 @@ return [
             'sortable' => true,
             'searchable' => true,
             'type' => 'text',
-            'visible' => true,
+            'visible' => false,
         ],
         'country_code' => [
             'label' => 'Country',
             'field' => 'country_code',
             'sortable' => true,
             'type' => 'text',
-            'visible' => true,
+            'visible' => false,
         ],
         'is_headquarters' => [
             'label' => 'Headquarters',
             'field' => 'is_headquarters',
             'sortable' => true,
             'type' => 'boolean',
-            'visible' => true,
+            'visible' => false,
         ],
         'is_active' => [
             'label' => 'Active',
@@ -285,6 +285,10 @@ return [
         'softDelete' => true,
     ],
 
+    'isTransaction' => false,
+    'crudType' => 'drawers',
+    'includeControllers' => false,
+
     'detail' => [
         'fields' => ['id', 'company_id', 'name', 'code', 'address', 'city', 'state_code', 'country_code', 'postal_code', 'phone', 'email', 'is_headquarters', 'is_active', 'created_at', 'updated_at'],
     ],
@@ -296,4 +300,16 @@ return [
 
     'per_page_options' => [10, 25, 50, 100],
     'default_per_page' => 25,
+
+    'switchViews' => [
+        'default' => 'list',
+        'table' => ['enabled' => true],
+        'list' => [
+            'enabled' => true,
+            'titleFields' => ['name'],
+            'subtitleFields' => ['code', 'city'],
+            'badgeField' => 'is_active',
+            'badgeColors' => ['1' => 'success', '0' => 'secondary'],
+        ],
+    ],
 ];

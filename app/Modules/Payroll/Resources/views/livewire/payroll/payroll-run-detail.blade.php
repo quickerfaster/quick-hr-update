@@ -1,4 +1,7 @@
 <div>
+    @php
+        $effectiveStatus = $run->activeWorkflow ? $run->activeWorkflow->status : $run->status;
+    @endphp
     {{-- Header and action buttons --}}
     <div class="d-flex justify-content-between align-items-start mb-3 mt-4">
         <div>
@@ -20,9 +23,10 @@
                     <i class="fas fa-sync-alt"></i> Recalculate
                 </button>
             @endif
-            @if ($canApprove)
-                <button wire:click="confirmApprove" class="btn btn-sm btn-success me-1">
-                    <i class="fas fa-check-circle"></i> Approve
+            @if($canResubmit)
+                <button type="button" class="btn btn-primary btn-sm"
+                        wire:click="confirmResubmitForApproval">
+                    <i class="fas fa-paper-plane"></i> Resubmit for Approval
                 </button>
             @endif
             @if ($canMarkPaid)
@@ -30,15 +34,15 @@
                     <i class="fas fa-money-check"></i> Mark as Paid
                 </button>
             @endif
-            @if ($canMarkPaid || $run->status === 'approved')
+            @if ($canMarkPaid || $effectiveStatus === 'approved')
                 <button wire:click="generateBankFile" class="btn btn-sm btn-outline-primary me-1">
                     <i class="fas fa-file-export"></i> Bank File
                 </button>
             @endif
 
-            {{-- -- --<button wire:click="queueSummaryPdf" class="btn btn-sm btn-secondary me-1">
+            <button wire:click="queueSummaryPdf" class="btn btn-sm btn-secondary me-1">
                 <i class="fas fa-file-pdf"></i> Summary PDF
-            </button>--}}
+            </button>
 
             <div class="btn-group">
                 <button type="button" class="btn btn-sm btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
@@ -57,31 +61,44 @@
                 </ul>
             </div>
 
-            @if ($canCancel)
-                <button wire:click="confirmCancel" class="btn btn-sm btn-danger me-1">
-                    <i class="fas fa-ban"></i> Cancel
+            @if ($run->isUnderApproval() || $run->activeWorkflow)
+                <button class="btn btn-sm btn-outline-secondary"
+                        wire:click="$dispatch('openDrawer', { component: 'qf.approval-history-timeline',
+                               params: { workflowId: {{ $run->activeWorkflow?->id }}, displayMode: 'full' },
+                               title: 'Approval Timeline' })">
+                    <i class="fas fa-history"></i> Timeline
                 </button>
             @endif
+
             <button wire:click="exportPayslips" class="btn btn-sm btn-secondary">
                 <i class="fas fa-file-pdf"></i> Export Payslips
             </button>
         </div>
     </div>
 
+    {{-- Approval Panel --}}
+    @if($run->isUnderApproval() || $run->activeWorkflow)
+        @livewire('qf.approval-panel', ['workflowId' => $run->activeWorkflow?->id, 'displayMode' => 'banner'])
+    @endif
+
+    <br />
+
     {{-- Status Banner --}}
-    <div class="alert alert-{{ $run->status === 'paid' ? 'success' : ($run->status === 'approved' ? 'info' : ($run->status === 'cancelled' ? 'secondary' : 'warning')) }} mb-3">
-        <strong>Status:</strong> {{ ucfirst($run->status) }}
-        @if ($run->approved_at)
-            | Approved by {{ $run->approvedByUser?->name ?? $run->approved_by }} on
-            {{ $run->approved_at->format('M d, Y H:i') }}
-        @endif
-        @if ($run->processed_at)
-            | Paid on {{ $run->processed_at->format('M d, Y H:i') }}
-        @endif
-        @if ($run->payment_batch_id)
-            | Batch: {{ $run->payment_batch_id }}
-        @endif
-    </div>
+    @if(!($run->isUnderApproval() || $run->activeWorkflow))
+        <div class="alert alert-{{ $effectiveStatus === 'paid' ? 'success' : ($effectiveStatus === 'approved' ? 'info' : ($effectiveStatus === 'rejected' ? 'danger' : 'secondary')) }} mb-3">
+            <strong>Status:</strong> {{ ucfirst($effectiveStatus) }}
+            @if ($run->approved_at)
+                | Approved by {{ $run->approvedByUser?->name ?? $run->approved_by }} on
+                {{ $run->approved_at->format('M d, Y H:i') }}
+            @endif
+            @if ($run->processed_at)
+                | Paid on {{ $run->processed_at->format('M d, Y H:i') }}
+            @endif
+            @if ($run->payment_batch_id)
+                | Batch: {{ $run->payment_batch_id }}
+            @endif
+        </div>
+    @endif
 
     {{-- Tabs --}}
     <ul class="nav nav-tabs mb-3">
@@ -249,7 +266,7 @@
 
         {{-- Payslips Tab --}}
         @if ($activeTab === 'payslips')
-            <livewire:qf.data-table :configKey="'hr.payroll_payslip'" :queryFilters="['payroll_run_id' => $run->id]" :controls="[
+            <livewire:qf.data-table :configKey="'payroll.payroll_payslip'" :queryFilters="['payroll_run_id' => $run->id]" :controls="[
                 'search' => true,
                 'perPage' => [10, 25, 50, 100],
                 'showHideColumns' => true,
@@ -265,7 +282,7 @@
 
         {{-- Adjustments Tab --}}
         @if ($activeTab === 'adjustments')
-            <livewire:qf.data-table :configKey="'hr.payroll_run_adjustment'" :queryFilters="['payroll_run_id' => $run->id]" :controls="[
+            <livewire:qf.data-table :configKey="'payroll.payroll_run_adjustment'" :queryFilters="['payroll_run_id' => $run->id]" :controls="[
                 'search' => true,
                 'perPage' => [10, 25, 50, 100],
                 'bulkActions' => [
@@ -313,7 +330,7 @@
                                 @endif
 
                                 <div class="col-12 mt-3">
-                                    @if ($run->status === 'paid' && $run->reconciliation_status !== 'reconciled')
+                                    @if ($effectiveStatus === 'paid' && $run->reconciliation_status !== 'reconciled')
                                         <button wire:click="markAsReconciled" class="btn btn-primary">
                                             <i class="fas fa-check-double"></i> Mark as Reconciled
                                         </button>
@@ -392,6 +409,16 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        @endif
+
+        {{-- Activity Tab --}}
+        @if ($activeTab === 'activity')
+            <div class="tab-pane fade show active" id="activity">
+                @livewire('qf.approval-history-timeline', [
+                    'workflowId' => $run->activeWorkflow?->id,
+                    'displayMode' => 'compact'
+                ])
             </div>
         @endif
     </div>

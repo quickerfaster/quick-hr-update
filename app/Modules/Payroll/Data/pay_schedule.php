@@ -202,7 +202,6 @@ return [
       '5' => 'created_at',
       '6' => 'updated_at',
       '7' => 'deleted_at',
-      '8' => 'company_id',
     ],
     'onNewForm' => [
       '0' => 'created_by',
@@ -225,7 +224,7 @@ return [
     '2' => 'delete',
   ],
   'isTransaction' => false,
-  'crudType' => 'pages',
+  'crudType' => 'drawers',
   'includeControllers' => false,
   'tableDefaultFields' => [
     '0' => 'company_id',

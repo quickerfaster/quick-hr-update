@@ -143,7 +143,7 @@ class GeneratePayrollRunSummaryPdf implements ShouldQueue
             // -----------------------------------------------------------------
             // 5. Generate PDF
             // -----------------------------------------------------------------
-            $pdf = Pdf::loadView('hr::livewire.payroll.exports.payroll_run_summary_pdf', [
+            $pdf = Pdf::loadView('payroll::livewire.payroll.exports.payroll_run_summary_pdf', [
                 'run' => $run,
                 'payslips' => $payslips,
                 'currencySymbol' => $currencySymbol,

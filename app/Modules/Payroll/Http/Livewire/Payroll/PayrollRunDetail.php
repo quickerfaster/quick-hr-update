@@ -27,10 +27,10 @@ class PayrollRunDetail extends Component
 
     protected $listeners = [
         'refreshDetail' => '$refresh',
-        'approveRun' => 'approve',
         'markPaid' => 'markPaid',
-        'cancelRun' => 'cancel',
         'recalculate' => 'recalculate',
+        'confirmResubmitForApproval' => 'confirmResubmitForApproval',
+        'resubmitForApproval' => 'resubmitForApproval',
         'forceGenerateBankFile' => 'forceGenerateBankFile',
         'cancelBankFile' => 'cancelBankFile',
     ];
@@ -43,7 +43,7 @@ class PayrollRunDetail extends Component
 
         $run = $this->resolveModel(PayrollRun::class, $recordId, [
             function ($query) {
-                return $query->with(['paySchedule']);
+                return $query->with(['paySchedule', 'workflow']);
             },
         ]);
 
@@ -62,44 +62,34 @@ class PayrollRunDetail extends Component
 
     protected function getTabs(): array
     {
-        return [
+        $tabs = [
             'overview' => ['title' => 'Overview', 'icon' => 'fas fa-info-circle'],
             'payslips' => ['title' => 'Payslips', 'icon' => 'fas fa-receipt'],
             'adjustments' => ['title' => 'Adjustments', 'icon' => 'fas fa-edit'],
             'reconciliation' => ['title' => 'Reconciliation', 'icon' => 'fas fa-check-double'],
             'audit' => ['title' => 'Audit', 'icon' => 'fas fa-history'],
         ];
-    }
 
-    // Approval actions (unchanged)
-    public function confirmApprove(): void
-    {
-        $this->dispatch('showAlert', [
-            'type' => 'confirm',
-            'title' => 'Approve Payroll Run?',
-            'message' => 'This will lock all data and mark the run as approved. Are you sure?',
-            'confirmEvent' => 'approveRun',
-            'confirmParams' => [],
-        ]);
-    }
-
-    public function approve(): void
-    {
-        if (!in_array($this->run->status, ['draft', 'verification_complete', 'adjustments_pending', 'ready_for_review'])) {
-            $this->dispatch('showAlert', ['type' => 'error', 'message' => 'Cannot approve this payroll run.']);
-            return;
+        if ($this->run->isUnderApproval() || $this->run->activeWorkflow) {
+            $tabs['activity'] = ['title' => 'Activity', 'icon' => 'fas fa-history'];
         }
 
-        DB::transaction(function () {
-            $this->run->update([
-                'status' => 'approved',
-                'approved_by' => auth()->user()->name ?? auth()->id(),
-                'approved_at' => now(),
-            ]);
-        });
+        return $tabs;
+    }
 
-        $this->dispatch('showAlert', ['type' => 'success', 'message' => 'Payroll run approved.']);
-        $this->run->refresh();
+    /**
+     * Returns the effective status, considering the workflow when one exists.
+     *
+     * When an active workflow is present, its status ('pending', 'approved',
+     * 'rejected') takes precedence. Otherwise the model's own status field
+     * ('draft', 'paid', etc.) is used.
+     */
+    protected function effectiveStatus(): string
+    {
+        if ($this->run->activeWorkflow) {
+            return $this->run->activeWorkflow->status;
+        }
+        return $this->run->status;
     }
 
     public function confirmMarkPaid(): void
@@ -130,29 +120,6 @@ class PayrollRunDetail extends Component
         $this->run->refresh();
     }
 
-    public function confirmCancel(): void
-    {
-        $this->dispatch('showAlert', [
-            'type' => 'confirm',
-            'title' => 'Cancel Payroll Run?',
-            'message' => 'This action cannot be undone. Are you sure?',
-            'confirmEvent' => 'cancelRun',
-            'confirmParams' => [],
-        ]);
-    }
-
-    public function cancel(): void
-    {
-        if (!in_array($this->run->status, ['draft', 'verification_complete', 'adjustments_pending', 'ready_for_review', 'approved'])) {
-            $this->dispatch('showAlert', ['type' => 'error', 'message' => 'This payroll run cannot be cancelled.']);
-            return;
-        }
-
-        $this->run->update(['status' => 'cancelled']);
-        $this->dispatch('showAlert', ['type' => 'success', 'message' => 'Payroll run cancelled.']);
-        $this->run->refresh();
-    }
-
     public function confirmRecalculate(): void
     {
         $this->dispatch('showAlert', [
@@ -178,7 +145,7 @@ class PayrollRunDetail extends Component
     public function exportPayslips(): void
     {
 
-        $configResolver = app(ConfigResolver::class, ['configKey' => 'hr.payroll_payslip']);
+        $configResolver = app(ConfigResolver::class, ['configKey' => 'payroll.payroll_payslip']);
         $fieldDefinitions = $configResolver->getFieldDefinitions();
 
         $excludedColumns = [
@@ -224,7 +191,7 @@ class PayrollRunDetail extends Component
         ];
 
         $params = [
-            'configKey' => 'hr.payroll_payslip',
+            'configKey' => 'payroll.payroll_payslip',
             'format' => 'xls',
             'columns' => implode(',', $columns),
             'filters' => json_encode($filters),
@@ -232,7 +199,7 @@ class PayrollRunDetail extends Component
         ];
 
         $this->dispatch('openExportModal', [
-            'configKey' => 'hr.payroll_payslip',
+            'configKey' => 'payroll.payroll_payslip',
             'params' => $params,
         ]);
     }
@@ -262,6 +229,72 @@ public function forceGenerateBankFile(): void
 public function cancelBankFile(): void
 {
     // Do nothing – user cancelled
+}
+
+/**
+ * Show confirmation dialog before resubmitting for approval.
+ */
+public function confirmResubmitForApproval(): void
+{
+    $this->dispatch('showAlert', [
+        'type' => 'warning',
+        'title' => 'Resubmit for Approval?',
+        'message' => 'Are you sure you want to resubmit this payroll run for approval? A new approval workflow will be started.',
+        'confirmText' => 'Yes, Resubmit',
+        'cancelText' => 'Cancel',
+        'confirmEvent' => 'resubmitForApproval',
+        'confirmParams' => [],
+        'icon' => 'fas fa-paper-plane',
+    ]);
+}
+
+/**
+ * Resubmit a recalled/cancelled payroll run for approval.
+ * Starts a new workflow via the WorkflowEngine.
+ */
+public function resubmitForApproval(): void
+{
+    if ($this->run->isUnderApproval()) {
+        $this->dispatch('showAlert', [
+            'type' => 'warning',
+            'title' => 'Already Under Approval',
+            'message' => 'This run is already under approval.',
+        ]);
+        return;
+    }
+
+    if ($this->run->status !== 'cancelled') {
+        $this->dispatch('showAlert', [
+            'type' => 'warning',
+            'title' => 'Cannot Resubmit',
+            'message' => 'Only cancelled runs can be resubmitted.',
+        ]);
+        return;
+    }
+
+    // Only allow resubmit for recalled runs, not rejected ones
+    if ($this->run->workflow?->status === 'rejected') {
+        $this->dispatch('showAlert', [
+            'type' => 'warning',
+            'title' => 'Cannot Resubmit',
+            'message' => 'This run was rejected and cannot be resubmitted. Please create a new payroll run.',
+        ]);
+        return;
+    }
+
+    $engine = app(\QuickerFaster\UILibrary\Services\Workflow\WorkflowEngine::class);
+
+    // Set status to ready_for_review before starting workflow
+    $this->run->update(['status' => 'ready_for_review']);
+
+    $engine->start($this->run);
+
+    $this->dispatch('showAlert', [
+        'type' => 'success',
+        'title' => 'Resubmitted',
+        'message' => 'Payroll run has been resubmitted for approval.',
+    ]);
+    $this->dispatch('refreshDetail');
 }
 
 
@@ -307,12 +340,12 @@ public function queueSummaryPdf()
     // Create an export record
     $export = \QuickerFaster\UILibrary\Models\Export::create([
         'user_id' => auth()->id(),
-        'config_key' => 'hr.payroll_payslip', // dummy
+        'config_key' => 'payroll.payroll_payslip', // dummy
         'filters' => ['payroll_run_id' => $this->run->id],
         'columns' => [],
         'format' => 'pdf',
         'options' => [
-            'custom_view' => 'hr::livewire.payroll.exports.payroll_run_summary_pdf',
+            'custom_view' => 'payroll::livewire.payroll.exports.payroll_run_summary_pdf',
             'run_id' => $this->run->id,
             'currency_symbol' => $currencySymbol,
             'company_name' => $companyName,
@@ -339,7 +372,7 @@ public function queueSummaryPdf()
     ]);
 
     $this->dispatch('openExportModal', [
-        'configKey' => 'hr.payroll_payslip',
+        'configKey' => 'payroll.payroll_payslip',
         'params' => [
             'export_id' => $export->id,
         ],
@@ -374,16 +407,21 @@ public function markAsReconciled(): void
 
     public function render()
     {
-        $canApprove = in_array($this->run->status, ['draft', 'verification_complete', 'adjustments_pending', 'ready_for_review']);
-        $canMarkPaid = $this->run->status === 'approved';
-        $canCancel = in_array($this->run->status, ['draft', 'verification_complete', 'adjustments_pending', 'ready_for_review', 'approved']);
-        $canRecalculate = $this->run->status === 'draft';
+        $canApprove = $this->run->isUnderApproval();
+        $canMarkPaid = $this->effectiveStatus() === 'approved';
+        $canCancel = $this->run->isUnderApproval();
+        $canRecalculate = !$this->run->isUnderApproval() && $this->effectiveStatus() !== 'paid';
+        $canResubmit = !$this->run->isUnderApproval()
+            && $this->effectiveStatus() === 'cancelled'
+            && $this->run->status === 'cancelled'
+            && $this->run->workflow?->status === 'cancelled';
 
-        return view('hr::livewire.payroll.payroll-run-detail', [
+        return view('payroll::livewire.payroll.payroll-run-detail', [
             'canApprove' => $canApprove,
             'canMarkPaid' => $canMarkPaid,
             'canCancel' => $canCancel,
             'canRecalculate' => $canRecalculate,
+            'canResubmit' => $canResubmit,
         ]);
     }
 }

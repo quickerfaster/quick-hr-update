@@ -1,7 +1,7 @@
 <?php
 
 return array (
-  'title' => 'HR Executive Dashboard',
+  'title' => 'HR Dashboard',
   'description' => 'Cross‑module summary of workforce, attendance, leave, payroll, and policy metrics',
   'widgets' =>
   array (
@@ -133,7 +133,7 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/hr/leave-requests',
+      'view_all_link' => '/leave/leave-requests',
     ),
     7 =>
     array (
@@ -260,7 +260,7 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/hr/payroll-runs',
+      'view_all_link' => '/payroll/payroll-runs',
     ),
     12 =>
     array (

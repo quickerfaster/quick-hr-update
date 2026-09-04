@@ -233,10 +233,16 @@ return array (
         0 =>
         array (
           'label' => 'View',
-          'event' => 'navigate',
+          'event' => 'openDrawer',
           'params' =>
           array (
-            'url' => '/hr/companies',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'hr.company',
+              'recordId' => null,
+            ),
+            'title' => 'Add Company',
           ),
           'style' => 'secondary',
         ),
@@ -255,10 +261,16 @@ return array (
         0 =>
         array (
           'label' => 'Manage',
-          'event' => 'navigate',
+          'event' => 'openDrawer',
           'params' =>
           array (
-            'url' => '/hr/job-titles',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'hr.job_title',
+              'recordId' => null,
+            ),
+            'title' => 'Add Job Title',
           ),
           'style' => 'secondary',
         ),

@@ -3,9 +3,9 @@
 return array (
   'title' => 'Leave Management Overview',
   'description' => 'Monitor leave requests, balances, approvals, and upcoming absences',
-  'widgets' => 
+  'widgets' =>
   array (
-    0 => 
+    0 =>
     array (
       'type' => 'stat',
       'title' => 'Pending Requests',
@@ -13,9 +13,9 @@ return array (
       'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'icon' => 'fas fa-clock',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'status',
           1 => '=',
@@ -24,7 +24,7 @@ return array (
       ),
       'width' => 3,
     ),
-    1 => 
+    1 =>
     array (
       'type' => 'stat',
       'title' => 'Approved This Month',
@@ -32,15 +32,15 @@ return array (
       'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'icon' => 'fas fa-check-circle',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'status',
           1 => '=',
           2 => 'Approved',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'approved_at',
           1 => '>=',
@@ -49,7 +49,7 @@ return array (
       ),
       'width' => 3,
     ),
-    2 => 
+    2 =>
     array (
       'type' => 'stat',
       'title' => 'Employees with Low Balance',
@@ -57,19 +57,19 @@ return array (
       'model' => 'App\\Modules\\Leave\\Models\\LeaveBalance',
       'icon' => 'fas fa-exclamation-triangle',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'balance',
           1 => '<',
           2 => 2,
         ),
-        1 => 
+        1 =>
         array (
           0 => 'leave_type_id',
           1 => '=',
-          2 => 
+          2 =>
           array (
             'subquery' => 'SELECT id FROM leave_types WHERE deducts_from_balance = 1 LIMIT 1',
           ),
@@ -77,7 +77,7 @@ return array (
       ),
       'width' => 3,
     ),
-    3 => 
+    3 =>
     array (
       'type' => 'stat',
       'title' => 'Active Leave Types',
@@ -85,9 +85,9 @@ return array (
       'model' => 'App\\Modules\\Leave\\Models\\LeaveType',
       'icon' => 'fas fa-tags',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'is_active',
           1 => '=',
@@ -96,7 +96,7 @@ return array (
       ),
       'width' => 3,
     ),
-    4 => 
+    4 =>
     array (
       'type' => 'chart',
       'title' => 'Leave Requests by Status',
@@ -108,7 +108,7 @@ return array (
       'aggregate' => 'count',
       'width' => 4,
     ),
-    5 => 
+    5 =>
     array (
       'type' => 'chart',
       'title' => 'Approved Requests by Leave Type',
@@ -118,9 +118,9 @@ return array (
       'chart_type' => 'bar',
       'description' => 'Most used leave categories',
       'aggregate' => 'count',
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'status',
           1 => '=',
@@ -129,7 +129,7 @@ return array (
       ),
       'width' => 4,
     ),
-    6 => 
+    6 =>
     array (
       'type' => 'trend',
       'title' => 'Leave Requests Trend (Last 6 Months)',
@@ -143,7 +143,7 @@ return array (
       'period' => 6,
       'width' => 4,
     ),
-    7 => 
+    7 =>
     array (
       'type' => 'list',
       'title' => 'Recent Leave Requests',
@@ -152,31 +152,31 @@ return array (
       'icon' => 'fas fa-list-alt',
       'description' => 'Latest 5 requests submitted',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'created_at',
         1 => 'desc',
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Employee',
           'field' => 'employee.employee_number',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Type',
           'field' => 'leaveType.name',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Dates',
           'field' => 'start_date',
           'format' => 'date_range',
           'end_field' => 'end_date',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'Status',
           'field' => 'status',
@@ -186,7 +186,7 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/leave/leave-requests',
     ),
-    8 => 
+    8 =>
     array (
       'type' => 'list',
       'title' => 'Pending Approvals',
@@ -195,39 +195,39 @@ return array (
       'icon' => 'fas fa-user-check',
       'description' => 'Awaiting manager action',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'created_at',
         1 => 'asc',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'status',
           1 => '=',
           2 => 'Pending',
         ),
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Employee',
           'field' => 'employee.employee_number',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Type',
           'field' => 'leaveType.name',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Start',
           'field' => 'start_date',
           'format' => 'date',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'End',
           'field' => 'end_date',
@@ -238,95 +238,79 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/leave/leave-requests?status=Pending',
     ),
-    9 => 
+    9 =>
     array (
       'type' => 'action_card',
       'title' => 'Request Leave',
       'size' => 'col-12',
       'icon' => 'fas fa-calendar-plus',
       'description' => 'Submit a new leave request',
-      'actions' => 
+      'actions' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Request',
-          'event' => 'openLeaveWizard',
-          'params' => 
+          'event' => 'navigate',
+          'params' =>
           array (
-            'type' => 'employee_self_service',
+            'url' => '/leave/my-leave',
           ),
           'style' => 'primary',
         ),
       ),
       'width' => 3,
     ),
-    10 => 
+    10 =>
     array (
       'type' => 'action_card',
       'title' => 'My Leave Balance',
       'size' => 'col-12',
       'icon' => 'fas fa-scale-balanced',
       'description' => 'View your current leave balances',
-      'actions' => 
+      'actions' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'View',
           'event' => 'navigate',
-          'params' => 
+          'params' =>
           array (
-            'url' => '/leave/my-leave-balance',
+            'url' => '/leave/my-leave',
           ),
           'style' => 'secondary',
         ),
       ),
       'width' => 3,
     ),
-    11 => 
+    11 =>
     array (
       'type' => 'action_card',
       'title' => 'Manage Leave Types',
       'size' => 'col-12',
       'icon' => 'fas fa-tags',
       'description' => 'Configure leave categories',
-      'actions' => 
+      'actions' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Manage',
-          'event' => 'navigate',
-          'params' => 
+          'event' => 'openDrawer',
+          'params' =>
           array (
-            'url' => '/leave/leave-types',
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'leave.leave_type',
+              'recordId' => null,
+            ),
+            'title' => 'Add Leave Type',
           ),
           'style' => 'secondary',
         ),
       ),
       'width' => 3,
     ),
-    12 => 
-    array (
-      'type' => 'action_card',
-      'title' => 'Approval Rules',
-      'size' => 'col-12',
-      'icon' => 'fas fa-user-check',
-      'description' => 'Define manager approvals',
-      'actions' => 
-      array (
-        0 => 
-        array (
-          'label' => 'Configure',
-          'event' => 'navigate',
-          'params' => 
-          array (
-            'url' => '/leave/leave-approvers',
-          ),
-          'style' => 'secondary',
-        ),
-      ),
-      'width' => 3,
-    ),
-    13 => 
+    13 =>
     array (
       'type' => 'list',
       'title' => 'Upcoming Leave (Next 30 Days)',
@@ -335,51 +319,51 @@ return array (
       'icon' => 'fas fa-calendar-week',
       'description' => 'Approved leave starting soon',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'start_date',
         1 => 'asc',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'status',
           1 => '=',
           2 => 'Approved',
         ),
-        1 => 
+        1 =>
         array (
           0 => 'start_date',
           1 => '>=',
           2 => 'today',
         ),
-        2 => 
+        2 =>
         array (
           0 => 'start_date',
           1 => '<=',
           2 => '+30 days',
         ),
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Employee',
           'field' => 'employee.employee_number',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Type',
           'field' => 'leaveType.name',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Start',
           'field' => 'start_date',
           'format' => 'date',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'Days',
           'field' => 'workdays_count',
@@ -389,7 +373,7 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/leave/leave-requests?status=Approved&start_date=upcoming',
     ),
-    14 => 
+    14 =>
     array (
       'type' => 'list',
       'title' => 'Employees with Low Balance (<2 days)',
@@ -398,42 +382,42 @@ return array (
       'icon' => 'fas fa-exclamation-triangle',
       'description' => 'Critical leave balance alert',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'balance',
         1 => 'asc',
       ),
-      'conditions' => 
+      'conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'balance',
           1 => '<',
           2 => 2,
         ),
-        1 => 
+        1 =>
         array (
           0 => 'leave_type_id',
           1 => '=',
-          2 => 
+          2 =>
           array (
             'subquery' => 'SELECT id FROM leave_types WHERE deducts_from_balance = 1 LIMIT 1',
           ),
         ),
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Employee',
           'field' => 'employee.employee_number',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'Leave Type',
           'field' => 'leaveType.name',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Balance',
           'field' => 'balance',
@@ -444,7 +428,7 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/leave/leave-balances?balance_low=true',
     ),
-    15 => 
+    15 =>
     array (
       'type' => 'progress',
       'title' => 'Leave Utilization',
@@ -457,9 +441,9 @@ return array (
       'target_model' => 'App\\Modules\\Leave\\Models\\LeaveBalance',
       'target_aggregate' => 'sum',
       'target_field' => 'balance',
-      'target_conditions' => 
+      'target_conditions' =>
       array (
-        0 => 
+        0 =>
         array (
           0 => 'year',
           1 => '=',
@@ -469,14 +453,14 @@ return array (
       'width' => 3,
     ),
   ),
-  'roles' => 
+  'roles' =>
   array (
     'admin' => 'full',
     'hr_manager' => 'full',
     'manager' => 'limited',
     'employee' => 'basic',
   ),
-  'layout' => 
+  'layout' =>
   array (
     'columns' => 12,
     'gutter' => 3,
