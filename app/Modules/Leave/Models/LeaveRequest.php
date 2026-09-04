@@ -13,6 +13,7 @@ use App\Modules\Leave\Models\LeaveType;
 use App\Modules\Attendance\Models\Attendance;
 use QuickerFaster\UILibrary\Contracts\Workflow\Workflowable;
 use QuickerFaster\UILibrary\Contracts\Documents\Documentable;
+use QuickerFaster\UILibrary\Traits\Documents\HasDocuments;
 use QuickerFaster\UILibrary\Traits\Workflows\HasWorkflow;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
 class LeaveRequest extends Model implements Workflowable, Documentable
 {
     use HasCompanyScope;
+    use HasDocuments;
     use HasFactory;
     use HasWorkflow;
     use SoftDeletes;
@@ -169,14 +171,6 @@ class LeaveRequest extends Model implements Workflowable, Documentable
     protected static function newFactory()
     {
         return \App\Modules\Leave\Database\Factories\LeaveRequestFactory::new();
-    }
-
-    /**
-     * Polymorphic relationship to uploaded documents/attachments.
-     */
-    public function documents()
-    {
-        return $this->morphMany(\QuickerFaster\UILibrary\Models\Document::class, 'documentable');
     }
 
     /**
