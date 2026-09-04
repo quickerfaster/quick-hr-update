@@ -24,4 +24,8 @@
     @endif
 
     @livewire($customComponent, ["inline" => true, "recordId" => $recordId, "configKey" => "leave.leave_request", "returnParams" => $returnParams])
+
+    @if($record)
+        @livewire('leave-document-upload', ['leaveRequest' => $record])
+    @endif
 </x-qf::navigation-layout>

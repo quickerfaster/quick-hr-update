@@ -43,6 +43,7 @@ class LeaveServiceProvider extends ServiceProvider
 
         // Register Leave-specific Livewire components
         \Livewire\Livewire::component('leave-wizard-form', \App\Modules\Leave\Http\Livewire\LeaveWizardForm::class);
+        \Livewire\Livewire::component('leave-document-upload', \App\Modules\Leave\Http\Livewire\LeaveDocumentUpload::class);
 
         Event::listen(
             WorkflowApproved::class,
