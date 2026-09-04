@@ -47,6 +47,14 @@ return array (
     ),
     1 =>
     array (
+      'title' => 'Supporting Documents',
+      'description' => 'Upload any supporting documents for your leave request.',
+      'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
+      'formComponent' => 'leave-document-upload-wizard-step',
+      'requiresLink' => true,
+    ),
+    2 =>
+    array (
       'title' => 'Review & Submit',
       'preview' =>
       array (
@@ -67,18 +75,23 @@ return array (
       0 =>
       array (
         'label' => 'View My Requests',
-        'url' => '/leave/my-leave',
+        'url' => '/hr/leave-hub?tab=my-leaves',
         'primary' => true,
       ),
       1 =>
       array (
         'label' => 'Request Another',
-        'url' => '/leave/employee-self-service',
+        'url' => '/hr/leave-hub?tab=apply',
       ),
       2 =>
       array (
         'label' => 'Team Calendar',
-        'url' => '/leave/team-calendar',
+        'url' => '/hr/my-team-calendar',
+      ),
+      3 =>
+      array (
+        'label' => 'Upload Documents',
+        'url' => '/leave-requests/{id}',
       ),
     ),
   ),
