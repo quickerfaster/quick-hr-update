@@ -22,7 +22,7 @@ class HrsCompanyProvider implements CompanyProvider
             return collect();
         }
 
-        if ($user->hasRole('super_admin')) {
+        if ($user->hasRole('super_admin') || $user->hasRole('company_admin')) {
             return Company::all();
         }
 
@@ -53,7 +53,7 @@ class HrsCompanyProvider implements CompanyProvider
             return null;
         }
 
-        if ($user->hasRole('super_admin')) {
+        if ($user->hasRole('super_admin') || $user->hasRole('company_admin')) {
             return 0;
         }
 

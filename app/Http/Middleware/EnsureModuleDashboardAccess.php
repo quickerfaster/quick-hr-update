@@ -21,7 +21,7 @@ class EnsureModuleDashboardAccess
         }
 
         // super_admin and admin can access everything — skip all checks
-        if ($user->hasAnyRole(['super_admin', 'admin'])) {
+        if ($user->hasAnyRole(['super_admin', 'admin', 'company_admin'])) {
             return $next($request);
         }
 

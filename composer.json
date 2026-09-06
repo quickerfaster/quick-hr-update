@@ -7,15 +7,15 @@
     "license": "MIT",
     "repositories": [
         {
-            "type": "path",
-            "url": "/Users/mac/Projects/Libraries/ui-library"
+            "type": "vcs",
+            "url": "https://github.com/quickerfaster/ui-library.git"
         }
     ],
     "require": {
         "php": "^8.3",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0",
-        "quicker-faster/ui-library": "*"
+        "quicker-faster/ui-library": "*@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3e99b740215b60553a2f639d97c6bf80",
+    "content-hash": "66286ec35ae5fc6a3d1a510c9e981652",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -5088,11 +5088,17 @@
         },
         {
             "name": "quicker-faster/ui-library",
-            "version": "2.0.0",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:quickerfaster/ui-library.git",
+                "reference": "43f760090413af9a1816b3dfb44e06e9f7424883"
+            },
             "dist": {
-                "type": "path",
-                "url": "/Users/mac/Projects/Libraries/ui-library",
-                "reference": "24e31fb0baa65b2c321eb7efd1052c3d06902148"
+                "type": "zip",
+                "url": "https://api.github.com/repos/quickerfaster/ui-library/zipball/43f760090413af9a1816b3dfb44e06e9f7424883",
+                "reference": "43f760090413af9a1816b3dfb44e06e9f7424883",
+                "shasum": ""
             },
             "require": {
                 "barryvdh/laravel-dompdf": "^3.0",
@@ -5108,6 +5114,7 @@
                 "orchestra/testbench": "^8.0",
                 "phpunit/phpunit": "^10.0"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -5138,9 +5145,7 @@
                 "MIT"
             ],
             "description": "A config-driven Laravel UI library with Livewire 3, Fortify auth, and module auto-discovery",
-            "transport-options": {
-                "relative": false
-            }
+            "time": "2026-09-06T09:08:54+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -11515,7 +11520,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "quicker-faster/ui-library": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
