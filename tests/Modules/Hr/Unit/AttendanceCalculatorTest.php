@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Hr\Tests\Unit;
+namespace Tests\Modules\Hr\Unit;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
