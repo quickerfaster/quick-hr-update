@@ -80,11 +80,6 @@ return array (
         'label' => 'Team Calendar',
         'url' => '/hr/my-team-calendar',
       ),
-      3 =>
-      array (
-        'label' => 'Upload Documents',
-        'url' => '/leave-requests/{id}',
-      ),
     ),
   ),
   'linkFields' =>

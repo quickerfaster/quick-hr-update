@@ -3,6 +3,7 @@
 namespace App\Modules\Hr\Providers;
 
 use App\Models\User;
+use App\Modules\Hr\Models\Company;
 use App\Modules\Hr\Models\Employee;
 use Illuminate\Support\Collection;
 use QuickerFaster\UILibrary\Contracts\Navigation\CompanyProvider;
@@ -19,6 +20,10 @@ class HrsCompanyProvider implements CompanyProvider
     {
         if (!$user instanceof User) {
             return collect();
+        }
+
+        if ($user->hasRole('super_admin')) {
+            return Company::all();
         }
 
         $employee = Employee::where('user_id', $user->id)->first();
@@ -46,6 +51,10 @@ class HrsCompanyProvider implements CompanyProvider
     {
         if (!$user instanceof User) {
             return null;
+        }
+
+        if ($user->hasRole('super_admin')) {
+            return 0;
         }
 
         $employee = Employee::where('user_id', $user->id)->first();

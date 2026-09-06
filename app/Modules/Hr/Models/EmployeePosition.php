@@ -299,6 +299,7 @@ class EmployeePosition extends Model
                 'notes' => 'Initial position assignment as ' . (optional($position->jobTitle)->title ?? 'Unknown')
                     . ' in ' . (optional($position->department)->name ?? 'Unknown'),
                 'changed_by_user_id' => \Auth::id(),
+                'pay_frequency' => $position->pay_frequency ?? 'monthly',
             ]);
 
             EmployeeJobHistory::create($historyData);

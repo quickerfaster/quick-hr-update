@@ -7,8 +7,29 @@ use Spatie\Permission\Models\Role;
 
 class HrRoleSeeder extends Seeder
 {
+    /**
+     * All HR roles in the system.
+     */
+    protected array $roles = [
+        'super_admin',
+        'company_admin',
+        'hr_manager',
+        'hr_officer',
+        'payroll_officer',
+        'accountant',
+        'manager',
+        'supervisor',
+        'recruiter',
+        'employee',
+    ];
+
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        Role::firstOrCreate(['name' => 'hr_manager', 'guard_name' => 'web']);
+        foreach ($this->roles as $role) {
+            Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
+        }
     }
 }

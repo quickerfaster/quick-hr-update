@@ -64,4 +64,14 @@ class CompanyFactory extends Factory
         ]);
     }
 
+    /**
+     * Indicate that the company is at a specific location.
+     */
+    public function atLocation($location)
+    {
+        return $this->state(fn (array $attributes) => [
+            'location_id' => $location instanceof \App\Modules\Hr\Models\Location ? $location->id : $location,
+        ]);
+    }
+
 }

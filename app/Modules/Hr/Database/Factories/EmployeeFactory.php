@@ -25,6 +25,7 @@ class EmployeeFactory extends Factory
             'phone' => $this->faker->phoneNumber(),
             'hire_date' => $this->faker->dateTimeBetween('-5 years', 'now')->format('Y-m-d'),
             'company_id' => null,
+            'user_id' => null,
             // 'status' => $this->faker->randomElement(['Active', 'Inactive', 'Terminated']),
             // 'date_of_birth' => $this->faker->dateTimeBetween('-60 years', '-20 years')->format('Y-m-d'),
             // 'gender' => $this->faker->randomElement(['Male', 'Female', 'Non-binary', 'Prefer not to say']),
@@ -51,6 +52,30 @@ class EmployeeFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'company_id' => $company instanceof Company ? $company->id : $company,
         ]);
+    }
+
+    /**
+     * Link this employee to a User account.
+     *
+     * @param  \App\Models\User|int|null  $user  A User instance, user ID, or null to auto-create.
+     * @return static
+     */
+    public function withUser($user = null)
+    {
+        return $this->state(function (array $attributes) use ($user) {
+            if ($user === null) {
+                $user = \App\Models\User::factory()->create();
+                $role = \Spatie\Permission\Models\Role::where('name', 'employee')->first();
+
+                if ($role) {
+                    $user->assignRole($role);
+                }
+            }
+
+            return [
+                'user_id' => $user instanceof \App\Models\User ? $user->id : $user,
+            ];
+        });
     }
 
     /**
