@@ -49,8 +49,11 @@ deployment:
     - /bin/echo "Installing PHP dependencies..." >> $LOGFILE
     - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 "$COMPOSER_BIN" install --no-dev --no-scripts --optimize-autoloader >> "$LOGFILE" 2>&1'
 
-    # Run Artisan post-deploy tasks manually
-    # Artisan tasks with graceful route caching
+    # Run database migrations first (creates cache table needed by CACHE_STORE=database)
+    - /bin/echo "Running database migrations..." >> $LOGFILE
+    - /bin/sh -c 'ea-php84 "$DEPLOYPATH/artisan" migrate --force >> "$LOGFILE" 2>&1'
+
+    # Run Artisan post-deploy tasks (safe now that cache table exists)
     - /bin/echo "Running Artisan post-deploy tasks..." >> $LOGFILE
     - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 artisan config:clear >> "$LOGFILE" 2>&1'
     - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 artisan cache:clear >> "$LOGFILE" 2>&1'
@@ -62,15 +65,10 @@ deployment:
     # - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 artisan route:cache >> "$LOGFILE" 2>&1' || /bin/echo "Route caching skipped (normal for multi-tenant)" >> $LOGFILE
     # - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 artisan view:cache >> "$LOGFILE" 2>&1'
 
-
-
-    # Migrate
-    - /bin/sh -c 'ea-php84 "$DEPLOYPATH/artisan" migrate --force >> "$LOGFILE" 2>&1'
     # Seed
     - /bin/sh -c 'ea-php84 "$DEPLOYPATH/artisan" db:seed --force >> "$LOGFILE" 2>&1'
 
-
-    # Final cache cleanup old
+    # Final cache cleanup
     - /bin/echo "Clearing caches..." >> $LOGFILE
     - /bin/sh -c 'ea-php84 "$DEPLOYPATH/artisan" optimize:clear >> "$LOGFILE" 2>&1'
 
