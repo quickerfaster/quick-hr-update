@@ -2,11 +2,8 @@ deployment:
   tasks:
     # Paths
     - export COMPOSER_BIN=/home/quickerf/composer.phar
-    # - export REPOPATH=/home/quickerf/laravel_suites_repo/suites.quickerfaster.com
-    # - export DEPLOYPATH=/home/quickerf/public_html/suites.quickerfaster.com
-
-    - export REPOPATH=/home/quickerf/laravel_suites_repo/quickerfaster.com
-    - export DEPLOYPATH=/home/quickerf/laravel_app
+    - export REPOPATH=/home/quickerf/laravel_suites_repo/agriwatts-demo
+    - export DEPLOYPATH=/home/quickerf/agriwatts-demo
 
     - export LOGDIR=/home/quickerf/deploy_logs
     - mkdir -p $LOGDIR
@@ -60,17 +57,25 @@ deployment:
     - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 artisan package:discover >> "$LOGFILE" 2>&1'
     # - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 artisan config:cache >> "$LOGFILE" 2>&1'
 
-    # Graceful route caching - try but don't fail
+    # Graceful route & view caching - try but don't fail
     - /bin/echo "Attempting route cache..." >> $LOGFILE
     # - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 artisan route:cache >> "$LOGFILE" 2>&1' || /bin/echo "Route caching skipped (normal for multi-tenant)" >> $LOGFILE
-
     # - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 artisan view:cache >> "$LOGFILE" 2>&1'
 
 
 
-    # Final cache cleanup
+    # Migrate
+    - /bin/sh -c 'ea-php84 "$DEPLOYPATH/artisan" migrate --force >> "$LOGFILE" 2>&1'
+    # Seed
+    - /bin/sh -c 'ea-php84 "$DEPLOYPATH/artisan" db:seed --force >> "$LOGFILE" 2>&1'
+
+
+    # Final cache cleanup old
     - /bin/echo "Clearing caches..." >> $LOGFILE
     - /bin/sh -c 'ea-php84 "$DEPLOYPATH/artisan" optimize:clear >> "$LOGFILE" 2>&1'
+
+    # Optimize again
+    # - /bin/sh -c 'ea-php84 "$DEPLOYPATH/artisan" optimize >> "$LOGFILE" 2>&1'
 
     # End log
     - /bin/echo "===== Deployment finished at $(date) =====" >> $LOGFILE
@@ -78,3 +83,5 @@ deployment:
     # Rotate logs - keep only last 5
     - /bin/ls -1t $LOGDIR/deploy_*.log | /usr/bin/tail -n +6 | /bin/xargs -r /bin/rm --
 
+#* * * * * cd /home/quickerf/quick_hr && php artisan queue:work --once --stop-when-empty --sleep=3 --tries=1 >> storage/logs/worker.log 2>&1
+#/home/quickerf/quick_hr/worker.sh >> /dev/null 2>&1
