@@ -139,10 +139,16 @@
                             </table>
                         </div>
 
-                        <div class="mt-3">
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
                             <small class="text-muted">
                                 {{ count($assignedCompanyIds) }} of {{ $companies->count() }} companies assigned
                             </small>
+                            @if(count($assignedCompanyIds) > 0)
+                                <a href="#" wire:click.prevent="$set('assignedCompanyIds', [])"
+                                   class="text-danger small text-decoration-none">
+                                    <i class="fas fa-eraser me-1"></i> Clear all
+                                </a>
+                            @endif
                         </div>
                     @endif
                 </div>
@@ -304,11 +310,17 @@
                             </table>
                         </div>
 
-                        <div class="mt-3">
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
                             <small class="text-muted">
                                 {{ count($bulkAssignedCompanyIds) }} of {{ $companies->count() }} companies selected
                                 &mdash; will be assigned to {{ count($selectedUserIds) }} user(s)
                             </small>
+                            @if(count($bulkAssignedCompanyIds) > 0)
+                                <a href="#" wire:click.prevent="$set('bulkAssignedCompanyIds', [])"
+                                   class="text-danger small text-decoration-none">
+                                    <i class="fas fa-eraser me-1"></i> Clear all
+                                </a>
+                            @endif
                         </div>
                     @endif
                 </div>
