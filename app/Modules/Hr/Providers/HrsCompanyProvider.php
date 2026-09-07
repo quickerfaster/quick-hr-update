@@ -22,10 +22,20 @@ class HrsCompanyProvider implements CompanyProvider
             return collect();
         }
 
-        if ($user->hasRole('super_admin') || $user->hasRole('company_admin')) {
+        // Super admins, company admins, and users with cross-company permission see all companies
+        if ($this->canViewAllCompanies($user)) {
             return Company::all();
         }
 
+        // Multi-company users: return companies from the company_user pivot table
+        if (method_exists($user, 'companies')) {
+            $companies = $user->companies;
+            if ($companies->isNotEmpty()) {
+                return $companies;
+            }
+        }
+
+        // Fallback: single-company users via employee record
         $employee = Employee::where('user_id', $user->id)->first();
 
         if (!$employee) {
@@ -53,10 +63,20 @@ class HrsCompanyProvider implements CompanyProvider
             return null;
         }
 
-        if ($user->hasRole('super_admin') || $user->hasRole('company_admin')) {
+        // Users with cross-company access default to "All Companies" mode
+        if ($this->canViewAllCompanies($user)) {
             return 0;
         }
 
+        // Multi-company users: default to their first assigned company
+        if (method_exists($user, 'companies')) {
+            $firstCompany = $user->companies->first();
+            if ($firstCompany) {
+                return $firstCompany->id;
+            }
+        }
+
+        // Fallback: single-company users via employee record
         $employee = Employee::where('user_id', $user->id)->first();
 
         if (!$employee) {
@@ -64,5 +84,18 @@ class HrsCompanyProvider implements CompanyProvider
         }
 
         return $employee->company_id;
+    }
+
+    /**
+     * Determine if the user can view data across all companies.
+     *
+     * @param \App\Models\User $user
+     * @return bool
+     */
+    protected function canViewAllCompanies(User $user): bool
+    {
+        return $user->hasRole('super_admin')
+            || $user->hasRole('company_admin')
+            || $user->can('view_all_companies');
     }
 }
