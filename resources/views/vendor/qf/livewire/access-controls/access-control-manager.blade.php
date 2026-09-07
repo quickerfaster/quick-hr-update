@@ -83,6 +83,32 @@
                         @endforeach
                     </div>
                 @endif
+
+                    {{-- Extra (Non-Model) Permissions --}}
+                    @if(!empty($this->extraPermissions))
+                        <div class="mt-4">
+                            <h6 class="text-uppercase text-muted mb-3">Additional Permissions</h6>
+                            <div class="row g-4">
+                                @foreach($this->extraPermissions as $permName)
+                                    <div class="col-md-4">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="card-title text-sm mb-3">{{ \Illuminate\Support\Str::title(str_replace('_', ' ', $permName)) }}</h6>
+                                                <livewire:qf.toggle-button-group
+                                                    :key="'extra_'.$permName"
+                                                    :buttons="$resourceControlButtonGroup[$permName] ?? []"
+                                                    :modelId="$permName"
+                                                    :scopeType="$selectedScopeName"
+                                                    :scopeId="$selectedScopeId"
+                                                    :permissionType="'single'"
+                                                    wire:key="extra_toggle_{{ $permName }}" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
             @else
                 <h4>Need Help?</h4>
                 <p>Select <strong class="text-primary">[Role],</strong>  then select <strong class="text-primary">[Module]</strong> and click <strong class="text-primary">[OK]</strong>    to set the permission of  <strong class="text-primary"> user that has that role can/cannot do.</strong> </p>
