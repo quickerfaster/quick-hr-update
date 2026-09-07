@@ -140,7 +140,7 @@ return [
                 'key'        => 'employee_allocations',
                 'label'      => 'Employee Allocations',
                 'icon'       => 'fa-solid fa-users-between-lines',
-                'route'      => '/admin/user-company-assignments',
+                'route'      => '/organization/employee-allocations',
                 'permission' => 'manage_user_company_assignments',
                 'order'      => 50,
             ],
