@@ -3,6 +3,8 @@
 namespace App\Modules\Organization\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
+use App\Modules\Organization\Http\Livewire\UserCompanyAssignment;
 
 class OrganizationServiceProvider extends ServiceProvider
 {
@@ -35,5 +37,7 @@ class OrganizationServiceProvider extends ServiceProvider
         }
 
         $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
+
+        Livewire::component('qf.user-company-assignment', UserCompanyAssignment::class);
     }
 }
