@@ -37,6 +37,9 @@ class DatabaseSeeder extends Seeder
         $this->call(PayrollRoleSeeder::class);
         $this->call(HrRoleSeeder::class);
 
+        // ─── Permissions ───────────────────────────────────────────
+        $this->call(\QuickerFaster\UILibrary\Core\Admin\Database\Seeders\AccessControlPermissionSeeder::class);
+
         // ─── Users ────────────────────────────────────────────────
         $this->call(UserSeeder::class);
 
