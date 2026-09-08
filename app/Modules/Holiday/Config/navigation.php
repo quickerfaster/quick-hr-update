@@ -6,6 +6,7 @@ return [
             'label' => 'Holidays',
             'icon' => 'fas fa-calendar-alt',
             'order' => 10000,
+            'roles' => ['*'],
             'route' => NULL,
             'url' => '/holiday/dashboard-holidays-overview',
         ],

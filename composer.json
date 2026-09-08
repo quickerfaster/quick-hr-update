@@ -7,8 +7,8 @@
     "license": "MIT",
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/quickerfaster/ui-library.git"
+            "type": "path",
+            "url": "/Users/mac/Projects/Libraries/ui-library"
         }
     ],
     "require": {

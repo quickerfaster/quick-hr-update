@@ -21,6 +21,8 @@ class HrsServiceProvider extends ServiceProvider
             \QuickerFaster\UILibrary\Contracts\Approvals\ApproverResolver::class,
             \App\Modules\Hr\Providers\HrsApproverResolver::class
         );
+
+        $this->app->singleton(\App\Modules\Hr\Services\HrInvitationService::class);
     }
 
     /**
@@ -32,6 +34,12 @@ class HrsServiceProvider extends ServiceProvider
         Livewire::component('qf.employee-detail', \App\Modules\Hr\Http\Livewire\EmployeeDetail::class);
         Livewire::component('qf.searchable-employee-dropdown', \App\Modules\Hr\Http\Livewire\SearchableEmployeeDropdown::class);
         Livewire::component('qf.leave-hub', \App\Modules\Hr\Http\Livewire\LeaveHub::class);
+
+        // Register invitation auto-linking listener
+        \Illuminate\Support\Facades\Event::listen(
+            \QuickerFaster\UILibrary\Events\DataTableRecordSaved::class,
+            \App\Modules\Hr\Listeners\LinkInvitationToEmployee::class
+        );
 
         //
         // TODO (Phase 2 — deep integration):

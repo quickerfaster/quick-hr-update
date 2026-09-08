@@ -9,6 +9,7 @@ return [
             'route' => NULL,
             'url' => 'hr/dashboard',
             'permission' => 'view_hidden_dashboard',
+            'roles' => ['*'],
         ],
         'my-portal' => [
             'label' => 'My Portal',
@@ -16,7 +17,8 @@ return [
             'order' => 1,
             'route' => NULL,
             'url' => 'hr/my-portal',
-            'roles' => ['employee', 'manager'],
+            'permission' => 'view_my_portal',
+            'roles' => ['*'],
         ],
         'Organization' => [
             'label' => 'Organization',
@@ -24,6 +26,8 @@ return [
             'order' => 10000,
             'route' => NULL,
             'url' => 'hr/dashboard-organization-overview',
+            'permission' => 'view_organization_overview',
+            'roles' => ['*'],
         ],
         'people' => [
             'label' => 'People',
@@ -31,6 +35,7 @@ return [
             'order' => 999,
             'route' => NULL,
             'url' => 'hr/dashboard-people-overview',
+            'roles' => ['*'],
         ],
         'manage' => [
             'label' => 'Manage',
@@ -38,6 +43,8 @@ return [
             'order' => 1000,
             'route' => NULL,
             'url' => 'hr/dashboard-manage-overview',
+            'permission' => 'view_manage_overview',
+            'roles' => ['*'],
         ],
     ],
     'contexts' => [

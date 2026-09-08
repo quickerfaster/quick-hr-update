@@ -209,4 +209,13 @@
             </div>
         </div>
     </div>
+
+    <div class="d-flex justify-content-end mt-4">
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-4">
+                <i class="fas fa-sign-out-alt me-1"></i> Logout
+            </button>
+        </form>
+    </div>
 </x-qf::navigation-layout>

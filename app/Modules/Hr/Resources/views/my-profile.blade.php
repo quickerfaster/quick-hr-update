@@ -11,7 +11,7 @@
 >
     @livewire('qf.employee-detail', [
         'configKey' => 'hr.employee',
-        'recordId' => \App\Modules\Hr\Models\Employee::where('user_id', auth()->id())->value('id'),
+        'recordId' => \App\Modules\Hr\Models\Employee::where('user_id', auth()->id())->value('id') ?? 0,
         'inline' => true,
     ])
 </x-qf::navigation-layout>

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Hr\Models;
 
+use QuickerFaster\UILibrary\Contracts\Invitations\Invitable;
 use QuickerFaster\UILibrary\Traits\HasCompanyScope;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -24,7 +25,7 @@ use App\Modules\Hr\Models\Tag;
 use Illuminate\Database\Eloquent\Model;
 
 
-class Employee extends Model
+class Employee extends Model implements Invitable
 {
     use HasCompanyScope;
     use HasFactory;
@@ -161,6 +162,22 @@ class Employee extends Model
     public function tags()
     {
         return $this->morphToMany(\App\Modules\Hr\Models\Tag::class, 'taggable', 'taggables', 'taggable_id', 'tag_id', 'id', 'id');
+    }
+
+    /**
+     * Get the invitable type key for polymorphic linking.
+     */
+    public function getInvitableType(): string
+    {
+        return 'employee';
+    }
+
+    /**
+     * Get the unique identifier for this invitable entity.
+     */
+    public function getInvitableId(): int|string
+    {
+        return $this->id;
     }
 
     public function clockEvents(): HasMany

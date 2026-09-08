@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b208fc03b488ba64e9ed6314ee0d9aaa",
+    "content-hash": "a41a1be09db155453f288e61c610d973",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -199,16 +199,16 @@
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
-            "version": "3.2.0",
+            "version": "3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CarbonPHP/carbon-doctrine-types.git",
-                "reference": "18ba5ddfec8976260ead6e866180bd5d2f71aa1d"
+                "reference": "5fa5eacafd9ef47c8c6ab9143fc901ba0194d3dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CarbonPHP/carbon-doctrine-types/zipball/18ba5ddfec8976260ead6e866180bd5d2f71aa1d",
-                "reference": "18ba5ddfec8976260ead6e866180bd5d2f71aa1d",
+                "url": "https://api.github.com/repos/CarbonPHP/carbon-doctrine-types/zipball/5fa5eacafd9ef47c8c6ab9143fc901ba0194d3dc",
+                "reference": "5fa5eacafd9ef47c8c6ab9143fc901ba0194d3dc",
                 "shasum": ""
             },
             "require": {
@@ -223,6 +223,11 @@
                 "phpunit/phpunit": "^10.3"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "3.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Carbon\\Doctrine\\": "src/Carbon/Doctrine/"
@@ -248,7 +253,7 @@
             ],
             "support": {
                 "issues": "https://github.com/CarbonPHP/carbon-doctrine-types/issues",
-                "source": "https://github.com/CarbonPHP/carbon-doctrine-types/tree/3.2.0"
+                "source": "https://github.com/CarbonPHP/carbon-doctrine-types/tree/3.2.1"
             },
             "funding": [
                 {
@@ -264,7 +269,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-02-09T16:56:22+00:00"
+            "time": "2026-09-06T14:11:38+00:00"
         },
         {
             "name": "composer/pcre",
@@ -5111,17 +5116,11 @@
         },
         {
             "name": "quicker-faster/ui-library",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/quickerfaster/ui-library.git",
-                "reference": "cbdc0fa6ac7d02992c751c12de5a984c3202b3eb"
-            },
+            "version": "2.0.0",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/quickerfaster/ui-library/zipball/cbdc0fa6ac7d02992c751c12de5a984c3202b3eb",
-                "reference": "cbdc0fa6ac7d02992c751c12de5a984c3202b3eb",
-                "shasum": ""
+                "type": "path",
+                "url": "/Users/mac/Projects/Libraries/ui-library",
+                "reference": "4e20d5876b79cce368c291f12266d9fa9d5209ea"
             },
             "require": {
                 "barryvdh/laravel-dompdf": "^3.0",
@@ -5137,7 +5136,6 @@
                 "orchestra/testbench": "^8.0",
                 "phpunit/phpunit": "^10.0"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -5168,11 +5166,9 @@
                 "MIT"
             ],
             "description": "A config-driven Laravel UI library with Livewire 3, Fortify auth, and module auto-discovery",
-            "support": {
-                "source": "https://github.com/quickerfaster/ui-library/tree/main",
-                "issues": "https://github.com/quickerfaster/ui-library/issues"
-            },
-            "time": "2026-09-06T10:31:47+00:00"
+            "transport-options": {
+                "relative": false
+            }
         },
         {
             "name": "ralouphie/getallheaders",

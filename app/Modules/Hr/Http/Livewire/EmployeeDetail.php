@@ -160,6 +160,16 @@ class EmployeeDetail extends Component
 
     protected function loadData(): void
     {
+        // NEW: Early guard — mirror LeaveHub's pattern
+        if ($this->isSelfServiceMode) {
+            $employee = \App\Modules\Hr\Models\Employee::where('user_id', auth()->id())->first();
+            if (!$employee) {
+                abort(403, 'No employee record found for your account.');
+            }
+            // Use the resolved employee ID instead of the potentially-null blade-passed value
+            $this->recordId = $employee->id;
+        }
+
         if ($this->isSelfServiceMode) {
             $userEmployeeId = \App\Modules\Hr\Models\Employee::where('user_id', auth()->id())->value('id');
             if ($this->recordId != $userEmployeeId) {

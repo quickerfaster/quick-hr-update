@@ -434,9 +434,9 @@ return [
         'leave'          => ['hr_manager', 'admin', 'super_admin', 'company_admin'],
         'holiday'        => ['hr_manager', 'admin', 'super_admin', 'company_admin'],
         'attendance'     => ['hr_manager', 'admin', 'super_admin', 'company_admin'],
-        'payroll'        => ['payroll_officer', 'admin', 'super_admin', 'company_admin'],
-        
-        'organization'   => ['admin', 'super_admin', 'company_admin'],
+        'payroll'        => ['payroll_officer', 'hr_manager', 'admin', 'super_admin', 'company_admin'],
+
+        'organization'   => ['hr_manager', 'admin', 'super_admin', 'company_admin'],
         'system'         => ['admin', 'super_admin', 'company_admin'],
         'admin'          => ['admin', 'super_admin', 'company_admin'],
     ],
