@@ -65,7 +65,11 @@ class HrsServiceProvider extends ServiceProvider
         Livewire::component('qf.onboarding.notification-preferences', \App\Modules\Hr\Http\Livewire\Onboarding\NotificationPreferencesForm::class);
 
         // Phase 7: Register Spatie Onboard steps from HR onboarding config
-        $this->registerOnboardingSteps();
+        // Skip during console commands (e.g. migrate) — route() resolution
+        // requires the full HTTP route collection which isn't available in CLI.
+        if (! $this->app->runningInConsole()) {
+            $this->registerOnboardingSteps();
+        }
 
         // Register invitation auto-linking listener (Phase 5)
         \Illuminate\Support\Facades\Event::listen(
