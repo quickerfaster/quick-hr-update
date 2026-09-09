@@ -6,57 +6,67 @@ return [
     | Employee Onboarding Configuration
     |--------------------------------------------------------------------------
     |
-    | Post-acceptance onboarding steps for newly invited employees.
-    | Each step defines a condition class (implementing OnboardingCondition),
-    | a route for the step's form view, and display metadata.
+    | Consolidated single-page wizard configuration for post-acceptance
+    | employee onboarding. Replaces the old 6 separate page steps with
+    | 5 wizard steps rendered inside a single Livewire component at /onboarding.
     |
-    | Steps are executed in ascending 'order'. The first incomplete step
-    | is presented to the user after they accept their invitation.
+    | Each step maps to one primary model (or logical group) and may be
+    | required or optional. The Payroll step is conditionally excluded
+    | when the Payroll module is not installed.
     |
     */
     'employee_onboarding' => [
+        'wizard_route' => '/onboarding',
         'steps' => [
             [
-                'key' => 'employee_profile',
-                'label' => 'Employee Profile',
+                'key'       => 'employee_record',
+                'label'     => 'Employee Record',
+                'description' => 'Set up your employee record',
+                'model'     => \App\Modules\Hr\Models\Employee::class,
                 'condition' => \App\Modules\Hr\Conditions\EmployeeProfileCreated::class,
-                'route' => 'hr.onboarding.employee-profile',
-                'order' => 1,
+                'component' => 'qf.onboarding.step1-employee-record',
+                'required'  => true,
+                'order'     => 1,
             ],
             [
-                'key' => 'personal_details',
-                'label' => 'Personal Details',
-                'condition' => \App\Modules\Hr\Conditions\PersonalDetailsComplete::class,
-                'route' => 'hr.onboarding.personal-details',
-                'order' => 2,
+                'key'       => 'employee_profile',
+                'label'     => 'Employee Profile',
+                'description' => 'Add personal details and emergency contacts',
+                'model'     => \App\Modules\Hr\Models\EmployeeProfile::class,
+                'condition' => \App\Modules\Hr\Conditions\EmployeeProfileComplete::class,
+                'component' => 'qf.onboarding.step2-employee-profile',
+                'required'  => false,
+                'order'     => 2,
             ],
             [
-                'key' => 'emergency_contact',
-                'label' => 'Emergency Contact',
-                'condition' => \App\Modules\Hr\Conditions\EmergencyContactAdded::class,
-                'route' => 'hr.onboarding.emergency-contact',
-                'order' => 3,
-            ],
-            [
-                'key' => 'bank_details',
-                'label' => 'Bank Details',
+                'key'       => 'payroll_banking',
+                'label'     => 'Payroll & Banking',
+                'description' => 'Set up bank details for salary payments',
+                'model'     => \App\Modules\Payroll\Models\EmployeePayrollProfile::class,
                 'condition' => \App\Modules\Hr\Conditions\BankDetailsAdded::class,
-                'route' => 'hr.onboarding.bank-details',
-                'order' => 4,
+                'component' => 'qf.onboarding.step3-payroll-banking',
+                'required'  => false,
+                'order'     => 3,
             ],
             [
-                'key' => 'documents',
-                'label' => 'Documents',
+                'key'       => 'documents',
+                'label'     => 'Documents',
+                'description' => 'Upload ID, certificates, and other documents',
+                'model'     => \App\Modules\Hr\Models\Document::class,
                 'condition' => \App\Modules\Hr\Conditions\DocumentsUploaded::class,
-                'route' => 'hr.onboarding.documents',
-                'order' => 5,
+                'component' => 'qf.onboarding.step4-documents',
+                'required'  => false,
+                'order'     => 4,
             ],
             [
-                'key' => 'notification_preferences',
-                'label' => 'Notification Preferences',
+                'key'       => 'preferences',
+                'label'     => 'Notification Preferences',
+                'description' => 'Choose how you want to be notified',
+                'model'     => null,  // User settings, not a model
                 'condition' => \App\Modules\Hr\Conditions\NotificationPreferencesSet::class,
-                'route' => 'hr.onboarding.notification-preferences',
-                'order' => 6,
+                'component' => 'qf.onboarding.step5-preferences',
+                'required'  => false,
+                'order'     => 5,
             ],
         ],
     ],

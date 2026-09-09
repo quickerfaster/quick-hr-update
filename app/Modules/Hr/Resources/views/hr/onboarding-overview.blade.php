@@ -1,3 +1,3 @@
-<x-qf::navigation-layout configKey="hr.onboarding_overview" context="onboarding" moduleName="hr" :overrides="[]">
-    <livewire:qf.dashboard configKey="hr.onboarding_overview" />
+<x-qf::navigation-layout configKey="hr.dashboards.onboarding_overview" context="onboarding" moduleName="hr">
+    <livewire:qf.dashboard configKey="hr.dashboards.onboarding_overview" />
 </x-qf::navigation-layout>

@@ -1,8 +1,6 @@
 <?php
 
 return [
-    'title' => 'Onboarding Overview',
-    'description' => 'Track invitations, recent hires, and manage the onboarding pipeline',
     'widgets' => [
         0 => [
             'type' => 'stat',

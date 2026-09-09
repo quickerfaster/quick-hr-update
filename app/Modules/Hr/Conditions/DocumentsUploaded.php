@@ -12,9 +12,9 @@ use QuickerFaster\UILibrary\Contracts\OnboardingCondition;
  */
 class DocumentsUploaded implements OnboardingCondition
 {
-    public function __invoke($user): bool
+    public function __invoke($model): bool
     {
-        $employee = \App\Modules\Hr\Models\Employee::where('user_id', $user->id)->first();
+        $employee = \App\Modules\Hr\Models\Employee::where('user_id', $model->id)->first();
 
         if (! $employee) {
             return false;

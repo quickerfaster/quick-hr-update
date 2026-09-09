@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Modules\Hr\Http\Livewire\Onboarding;
+namespace App\Modules\Hr\Http\Livewire\Onboarding\Steps;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Onboarding Step 6: Set notification preferences.
+ * Onboarding Step 5: Notification Preferences (OPTIONAL, skippable).
  *
  * Uses the HasSettings trait (via HasUILibraryUser) to persist
  * the user's notification channel preferences.
  */
-class NotificationPreferencesForm extends Component
+class Step5Preferences extends Component
 {
     public bool $email_notifications = true;
 
@@ -54,22 +54,16 @@ class NotificationPreferencesForm extends Component
         $user->setSetting('notifications.sms', $this->sms_notifications, 'notifications');
         $user->setSetting('notifications.digest_frequency', $this->digest_frequency, 'notifications');
 
-        $this->redirectToNextStep();
+        $this->dispatch('stepComplete', step: 5);
     }
 
     public function skip(): void
     {
-        $this->redirectToNextStep();
-    }
-
-    protected function redirectToNextStep(): void
-    {
-        // All onboarding steps complete — redirect to dashboard
-        $this->redirect(route(config('ui-library.home_route', 'admin.dashboard')));
+        $this->dispatch('skipStep');
     }
 
     public function render()
     {
-        return view('hr::onboarding.notification-preferences');
+        return view('hr::onboarding.steps.step5-preferences');
     }
 }

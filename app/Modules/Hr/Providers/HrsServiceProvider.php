@@ -2,6 +2,7 @@
 
 namespace App\Modules\Hr\Providers;
 
+use App\Models\User;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Spatie\Onboard\Facades\Onboard;
@@ -46,6 +47,10 @@ class HrsServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Load HR module routes (must happen before registerOnboardingSteps
+        // so that route() resolution can find the onboarding route names).
+        $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
+
         // Register HR-specific Livewire components
         Livewire::component('qf.employee-detail', \App\Modules\Hr\Http\Livewire\EmployeeDetail::class);
         Livewire::component('qf.searchable-employee-dropdown', \App\Modules\Hr\Http\Livewire\SearchableEmployeeDropdown::class);
@@ -56,24 +61,35 @@ class HrsServiceProvider extends ServiceProvider
         Livewire::component('qf.hr-employee-form', \App\Modules\Hr\Http\Livewire\HrEmployeeForm::class);
         Livewire::component('qf.employee-invitation-status', \App\Modules\Hr\Http\Livewire\EmployeeInvitationStatus::class);
 
-        // Phase 7: Onboarding Livewire components
-        Livewire::component('qf.onboarding.employee-profile', \App\Modules\Hr\Http\Livewire\Onboarding\EmployeeProfileForm::class);
-        Livewire::component('qf.onboarding.personal-details', \App\Modules\Hr\Http\Livewire\Onboarding\PersonalDetailsForm::class);
-        Livewire::component('qf.onboarding.emergency-contact', \App\Modules\Hr\Http\Livewire\Onboarding\EmergencyContactForm::class);
-        Livewire::component('qf.onboarding.bank-details', \App\Modules\Hr\Http\Livewire\Onboarding\BankDetailsForm::class);
-        Livewire::component('qf.onboarding.documents', \App\Modules\Hr\Http\Livewire\Onboarding\DocumentsForm::class);
-        Livewire::component('qf.onboarding.notification-preferences', \App\Modules\Hr\Http\Livewire\Onboarding\NotificationPreferencesForm::class);
+        // Phase 7: Consolidated Onboarding Wizard
+        Livewire::component('qf.onboarding.wizard', \App\Modules\Hr\Http\Livewire\Onboarding\EmployeeOnboardingWizard::class);
+        Livewire::component('qf.onboarding.step1-employee-record', \App\Modules\Hr\Http\Livewire\Onboarding\Steps\Step1EmployeeRecord::class);
+        Livewire::component('qf.onboarding.step2-employee-profile', \App\Modules\Hr\Http\Livewire\Onboarding\Steps\Step2EmployeeProfile::class);
+        Livewire::component('qf.onboarding.step3-payroll-banking', \App\Modules\Hr\Http\Livewire\Onboarding\Steps\Step3PayrollBanking::class);
+        Livewire::component('qf.onboarding.step4-documents', \App\Modules\Hr\Http\Livewire\Onboarding\Steps\Step4Documents::class);
+        Livewire::component('qf.onboarding.step5-preferences', \App\Modules\Hr\Http\Livewire\Onboarding\Steps\Step5Preferences::class);
 
-        // Phase 7: Register Spatie Onboard steps from HR onboarding config
-        // Skip during console commands (e.g. migrate) — route() resolution
-        // requires the full HTTP route collection which isn't available in CLI.
+        // Phase 7: Register Spatie Onboard steps from HR onboarding config.
+        // Skip during console commands (e.g. migrate) because the route
+        // collection is not fully assembled in CLI context.
+        //
+        // IMPORTANT: Must be a direct call in boot() (not deferred via
+        // $this->app->booted()). ModuleServiceProvider::registerOnboardingConfig()
+        // registers library defaults during its own boot(), which runs before
+        // this provider. The HR step carries User::class as its model so
+        // Spatie Onboard places it in the model-specific bucket, which the
+        // framework merges *before* the 'default' bucket, guaranteeing
+        // the HR wizard step is returned by nextUnfinishedStep() first.
         if (! $this->app->runningInConsole()) {
             $this->registerOnboardingSteps();
         }
 
         // Register invitation auto-linking listener (Phase 5)
+        // Listens for InvitationAccepted (fired by InvitationService::accept())
+        // rather than DataTableRecordSaved, because the accept flow uses direct
+        // Eloquent updates and never dispatches DataTableRecordSaved.
         \Illuminate\Support\Facades\Event::listen(
-            \QuickerFaster\UILibrary\Events\DataTableRecordSaved::class,
+            \QuickerFaster\UILibrary\Events\Invitations\InvitationAccepted::class,
             \App\Modules\Hr\Listeners\LinkInvitationToEmployee::class
         );
 
@@ -91,33 +107,25 @@ class HrsServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register Spatie Onboard steps from the HR onboarding config.
+     * Register Spatie Onboard step for the consolidated HR onboarding wizard.
      *
-     * Each step defines a condition class (implementing OnboardingCondition),
-     * a route for the step's form view, and display metadata. Steps are
-     * registered in ascending order so the first incomplete step is
-     * presented to the user after invitation acceptance.
+     * Registers a single "Employee Onboarding" step that points to /onboarding.
+     * The wizard component manages its own internal sub-step state and skip
+     * tracking. The Spatie Onboard condition checks only the required
+     * Employee Record step — optional steps are managed within the wizard.
+     *
+     * This replaces the old 6 separate step registrations (Phase 7 original).
      */
     private function registerOnboardingSteps(): void
     {
-        $steps = config('hr_onboarding.employee_onboarding.steps', []);
+        $wizardRoute = config('hr_onboarding.employee_onboarding.wizard_route', '/onboarding');
 
-        // Sort steps by order
-        $sorted = collect($steps)->sortBy('order');
-
-        foreach ($sorted as $step) {
-            Onboard::addStep($step['label'])
-                ->link(route($step['route']))
-                ->cta('Continue')
-                ->completeIf(function ($user) use ($step) {
-                    if (isset($step['condition'])) {
-                        $condition = app($step['condition']);
-
-                        return $condition($user);
-                    }
-
-                    return false;
-                });
-        }
+        // Pass User::class as the model so Spatie Onboard places this step
+        // in the model-specific bucket. The framework merges model-specific
+        // steps *before* 'default' steps, guaranteeing the HR wizard
+        // appears before library defaults (Complete Your Profile, etc.).
+        Onboard::addStep('Employee Onboarding', User::class)
+            ->link($wizardRoute)
+            ->cta('Complete Setup');
     }
 }

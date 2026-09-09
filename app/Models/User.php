@@ -11,11 +11,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use QuickerFaster\UILibrary\Contracts\Notifications\Notifiable as UILibraryNotifiable;
 use QuickerFaster\UILibrary\Traits\HasUILibraryUser;
+use Spatie\Onboard\Concerns\Onboardable;
 use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements UILibraryNotifiable
+class User extends Authenticatable implements UILibraryNotifiable, Onboardable
 {
     use HasUILibraryUser;
     use HasRoles;

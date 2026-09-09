@@ -2,35 +2,25 @@
 
 namespace App\Modules\Hr\Listeners;
 
-use QuickerFaster\UILibrary\Events\DataTableRecordSaved;
-use QuickerFaster\UILibrary\Listeners\DataTableRecordListener;
-use QuickerFaster\UILibrary\Models\Invitation;
+use QuickerFaster\UILibrary\Events\Invitations\InvitationAccepted;
 use App\Modules\Hr\Services\HrInvitationService;
 
-class LinkInvitationToEmployee extends DataTableRecordListener
+class LinkInvitationToEmployee
 {
     public function __construct(
         protected HrInvitationService $hrInvitationService
     ) {}
 
     /**
-     * When an Invitation is updated to 'accepted', attempt auto-linking.
+     * When an Invitation is accepted, attempt auto-linking to the employee.
+     *
+     * Listens for InvitationAccepted (fired by InvitationService::accept())
+     * rather than DataTableRecordSaved, because the accept flow uses direct
+     * Eloquent updates and never dispatches DataTableRecordSaved.
      */
-    protected function handleUpdated(DataTableRecordSaved $event): void
+    public function handle(InvitationAccepted $event): void
     {
-        if ($event->model !== Invitation::class) {
-            return;
-        }
-
-        $newStatus = $event->newRecord['status'] ?? null;
-        if ($newStatus !== 'accepted') {
-            return;
-        }
-
-        $invitation = Invitation::find($event->newRecord['id'] ?? null);
-        if (! $invitation) {
-            return;
-        }
+        $invitation = $event->invitation;
 
         // Find the user that was just created/activated
         $userModel = config('auth.providers.users.model');

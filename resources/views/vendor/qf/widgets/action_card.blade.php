@@ -22,12 +22,18 @@
             @php
                 $buttonClass = $action['style'] ?? 'primary';
             @endphp
-            <button
-                wire:click="$dispatch('{{ $action['event'] }}', {{ json_encode($action['params'] ?? []) }})"
-                class="btn btn-{{ $buttonClass }} btn-sm"
-            >
-                {{ $action['label'] }}
-            </button>
+            @if(!empty($action['url']))
+                <a href="{{ $action['url'] }}" class="btn btn-{{ $buttonClass }} btn-sm">
+                    {{ $action['label'] }}
+                </a>
+            @else
+                <button
+                    wire:click="$dispatch('{{ $action['event'] }}', {{ json_encode($action['params'] ?? []) }})"
+                    class="btn btn-{{ $buttonClass }} btn-sm"
+                >
+                    {{ $action['label'] }}
+                </button>
+            @endif
         @endforeach
     </div>
 @endif

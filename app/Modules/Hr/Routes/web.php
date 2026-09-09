@@ -119,40 +119,17 @@ Route::middleware(['web', 'auth'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Post-Acceptance Onboarding Routes (Phase 7)
+| Post-Acceptance Onboarding Route (Phase 7 — Consolidated Wizard)
 |--------------------------------------------------------------------------
 |
-| These routes are outside the 'auth' middleware group because the user
-| is already logged in via the AcceptInvitation Livewire component before
-| being redirected here. The onboarding views use a focused, centered-card
-| layout (no sidebar) to guide new employees through profile setup.
-|
-| Each route renders a Livewire form component for the corresponding step.
+| Single-page wizard at /onboarding replaces the old 6 separate step pages.
+| The EmployeeOnboardingWizard Livewire component manages all 5 steps
+| internally with a sidebar step indicator and step-by-step content area.
+| Each step's child Livewire component saves independently.
 */
 Route::middleware(['web', 'auth'])->group(function () {
-    Route::get('/onboarding/employee-profile', function () {
-        return view('hr::onboarding.employee-profile');
-    })->name('hr.onboarding.employee-profile');
-
-    Route::get('/onboarding/personal-details', function () {
-        return view('hr::onboarding.personal-details');
-    })->name('hr.onboarding.personal-details');
-
-    Route::get('/onboarding/emergency-contact', function () {
-        return view('hr::onboarding.emergency-contact');
-    })->name('hr.onboarding.emergency-contact');
-
-    Route::get('/onboarding/bank-details', function () {
-        return view('hr::onboarding.bank-details');
-    })->name('hr.onboarding.bank-details');
-
-    Route::get('/onboarding/documents', function () {
-        return view('hr::onboarding.documents');
-    })->name('hr.onboarding.documents');
-
-    Route::get('/onboarding/notification-preferences', function () {
-        return view('hr::onboarding.notification-preferences');
-    })->name('hr.onboarding.notification-preferences');
+    Route::get('/onboarding', \App\Modules\Hr\Http\Livewire\Onboarding\EmployeeOnboardingWizard::class)
+        ->name('hr.onboarding.wizard');
 });
 
 Route::middleware([

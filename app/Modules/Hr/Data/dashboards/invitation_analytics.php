@@ -1,8 +1,6 @@
 <?php
 
 return [
-    'title' => 'Invitation Analytics',
-    'description' => 'Track invitation metrics, acceptance rates, and trends',
     'widgets' => [
         0 => [
             'type' => 'stat',
@@ -15,22 +13,34 @@ return [
         ],
         1 => [
             'type' => 'stat',
-            'title' => 'Acceptance Rate',
+            'title' => 'Accepted Invitations',
             'size' => 'col-12',
             'model' => 'QuickerFaster\\UILibrary\\Models\\Invitation',
             'icon' => 'fas fa-check-circle',
-            'aggregate' => 'custom',
-            'custom_query' => 'acceptance_rate',
+            'aggregate' => 'count',
+            'conditions' => [
+                0 => [
+                    0 => 'status',
+                    1 => '=',
+                    2 => 'accepted',
+                ],
+            ],
             'width' => 3,
         ],
         2 => [
             'type' => 'stat',
-            'title' => 'Avg Time to Accept',
+            'title' => 'Expired Invitations',
             'size' => 'col-12',
             'model' => 'QuickerFaster\\UILibrary\\Models\\Invitation',
             'icon' => 'fas fa-clock',
-            'aggregate' => 'custom',
-            'custom_query' => 'avg_accept_time',
+            'aggregate' => 'count',
+            'conditions' => [
+                0 => [
+                    0 => 'status',
+                    1 => '=',
+                    2 => 'expired',
+                ],
+            ],
             'width' => 3,
         ],
         3 => [

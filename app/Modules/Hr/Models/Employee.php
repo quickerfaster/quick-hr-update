@@ -2,8 +2,10 @@
 
 namespace App\Modules\Hr\Models;
 
+use QuickerFaster\UILibrary\Contracts\Documents\Documentable;
 use QuickerFaster\UILibrary\Contracts\Invitations\Invitable;
 use QuickerFaster\UILibrary\Traits\HasCompanyScope;
+use QuickerFaster\UILibrary\Traits\Documents\HasDocuments;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,9 +27,10 @@ use App\Modules\Hr\Models\Tag;
 use Illuminate\Database\Eloquent\Model;
 
 
-class Employee extends Model implements Invitable
+class Employee extends Model implements Documentable, Invitable
 {
     use HasCompanyScope;
+    use HasDocuments;
     use HasFactory;
 
     use SoftDeletes;
@@ -109,6 +112,36 @@ class Employee extends Model implements Invitable
         return parent::save($options);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Documentable Contract
+    |--------------------------------------------------------------------------
+    */
+
+    public function getDocumentableId(): int|string
+    {
+        return $this->id;
+    }
+
+    public function getDocumentType(): string
+    {
+        return 'employee_documents';
+    }
+
+    public function getDocumentStoragePath(): string
+    {
+        return 'employee-documents';
+    }
+
+    public function getDocumentTemplateData(): array
+    {
+        return [
+            'employee_name' => trim($this->first_name . ' ' . $this->last_name),
+            'employee_number' => $this->employee_number,
+            'email' => $this->email,
+        ];
+    }
+
     public function employeePosition()
     {
         return $this->hasOne(\App\Modules\Hr\Models\EmployeePosition::class, 'employee_id', 'id');
@@ -132,11 +165,6 @@ class Employee extends Model implements Invitable
     public function company()
     {
         return $this->belongsTo(\App\Modules\Hr\Models\Company::class, 'company_id', 'id');
-    }
-
-    public function documents()
-    {
-        return $this->hasMany(\App\Modules\Hr\Models\Document::class, 'employee_id', 'id');
     }
 
     public function employeeWorkPatterns()
@@ -169,7 +197,7 @@ class Employee extends Model implements Invitable
      */
     public function getInvitableType(): string
     {
-        return 'employee';
+        return self::class;
     }
 
     /**
