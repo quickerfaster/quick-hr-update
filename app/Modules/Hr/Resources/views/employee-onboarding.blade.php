@@ -1,7 +1,7 @@
 
 <x-qf::navigation-layout
     configKey="hr.employee"
-    context="people"
+    context="onboarding"
     moduleName="hr"
     :overrides="[
         'top_bar' => ['enabled' => false],

@@ -700,6 +700,19 @@
                             key('clockevents-' . $recordId)
                         )
                     @endif
+
+                    {{-- Invitation Tab (Phase 6.2) --}}
+                    @if ($activeTab == 'invitation')
+                        <div class="row g-4">
+                            <div class="col-12 col-xl-6">
+                                @livewire(
+                                    'qf.employee-invitation-status',
+                                    ['employee' => $employee],
+                                    key('invitation-status-' . $recordId)
+                                )
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 

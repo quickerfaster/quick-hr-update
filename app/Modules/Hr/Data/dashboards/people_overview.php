@@ -3,9 +3,9 @@
 return array (
   'title' => 'People Management Overview',
   'description' => 'Key workforce metrics, hiring trends, and team analytics at a glance',
-  'widgets' => 
+  'widgets' =>
   array (
-    0 => 
+    0 =>
     array (
       'type' => 'stat',
       'title' => 'Total Employees',
@@ -15,7 +15,7 @@ return array (
       'aggregate' => 'count',
       'width' => 3,
     ),
-    1 => 
+    1 =>
     array (
       'type' => 'stat',
       'title' => 'Employee Groups',
@@ -25,7 +25,7 @@ return array (
       'aggregate' => 'count',
       'width' => 3,
     ),
-    2 => 
+    2 =>
     array (
       'type' => 'stat',
       'title' => 'Active Teams',
@@ -33,13 +33,13 @@ return array (
       'model' => 'App\\Modules\\Hr\\Models\\Team',
       'icon' => 'fas fa-user-friends',
       'aggregate' => 'count',
-      'where' => 
+      'where' =>
       array (
         'is_active' => true,
       ),
       'width' => 3,
     ),
-    3 => 
+    3 =>
     array (
       'type' => 'progress',
       'title' => 'Profile Completion',
@@ -51,7 +51,7 @@ return array (
       'target' => 100,
       'width' => 3,
     ),
-    4 => 
+    4 =>
     array (
       'type' => 'list',
       'title' => 'Recent Hires',
@@ -60,38 +60,38 @@ return array (
       'icon' => 'fas fa-user-plus',
       'description' => 'Latest 5 employees joined',
       'limit' => 5,
-      'sort' => 
+      'sort' =>
       array (
         0 => 'hire_date',
         1 => 'desc',
       ),
-      'columns' => 
+      'columns' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'ID',
           'field' => 'employee_number',
           'format' => 'text',
         ),
-        1 => 
+        1 =>
         array (
           'label' => 'First Name',
           'field' => 'first_name',
           'format' => 'text',
         ),
-        2 => 
+        2 =>
         array (
           'label' => 'Last Name',
           'field' => 'last_name',
           'format' => 'text',
         ),
-        3 => 
+        3 =>
         array (
           'label' => 'Department',
           'field' => 'employeePosition.department.name',
           'format' => 'text',
         ),
-        4 => 
+        4 =>
         array (
           'label' => 'Hire Date',
           'field' => 'hire_date',
@@ -102,7 +102,7 @@ return array (
       'show_view_all' => true,
       'view_all_link' => '/hr/employees',
     ),
-    5 => 
+    5 =>
     array (
       'type' => 'trend',
       'title' => 'New Hires Trend (Last 6 Months)',
@@ -116,7 +116,7 @@ return array (
       'period' => 6,
       'width' => 6,
     ),
-    6 => 
+    6 =>
     array (
       'type' => 'chart',
       'title' => 'Employees by Department',
@@ -128,20 +128,20 @@ return array (
       'aggregate' => 'count',
       'width' => 6,
     ),
-    7 => 
+    7 =>
     array (
       'type' => 'action_card',
       'title' => 'Process Payroll',
       'size' => 'col-12',
       'icon' => 'fas fa-calculator',
       'description' => 'Run monthly payroll for all active employees',
-      'actions' => 
+      'actions' =>
       array (
-        0 => 
+        0 =>
         array (
           'label' => 'Start',
           'event' => 'openPayrollWizard',
-          'params' => 
+          'params' =>
           array (
             'month' => 'current',
           ),
@@ -150,14 +150,62 @@ return array (
       ),
       'width' => 6,
     ),
+    8 =>
+    array (
+      'type' => 'stat',
+      'title' => 'Pending Invitations',
+      'size' => 'col-12',
+      'model' => 'QuickerFaster\\UILibrary\\Models\\Invitation',
+      'icon' => 'fas fa-envelope-open-text',
+      'aggregate' => 'count',
+      'conditions' =>
+      array (
+        0 =>
+        array (
+          0 => 'status',
+          1 => '=',
+          2 => 'pending',
+        ),
+      ),
+      'width' => 3,
+      'link' => '/hr/invitations?status=pending',
+    ),
+    9 =>
+    array (
+      'type' => 'action_card',
+      'title' => 'Send Invitation',
+      'size' => 'col-12',
+      'icon' => 'fas fa-paper-plane',
+      'description' => 'Invite a new user to the platform',
+      'actions' =>
+      array (
+        0 =>
+        array (
+          'label' => 'Send',
+          'event' => 'openDrawer',
+          'params' =>
+          array (
+            'component' => 'qf.data-table-form',
+            'params' =>
+            array (
+              'configKey' => 'admin.invitation',
+              'recordId' => NULL,
+            ),
+            'title' => 'Send Invitation',
+          ),
+          'style' => 'primary',
+        ),
+      ),
+      'width' => 3,
+    ),
   ),
-  'roles' => 
+  'roles' =>
   array (
     'admin' => 'full',
     'manager' => 'limited',
     'user' => 'basic',
   ),
-  'layout' => 
+  'layout' =>
   array (
     'columns' => 12,
     'gutter' => 3,

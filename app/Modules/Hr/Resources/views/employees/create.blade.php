@@ -10,5 +10,5 @@
             ->except(['page', 'perPage', 'search', 'sort', 'activeFilters'])
             ->toArray();
     @endphp
-    <livewire:qf.data-table-form :inline="true" configKey="hr.employee" :prefilledData="$prefilled" :returnParams="$returnParams" />
+    <livewire:qf.hr-employee-form :inline="true" configKey="hr.employee" :prefilledData="$prefilled" :returnParams="$returnParams" />
 </x-qf::navigation-layout>

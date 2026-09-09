@@ -138,7 +138,7 @@ class EmployeeDetail extends Component
 
     protected function getAllPossibleTabs(): array
     {
-        return ['overview', 'personal', 'contact', 'employment', 'history', 'payroll', 'payslips', 'workpatterns', 'attendance', 'documents', 'clockevents'];
+        return ['overview', 'personal', 'contact', 'employment', 'history', 'payroll', 'payslips', 'workpatterns', 'attendance', 'documents', 'clockevents', 'invitation'];
     }
 
     public function jumpToEmployee(int $id): void
