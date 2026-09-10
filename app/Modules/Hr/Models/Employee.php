@@ -17,7 +17,6 @@ use App\Modules\Hr\Models\EmployeeJobHistory;
 use App\Modules\Payroll\Models\EmployeePayrollProfile;
 use App\Modules\Hr\Models\EmployeeProfile;
 use App\Modules\Hr\Models\Company;
-use App\Modules\Hr\Models\Document;
 use App\Modules\Attendance\Models\EmployeeWorkPattern;
 use App\Models\User;
 use App\Modules\Hr\Models\EmployeeGroup;

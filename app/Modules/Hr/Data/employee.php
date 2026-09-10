@@ -394,10 +394,11 @@ return [
       'localKey' => '',
     ],
     'documents' => [
-      'type' => 'hasMany',
-      'model' => 'App\Modules\Hr\Models\Document',
-      'foreignKey' => 'employee_id',
+      'type' => 'morphMany',
+      'model' => 'QuickerFaster\UILibrary\Models\Document',
+      'foreignKey' => '',
       'localKey' => '',
+      'morphName' => 'documentable',
     ],
     'employeeWorkPatterns' => [
       'type' => 'hasMany',

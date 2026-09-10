@@ -12,7 +12,22 @@ use App\Modules\Hr\Models\Employee;
 
 use Illuminate\Database\Eloquent\Model;
 
-
+/**
+ * HR-specific Document model for the DataTable-based admin document
+ * management UI (Data/document.php).
+ *
+ * IMPORTANT: For onboarding document uploads, the library's
+ * DocumentEngine uses QuickerFaster\UILibrary\Models\Document, NOT
+ * this model. This model coexists on the same 'documents' table
+ * only to serve the HR DataTable CRUD interface. The Employee
+ * model's documents() MorphMany relationship (via HasDocuments trait)
+ * always resolves to the library Document.
+ *
+ * The 'creating' boot hook bridges legacy form submissions where
+ * the 'document' field held the file path and employee_id was the
+ * primary linking column, mapping them to the polymorphic
+ * documentable_type/documentable_id columns that the library expects.
+ */
 class Document extends Model
 {
     use HasCompanyScope;

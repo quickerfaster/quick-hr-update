@@ -106,11 +106,11 @@
                                     <div
                                         class="card-header bg-white border-bottom-0 pt-4 px-4 d-flex justify-content-between align-items-center">
                                         <h5 class="fw-bold text-primary mb-0">Personal Information</h5>
-                                        @if ($this->canEdit())
+                                        @if ($this->canEdit() || $this->isSelfServiceMode)
                                             <button
                                                 wire:click="$dispatch('openDrawer', {
                                                     component: 'qf.data-table-form',
-                                                    params: { configKey: '{{ $configKey }}', recordId: {{ $recordId }}, inline: true },
+                                                    params: { configKey: '{{ $configKey }}', recordId: {{ $recordId }}, prefilledData: { employee_id: {{ $employee->id }}, employee_number: '{{ $employee->employee_number }}' }, inline: true },
                                                     title: 'Edit Personal Information'
                                                 })"
                                                 class="btn btn-sm btn-outline-primary">
@@ -193,11 +193,11 @@
                                     <div
                                         class="card-header bg-white border-bottom-0 pt-4 px-4 d-flex justify-content-between align-items-center">
                                         <h5 class="fw-bold text-primary mb-0">Address Information</h5>
-                                        @if ($this->canEdit())
+                                        @if ($this->canEdit() || $this->isSelfServiceMode)
                                             <button
                                                 wire:click="$dispatch('openDrawer', {
                                                     component: 'qf.data-table-form',
-                                                    params: { configKey: 'hr.employee_profile', recordId: {{ $profile?->id ?? 0 }}, inline: true },
+                                                    params: { configKey: 'hr.employee_profile', recordId: {{ $profile?->id ?? 0 }}, prefilledData: { employee_id: {{ $employee->id }} }, inline: true },
                                                     title: 'Edit Address'
                                                 })"
                                                 class="btn btn-sm btn-outline-primary">
@@ -232,11 +232,11 @@
                                     <div
                                         class="card-header bg-white border-bottom-0 pt-4 px-4 d-flex justify-content-between align-items-center">
                                         <h5 class="fw-bold text-primary mb-0">Contact Details</h5>
-                                        @if ($this->canEdit())
+                                        @if ($this->canEdit() || $this->isSelfServiceMode)
                                             <button
                                                 wire:click="$dispatch('openDrawer', {
                                                     component: 'qf.data-table-form',
-                                                    params: { configKey: 'hr.employee_profile', recordId: {{ $profile?->id ?? 0 }}, inline: true },
+                                                    params: { configKey: 'hr.employee_profile', recordId: {{ $profile?->id ?? 0 }}, prefilledData: { employee_id: {{ $employee->id }} }, inline: true },
                                                     title: 'Edit Contact Details'
                                                 })"
                                                 class="btn btn-sm btn-outline-primary">
@@ -271,11 +271,11 @@
                                     <div
                                         class="card-header bg-white border-bottom-0 pt-4 px-4 d-flex justify-content-between align-items-center">
                                         <h5 class="fw-bold text-primary mb-0">Emergency Contact</h5>
-                                        @if ($this->canEdit())
+                                        @if ($this->canEdit() || $this->isSelfServiceMode)
                                             <button
                                                 wire:click="$dispatch('openDrawer', {
                                                     component: 'qf.data-table-form',
-                                                    params: { configKey: 'hr.employee_profile', recordId: {{ $profile?->id ?? 0 }}, inline: true },
+                                                    params: { configKey: 'hr.employee_profile', recordId: {{ $profile?->id ?? 0 }}, prefilledData: { employee_id: {{ $employee->id }} }, inline: true },
                                                     title: 'Edit Emergency Contact'
                                                 })"
                                                 class="btn btn-sm btn-outline-primary">
@@ -319,7 +319,7 @@
                                                 <button
                                                     wire:click="$dispatch('openDrawer', {
                                                         component: 'qf.data-table-form',
-                                                        params: { configKey: 'hr.employee_position', recordId: {{ $currentPosition->id }}, inline: true },
+                                                        params: { configKey: 'hr.employee_position', recordId: {{ $currentPosition->id }}, prefilledData: { employee_id: {{ $employee->id }} }, inline: true },
                                                         title: 'Edit Job Details'
                                                     })"
                                                     class="btn btn-sm btn-outline-primary">
@@ -374,7 +374,7 @@
                                                 <button
                                                     wire:click="$dispatch('openDrawer', {
                                                         component: 'qf.data-table-form',
-                                                        params: { configKey: 'hr.employee_position', recordId: {{ $currentPosition->id }}, inline: true },
+                                                        params: { configKey: 'hr.employee_position', recordId: {{ $currentPosition->id }}, prefilledData: { employee_id: {{ $employee->id }} }, inline: true },
                                                         title: 'Edit Compensation'
                                                     })"
                                                     class="btn btn-sm btn-outline-primary">
@@ -513,7 +513,7 @@
                                                 <button
                                                     wire:click="$dispatch('openDrawer', {
                                                         component: 'qf.data-table-form',
-                                                        params: { configKey: 'payroll.employee_payroll_profile', recordId: {{ $payrollProfile->id }}, inline: true },
+                                                        params: { configKey: 'payroll.employee_payroll_profile', recordId: {{ $payrollProfile->id }}, prefilledData: { employee_id: {{ $employee->id }} }, inline: true },
                                                         title: 'Edit Bank Information'
                                                     })"
                                                     class="btn btn-sm btn-outline-primary">
@@ -664,7 +664,7 @@
                     {{-- Documents Tab --}}
                     @if ($activeTab === 'documents')
                         <div class="mb-3 d-flex justify-content-end">
-                            @if ($this->canEdit())
+                            @if ($this->canEdit() || $this->isSelfServiceMode)
                                 <button
                                     wire:click="$dispatch('openDrawer', {
                                         component: 'qf.data-table-form',
@@ -682,6 +682,7 @@
                                 'configKey' => 'hr.document',
                                 'queryFilters' => [['employee_id', '=', $employee->id]],
                                 'hiddenFields' => ['onTable' => ['employee_id']],
+                                'prefilledData' => ['employee_id' => $employee->id],
                             ],
                             key('documents-' . $recordId)
                         )

@@ -4,6 +4,7 @@ namespace App\Modules\Hr\Http\Livewire\Onboarding;
 
 use Livewire\Component;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Illuminate\Support\Facades\Auth;
 use App\Modules\Hr\Models\Employee;
@@ -76,14 +77,7 @@ class EmployeeOnboardingWizard extends Component
             }
         }
 
-        // Step 4: Check if any documents exist
-        if ($this->employee && method_exists($this->employee, 'documents')) {
-            if ($this->employee->documents()->count() > 0) {
-                $this->completedSteps['documents'] = true;
-            }
-        }
-
-        // Step 5: Check if notification preferences are set
+        // Step 4: Check if notification preferences are set
         if (method_exists($user, 'getSetting')) {
             $prefs = $user->getSetting('notification_preferences');
             if (!empty($prefs)) {
@@ -156,14 +150,29 @@ class EmployeeOnboardingWizard extends Component
     /**
      * Called by child step components via event when a step is saved/skipped.
      */
-    public function onStepComplete(int $step): void
+    public function onStepComplete(int $step, int $employeeId = null): void
     {
+        if ($employeeId) {
+            $this->employeeId = $employeeId;
+            $this->employee = Employee::withoutCompanyScope()->find($employeeId);
+        }
+
         $steps = $this->steps;
         $index = $step - 1;
 
         if (isset($steps[$index])) {
             $this->completedSteps[$steps[$index]['key']] = true;
         }
+    }
+
+    /**
+     * Captures the employeeId dispatched by Step 1 via the stepSaved event.
+     */
+    #[On('stepSaved')]
+    public function onStepSaved(int $employeeId): void
+    {
+        $this->employeeId = $employeeId;
+        $this->employee = Employee::withoutCompanyScope()->find($employeeId);
     }
 
     /**
@@ -196,21 +205,6 @@ class EmployeeOnboardingWizard extends Component
      */
     public function finish(): void
     {
-        $user = Auth::user();
-
-        // Mark Spatie Onboard step as complete
-        if (method_exists($user, 'onboarding')) {
-            $onboarding = $user->onboarding();
-
-            if ($onboarding->inProgress()) {
-                // Complete current (HR onboarding) step
-                $currentStep = $onboarding->nextUnfinishedStep();
-                if ($currentStep && str_contains($currentStep->link ?? '', 'onboarding')) {
-                    $user->onboarding()->completeCurrentStep();
-                }
-            }
-        }
-
         $this->redirect(route(config('ui-library.home_route', 'admin.dashboard')));
     }
 

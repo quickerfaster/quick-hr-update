@@ -131,9 +131,10 @@ return [
     ],
   ],
   'simpleActions' => [
-    '0' => 'show',
-    '1' => 'edit',
-    '2' => 'delete',
+    '0' => 'create',
+    '1' => 'show',
+    '2' => 'edit',
+    '3' => 'delete',
   ],
   'isTransaction' => false,
   'crudType' => 'drawers',

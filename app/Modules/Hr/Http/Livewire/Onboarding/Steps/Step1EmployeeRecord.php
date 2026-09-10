@@ -6,6 +6,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use App\Modules\Hr\Models\Employee;
 use QuickerFaster\UILibrary\Services\ValueGenerator;
+use Illuminate\Database\UniqueConstraintViolationException;
 
 /**
  * Onboarding Step 1: Employee Record (REQUIRED).
@@ -86,25 +87,50 @@ class Step1EmployeeRecord extends Component
         $employeeNumber = $existingEmployee?->employee_number;
 
         if (empty($employeeNumber)) {
-            $generator = app(ValueGenerator::class);
-            $employeeNumber = $generator->generate(
-                Employee::class,
-                'employee_number',
-                ['autoGenerate' => true],
+            $maxRetries = 3;
+
+            for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
+                try {
+                    $generator = app(ValueGenerator::class);
+                    $employeeNumber = $generator->generate(
+                        Employee::class,
+                        'employee_number',
+                        ['autoGenerate' => true],
+                    );
+
+                    $employee = Employee::withoutCompanyScope()->updateOrCreate(
+                        ['user_id' => $user->id],
+                        [
+                            'employee_number' => $employeeNumber,
+                            'first_name' => $this->first_name,
+                            'last_name' => $this->last_name,
+                            'email'=> $this->email,
+                            'phone' => $this->phone,
+                            'hire_date' => $this->hire_date,
+                        ]
+                    );
+
+                    break; // Success — exit retry loop
+                } catch (UniqueConstraintViolationException $e) {
+                    if ($attempt === $maxRetries - 1) {
+                        throw $e; // Re-throw on final attempt
+                    }
+                    // Otherwise loop and regenerate with next sequence
+                }
+            }
+        } else {
+            $employee = Employee::withoutCompanyScope()->updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'employee_number' => $employeeNumber,
+                    'first_name' => $this->first_name,
+                    'last_name' => $this->last_name,
+                    'email' => $this->email,
+                    'phone' => $this->phone,
+                    'hire_date' => $this->hire_date,
+                ]
             );
         }
-
-        $employee = Employee::withoutCompanyScope()->updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'employee_number' => $employeeNumber,
-                'first_name' => $this->first_name,
-                'last_name' => $this->last_name,
-                'email' => $this->email,
-                'phone' => $this->phone,
-                'hire_date' => $this->hire_date,
-            ]
-        );
 
         $this->dispatch('stepComplete', employeeId: $employee->id, step: 1);
         $this->dispatch('stepSaved', employeeId: $employee->id);

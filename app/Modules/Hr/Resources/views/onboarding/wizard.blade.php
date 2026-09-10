@@ -183,8 +183,7 @@
                                     1 => 'qf.onboarding.step1-employee-record',
                                     2 => 'qf.onboarding.step2-employee-profile',
                                     3 => 'qf.onboarding.step3-payroll-banking',
-                                    4 => 'qf.onboarding.step4-documents',
-                                    5 => 'qf.onboarding.step5-preferences',
+                                    4 => 'qf.onboarding.step5-preferences',
                                 ];
                                 $componentName = $stepComponents[$currentStep] ?? 'qf.onboarding.step1-employee-record';
 
@@ -192,6 +191,8 @@
                                 $params = [];
                                 if ($currentStep === 1) {
                                     $params['isPreLinked'] = $isPreLinked;
+                                }
+                                if ($employee) {
                                     $params['employee'] = $employee;
                                 }
                             @endphp

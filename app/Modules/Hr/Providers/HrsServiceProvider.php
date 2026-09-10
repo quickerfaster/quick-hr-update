@@ -24,6 +24,11 @@ class HrsServiceProvider extends ServiceProvider
             \App\Modules\Hr\Providers\HrsApproverResolver::class
         );
 
+        $this->app->bind(
+            \QuickerFaster\UILibrary\Contracts\DataTables\DataTableAuthorizationProvider::class,
+            \App\Modules\Hr\Services\EmployeeDataTableAuthorizationProvider::class
+        );
+
         $this->app->singleton(\App\Modules\Hr\Services\HrInvitationService::class);
 
         // Phase 8: Department-scoped invitation service
