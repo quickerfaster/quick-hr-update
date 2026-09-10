@@ -60,16 +60,44 @@
             @endif
         </div>
 
-        {{-- Two‑Column Responsive Layout --}}
-        <div class="row">
+        {{-- Profile Card (Horizontal, above tabs) --}}
+        <div class="row mb-4">
+            <div class="col-12">
+                @livewire(
+                    'qf.dashboard',
+                    [
+                        'configKey' => '', // not used because we provide customWidgets
+                        'parameters' => [],
+                        'customWidgets' => [
+                            'title' => '',
+                            'widgets' => [
+                                [
+                                    'type' => 'profile_header',
+                                    'width' => 12,
+                                    'photo_url' => $widgetParams['photo_url'] ?? null,
+                                    'full_name' => $widgetParams['full_name'] ?? $fullName,
+                                    'employee_number' => $widgetParams['employee_number'] ?? $employee->employee_number,
+                                    'title' => $widgetParams['title'] ?? $jobTitle,
+                                    'fields' => $widgetParams['fields'] ?? [['label' => 'Department', 'value' => $departmentName], ['label' => 'Status', 'value' => $status], ['label' => 'Hire Date', 'value' => $hireDate ?? '—'], ['label' => 'Manager', 'value' => $currentPosition?->manager?->name ?? '—'], ['label' => 'Work Email', 'value' => $employee->email ?? '—']],
+                                    'actions' => $widgetParams['actions'] ?? [],
+                                ],
+                            ],
+                            'layout' => ['columns' => 12, 'gutter' => 3],
+                        ],
+                    ],
+                    key('profile-widget-' . $recordId)
+                )
+            </div>
+        </div>
 
-            {{-- Main Content (Tabs + Tab Content) --}}
-            <div class="col-12 col-md-9">
+        {{-- Main Content (Tabs + Tab Content, Full Width) --}}
+        <div class="row">
+            <div class="col-12">
                 {{-- Tabs --}}
                 <ul class="nav nav-tabs mb-4" role="tablist">
                     @foreach ($this->getAllowedTabs() as $tab)
                         <li class="nav-item">
-                            <button wire:click="$set('activeTab', '{{ $tab }}')" wire:navigate
+                            <button wire:click="$set('activeTab', '{{ $tab }}')"
                                 class="nav-link {{ $activeTab == $tab ? 'active' : '' }}">
                                 {{ ucfirst($tab) }}
                             </button>
@@ -107,10 +135,23 @@
                                         class="card-header bg-white border-bottom-0 pt-4 px-4 d-flex justify-content-between align-items-center">
                                         <h5 class="fw-bold text-primary mb-0">Personal Information</h5>
                                         @if ($this->canEdit() || $this->isSelfServiceMode)
+                                            @php
+                                                $personalPrefill = ['employee_id' => $employee->id];
+
+                                                // Lock sensitive fields only for self-service employees.
+                                                // Admins/HR managers get the full editable form.
+                                                if ($this->isSelfServiceMode) {
+                                                    $personalPrefill['employee_number'] = $employee->employee_number;
+                                                    $personalPrefill['hire_date'] = $employee->hire_date ? $employee->hire_date->format('Y-m-d') : '';
+                                                    $personalPrefill['employee_group_id'] = $employee->employee_group_id;
+                                                    $personalPrefill['user_id'] = $employee->user_id;
+                                                    $personalPrefill['tag_ids'] = $employee->tags->pluck('id')->toArray();
+                                                }
+                                            @endphp
                                             <button
                                                 wire:click="$dispatch('openDrawer', {
                                                     component: 'qf.data-table-form',
-                                                    params: { configKey: '{{ $configKey }}', recordId: {{ $recordId }}, prefilledData: { employee_id: {{ $employee->id }}, employee_number: '{{ $employee->employee_number }}' }, inline: true },
+                                                    params: { configKey: '{{ $configKey }}', recordId: {{ $recordId }}, prefilledData: {{ json_encode($personalPrefill) }}, inline: true },
                                                     title: 'Edit Personal Information'
                                                 })"
                                                 class="btn btn-sm btn-outline-primary">
@@ -716,35 +757,6 @@
                     @endif
                 </div>
             </div>
-
-            {{-- Profile Widget Column (right on desktop, top on mobile) --}}
-            <div class="col-12 col-md-3  mb-3 mb-md-0">
-                @livewire(
-                    'qf.dashboard',
-                    [
-                        'configKey' => '', // not used because we provide customWidgets
-                        'parameters' => [],
-                        'customWidgets' => [
-                            'title' => '',
-                            'widgets' => [
-                                [
-                                    'type' => 'profile_header',
-                                    'width' => 12,
-                                    'photo_url' => $widgetParams['photo_url'] ?? null,
-                                    'full_name' => $widgetParams['full_name'] ?? $fullName,
-                                    'employee_number' => $widgetParams['employee_number'] ?? $employee->employee_number,
-                                    'title' => $widgetParams['title'] ?? $jobTitle,
-                                    'fields' => $widgetParams['fields'] ?? [['label' => 'Department', 'value' => $departmentName], ['label' => 'Status', 'value' => $status], ['label' => 'Hire Date', 'value' => $hireDate ?? '—'], ['label' => 'Manager', 'value' => $currentPosition?->manager?->name ?? '—'], ['label' => 'Work Email', 'value' => $employee->email ?? '—']],
-                                    'actions' => $widgetParams['actions'] ?? [],
-                                ],
-                            ],
-                            'layout' => ['columns' => 12, 'gutter' => 3],
-                        ],
-                    ],
-                    key('profile-widget-' . $recordId)
-                )
-            </div>
-
         </div>
     </div>
 

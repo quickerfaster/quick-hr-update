@@ -519,6 +519,97 @@
     }
 
     // ------------------------------------------------------------------
+    // Flatpickr datepicker initialisation with calendar enhancements
+    // ------------------------------------------------------------------
+    function initFlatpickr() {
+        if (typeof flatpickr === 'undefined') return;
+
+        document.querySelectorAll('[data-datepicker]').forEach(function (el) {
+            // Skip already-initialised instances
+            if (el._flatpickr) return;
+
+            var config = {
+                dateFormat: 'Y-m-d',
+                allowInput: true,
+            };
+
+            // Parse calendar enhancement config from data attribute
+            var rawConfig = el.getAttribute('data-calendar-config');
+            if (rawConfig) {
+                try {
+                    var calConfig = JSON.parse(rawConfig);
+
+                    // --- disableWeekends ---
+                    if (calConfig.disableWeekends) {
+                        config.disable = [
+                            function (date) {
+                                return (date.getDay() === 0 || date.getDay() === 6);
+                            }
+                        ];
+                    }
+
+                    // --- highlightHolidays ---
+                    if (calConfig.holidays && Object.keys(calConfig.holidays).length > 0) {
+                        // Build a set of holiday date strings for fast lookup
+                        var holidayDates = {};
+                        Object.keys(calConfig.holidays).forEach(function (d) {
+                            holidayDates[d] = calConfig.holidays[d];
+                        });
+
+                        config.onDayCreate = function (dObj, dStr, fp, dayElem) {
+                            if (holidayDates[dStr]) {
+                                dayElem.classList.add('flatpickr-holiday');
+                                dayElem.setAttribute('title', holidayDates[dStr]);
+                            }
+                        };
+                    }
+
+                    // --- showTeamAbsences ---
+                    if (calConfig.teamAbsences && calConfig.teamAbsences.length > 0) {
+                        // Ensure onDayCreate exists (may have been set by holidays)
+                        var existingOnDayCreate = config.onDayCreate || null;
+
+                        config.onDayCreate = function (dObj, dStr, fp, dayElem) {
+                            // Call previous handler if it exists
+                            if (existingOnDayCreate) {
+                                existingOnDayCreate(dObj, dStr, fp, dayElem);
+                            }
+
+                            // Find team absence for this date
+                            for (var i = 0; i < calConfig.teamAbsences.length; i++) {
+                                var absence = calConfig.teamAbsences[i];
+                                if (dStr >= absence.from && dStr <= absence.to) {
+                                    dayElem.classList.add('flatpickr-team-absence');
+                                    dayElem.setAttribute('title', absence.label);
+                                    break;
+                                }
+                            }
+                        };
+                    }
+                } catch (e) {
+                    // Silently ignore parse errors — fall back to default config
+                }
+            }
+
+            flatpickr(el, config);
+        });
+    }
+
+    // Initialize a single element with flatpickr (idempotent).
+    // Used by the MutationObserver below to auto-initialize datepickers
+    // on dynamically inserted DOM elements (e.g., inside drawers, modals).
+    function initFlatpickrOnElement(el) {
+        if (typeof flatpickr === 'undefined') return;
+        if (el._flatpickr) return;
+        var config = {};
+        var calendarConfig = el.getAttribute('data-calendar-config');
+        if (calendarConfig) {
+            try { config = JSON.parse(calendarConfig); } catch (e) {}
+        }
+        flatpickr(el, config);
+    }
+
+    // ------------------------------------------------------------------
     // Livewire bootstrap
     //
     // quicker-faster.js is loaded before @livewireScripts, so every
@@ -548,12 +639,52 @@
 
             // Re-init sidebar → workspace tab integration after Livewire morphs.
             initSidebarTabIntegration();
+
+            // Re-init flatpickr datepickers after Livewire morphs.
+            initFlatpickr();
         });
 
         initWorkspaceTabs();
         initBreadcrumbDropdowns();
         initSidebarFilter();
         initSidebarTabIntegration();
+        initFlatpickr();
+
+        // MutationObserver: auto-initialize flatpickr on any new [data-datepicker]
+        // elements added to the DOM (e.g., inside drawers, modals, dynamically
+        // loaded content). This is more reliable than event-based initialization
+        // because it fires exactly when the element is inserted, regardless of timing.
+        if (typeof flatpickr !== 'undefined') {
+            var fpObserver = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    mutation.addedNodes.forEach(function (node) {
+                        if (node.nodeType === 1) {
+                            // Check the added node itself
+                            if (node.matches && node.matches('[data-datepicker]')) {
+                                initFlatpickrOnElement(node);
+                            }
+                            // Check descendants
+                            if (node.querySelectorAll) {
+                                node.querySelectorAll('[data-datepicker]').forEach(initFlatpickrOnElement);
+                            }
+                        }
+                    });
+                });
+            });
+            fpObserver.observe(document.body, { childList: true, subtree: true });
+        }
+
+        // Re-initialize flatpickr whenever a new Livewire component mounts.
+        // This covers drawer content (which mounts as a separate chained request
+        // after the parent drawer component updates).
+        Livewire.hook('component.initialized', () => {
+            setTimeout(initFlatpickr, 150);
+        });
+
+        // Re-init flatpickr inside drawer after it is shown
+        document.addEventListener('shown.bs.offcanvas', function (e) {
+            setTimeout(initFlatpickr, 300);
+        });
     });
 
     // After a wire:navigate SPA navigation the sidebar DOM is swapped, so

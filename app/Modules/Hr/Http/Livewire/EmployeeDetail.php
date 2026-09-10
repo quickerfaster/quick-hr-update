@@ -2,6 +2,7 @@
 
 namespace App\Modules\Hr\Http\Livewire;
 
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use QuickerFaster\UILibrary\Services\Config\ConfigResolver;
 use QuickerFaster\UILibrary\Factories\FieldTypes\FieldFactory;
@@ -36,6 +37,7 @@ class EmployeeDetail extends Component
     public ?int $currentIndex = null;
     public bool $inline = false;
     public ?array $returnParams = [];
+    #[Url(as: 'tab')]
     public string $activeTab = 'overview';
 
     protected ?FieldFactory $fieldFactory = null;

@@ -578,3 +578,62 @@ body {
 .min-width-0 {
     min-width: 0;
 }
+
+/* ============================================================
+   Flatpickr calendar enhancement styles
+   ============================================================ */
+
+/* Holiday dates — subtle red/pink background with a dot indicator */
+.flatpickr-holiday {
+    background-color: #fff0f0 !important;
+    border-radius: 4px;
+    position: relative;
+}
+
+.flatpickr-holiday::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: #dc3545;
+}
+
+/* Team absence dates — subtle orange/amber background */
+.flatpickr-team-absence {
+    background-color: #fff8e1 !important;
+    border-radius: 4px;
+    position: relative;
+}
+
+.flatpickr-team-absence::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: #fd7e14;
+}
+
+/* When a day is both a holiday AND has team absences, holiday takes priority */
+.flatpickr-holiday.flatpickr-team-absence {
+    background-color: #fff0f0 !important;
+}
+
+.flatpickr-holiday.flatpickr-team-absence::after {
+    background-color: #dc3545;
+}
+
+/* Disabled weekend days — flatpickr default is .flatpickr-disabled */
+/* We enhance it slightly for better visibility */
+.flatpickr-day.flatpickr-disabled:not(.today) {
+    color: #b0b0b0 !important;
+    background-color: #f8f9fa !important;
+    cursor: not-allowed;
+}
