@@ -1,0 +1,155 @@
+<div class="list-view bg-white rounded-3 shadow-sm border overflow-hidden">
+    @php
+        $crudType = $crudType ?? 'modal';
+        $modelName = $modelName ?? '';
+    @endphp
+
+    @forelse($records as $record)
+
+        <div class="list-group-item list-group-item-action border-0 border-bottom p-3 transition-all hover-bg-light position-relative"
+            wire:key="list-{{ $record->id }}" {{-- Giant SaaS Trick: The entire row navigates, but we stop propagation on buttons --}}
+            @if ($crudType === 'drawers')
+                onclick="if(!event.target.closest('.stop-propagation')) {
+                    Livewire.dispatch('openDrawer', {
+                        component: 'qf.data-table-detail',
+                        params: { configKey: '{{ $configKey }}', recordId: {{ $record->id }}, inline: true, crudType: '{{ $crudType }}' },
+                        title: 'View {{ $modelName }}'
+                    })
+                }"
+            @elseif ($crudType === 'pages')
+                onclick="if(!event.target.closest('.stop-propagation')) { window.location='{{ $this->getShowUrl($record->id) }}' }"
+            @else
+                wire:click="show({{ $record->id }})"
+            @endif
+            style="cursor: pointer;">
+
+            <div class="d-flex align-items-center">
+                {{-- 1. Selection: Add .stop-propagation so checking doesn't open the record --}}
+                @if ($bulkSelection)
+                    <div class="me-3 stop-propagation">
+                        <div class="form-check custom-card-checkbox">
+                            <input type="checkbox" class="form-check-input" wire:model.live="bulkSelection.ids"
+                                value="{{ $record->id }}">
+                        </div>
+                    </div>
+                @endif
+
+                {{-- 2. Visual Hook (Avatar) --}}
+                <div class="me-3 d-none d-md-block">
+                    @php $avatarUrl = $this->getAvatarUrl($record); @endphp
+                    @if ($avatarUrl)
+                        <img src="{{ $avatarUrl }}" class="rounded-circle border" width="40" height="40"
+                            style="object-fit: cover;">
+                    @else
+                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center border"
+                            style="width: 40px; height: 40px;">
+                            <span class="text-primary fw-bold small">
+                                {{ substr($this->getValueFromRecord($record, $viewConfig['titleFields'][0] ?? 'ID'), 0, 1) }}
+                            </span>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- 3. Main Info Area --}}
+                <div class="flex-grow-1 min-width-0">
+                    <div class="d-flex justify-content-between align-items-center mb-0">
+                        <h6 class="fw-bold mb-0 text-dark text-truncate">
+                            @foreach ($viewConfig['titleFields'] as $field)
+                                @php $titleDef = $this->columns[$field] ?? $this->allFieldDefinitions[$field] ?? null; @endphp
+                                <span>{!! $titleDef ? $this->getField($field, $titleDef)->renderTable($this->getValueFromRecord($record, $field), $record) : $this->getValueFromRecord($record, $field) !!}</span>
+                                @if (!$loop->last)
+                                    <span class="text-muted mx-1">·</span>
+                                @endif
+                            @endforeach
+                        </h6>
+
+                        @if (!empty($viewConfig['badgeField']))
+                            @php
+                                // Use data_get to safely reach nested relationships like 'recordPosition.employment_status'
+                                $val = data_get($record, $viewConfig['badgeField']);
+
+                                // Match the value to the color config, defaulting to 'secondary'
+                                $color = ($viewConfig['badgeColors'] ?? [])[$val] ?? 'secondary';
+
+                                // Resolve field definition for proper rendering (e.g. boolean → Yes/No)
+                                $badgeDef = $this->columns[$viewConfig['badgeField']] ?? $this->allFieldDefinitions[$viewConfig['badgeField']] ?? null;
+                            @endphp
+
+                            @if ($val)
+                                {{-- Only show if the value exists --}}
+                                <div class="stop-propagation">
+                                    <span
+                                        class="badge rounded-pill bg-{{ $color }}-subtle text-{{ $color }} border border-{{ $color }} px-2 py-1"
+                                        style="font-size: 0.65rem; letter-spacing: 0.02em; text-transform: uppercase;">
+                                        {!! $badgeDef ? $this->getField($viewConfig['badgeField'], $badgeDef)->renderTable($val, $record) : $val !!}
+                                    </span>
+                                </div>
+                            @endif
+                        @endif
+
+
+
+                    </div>
+
+                    {{-- Metadata --}}
+                    <div class="d-flex align-items-center text-muted small mt-1">
+                        @if (!empty($viewConfig['subtitleFields']))
+                            @foreach ($viewConfig['subtitleFields'] as $field)
+                                @php $subtitleDef = $this->columns[$field] ?? $this->allFieldDefinitions[$field] ?? null; @endphp
+                                <span class="text-truncate">{!! $subtitleDef ? $this->getField($field, $subtitleDef)->renderTable($this->getValueFromRecord($record, $field), $record) : $this->getValueFromRecord($record, $field) !!}</span>
+                                @if (!$loop->last)
+                                    <span class="mx-2">•</span>
+                                @endif
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
+
+                {{-- 4. Action Area: Add .stop-propagation to prevent double-firing --}}
+                <div class="ms-3 stop-propagation op-0-hover">
+                    @include('qf::livewire.data-tables.partials.row-actions', [
+                        'record' => $record,
+                        'simpleActions' => $simpleActions,
+                        'moreActions' => $moreActions,
+                        'controls' => $controls,
+                        'bulkSelection' => $bulkSelection,
+                        'configKey' => $configKey,
+                    ])
+                </div>
+            </div>
+        </div>
+    @empty
+        {{-- Empty state remains as defined before --}}
+    @endforelse
+</div>
+
+
+<style>
+    .list-view {
+        /* Main container border makes the whole list feel like a single unit */
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        border-radius: 8px;
+    }
+
+    .list-group-item {
+        /* Very light divider between rows */
+        border-bottom: 1px solid #f3f4f6 !important;
+        background-color: transparent;
+        transition: all 0.15s ease;
+    }
+
+    .list-group-item:last-child {
+        border-bottom: none !important;
+    }
+
+    /* The 'Pro' Hover State */
+    .list-group-item:hover {
+        /* Instead of just changing color, give it a tiny 'lift' */
+        background-color: #f9fafb !important;
+        border-left: 3px solid #0d6efd !important;
+        /* Left indicator like Outlook/Slack */
+        padding-left: calc(1rem - 3px) !important;
+        /* Adjust padding to keep text aligned */
+    }
+</style>

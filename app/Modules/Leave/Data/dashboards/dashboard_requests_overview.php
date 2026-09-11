@@ -115,7 +115,7 @@ return [
             ],
             'width' => 6,
             'show_view_all' => true,
-            'view_all_link' => '/leave/leave-requests',
+            'view_all_link' => '/leave/leave-hub?tab=all-requests',
         ],
         9 => [
             'type' => 'list',
@@ -141,7 +141,7 @@ return [
             ],
             'width' => 6,
             'show_view_all' => true,
-            'view_all_link' => '/leave/leave-requests?filter[status]=Approved',
+            'view_all_link' => '/leave/leave-hub?tab=all-requests?filter[status]=Approved',
         ],
         10 => [
             'type' => 'action_card',

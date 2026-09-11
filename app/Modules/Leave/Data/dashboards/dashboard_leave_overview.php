@@ -184,7 +184,7 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/leave/leave-requests',
+      'view_all_link' => '/leave/leave-hub?tab=all-requests',
     ),
     8 =>
     array (
@@ -236,7 +236,7 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/leave/leave-requests?status=Pending',
+      'view_all_link' => '/leave/leave-hub?tab=all-requests?status=Pending',
     ),
     9 =>
     array (
@@ -371,7 +371,7 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/leave/leave-requests?status=Approved&start_date=upcoming',
+      'view_all_link' => '/leave/leave-hub?tab=all-requests?status=Approved&start_date=upcoming',
     ),
     14 =>
     array (

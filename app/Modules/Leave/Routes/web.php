@@ -41,9 +41,14 @@ Route::middleware(['web', 'auth'])->group(function () {
         ]);
     })->name('leave-types.edit')->where('id', '[0-9]+');
 
-    // Routes for LeaveRequest
+    // Admin Leave Hub (tabbed layout)
+    Route::get('/leave/leave-hub', function () {
+        return view('leave::admin-leave-hub');
+    })->name('leave.leave-hub');
+
+    // Keep old route for backward compatibility
     Route::get('/leave/leave-requests', function () {
-        return view('leave::leave-requests');
+        return redirect('/leave/leave-hub?tab=all-requests');
     })->name('leave.leave-requests');
 
     Route::get('leave-requests/create', function (\Illuminate\Http\Request $request) {

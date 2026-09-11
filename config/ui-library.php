@@ -31,17 +31,6 @@ return [
             'user_facing' => false,
             'depends_on' => [],
         ],
-        'organization' => [
-            'enabled' => true,
-            'label' => 'Organization',
-            'icon' => 'fa-sitemap',
-            'route' => 'organization.dashboard',
-            'order' => 100,
-            'roles' => ['*'],
-            'core' => false,
-            'user_facing' => true,
-            'depends_on' => [],
-        ],
         'common' => [
             'enabled' => true,
             'label' => 'Common',
@@ -64,6 +53,43 @@ return [
         'core' => null,     // Set by UILibraryServiceProvider at boot
         'business' => base_path('app/Modules'),
         'business_namespace' => 'App\\Modules',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Module Discovery Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Toggles for the library's convention-based auto-discovery of business
+    | modules under app/Modules.
+    |
+    | 'listeners' — When true (default), the library scans each business
+    |               module's Listeners/ directory and auto-registers the
+    |               discovered listeners.
+    |
+    | 'reports'   — When true (default), the library scans each business
+    |               module for classes implementing the Reportable contract
+    |               and auto-registers them into reports.report_types.
+    |
+    | 'workflows' — When true (default), the library merges each business
+    |               module's Config/workflows.php into workflows.definitions.
+    |
+    | 'cache_ttl' — Finite cache lifetime (seconds) for production discovery
+    |               caches. Cache keys are content-hashed from file paths and
+    |               mtimes, so they self-invalidate on deploy; the TTL is a
+    |               safety net (the library never uses cache()->forever()).
+    |
+    | Per-module opt-outs (each defaults to true and is set on the module
+    | registry entry during discovery):
+    |   'ui-library.modules.{module}.auto_register_listeners'
+    |   'ui-library.modules.{module}.auto_register_reports'
+    |   'ui-library.modules.{module}.auto_register_workflows'
+    */
+    'discovery' => [
+        'listeners' => true,
+        'reports' => true,
+        'workflows' => true,
+        'cache_ttl' => 86400,
     ],
 
     /*
@@ -280,6 +306,19 @@ return [
             'enabled' => true,
         ],
         'company_provider' => \QuickerFaster\UILibrary\Services\Navigation\NullCompanyProvider::class,
+
+        /*
+        |------------------------------------------------------------------
+        | Workspace Resolver
+        |------------------------------------------------------------------
+        |
+        | The WorkspaceResolver contract is bound from this key. The library
+        | ships with NullWorkspaceResolver (empty context — no filtering).
+        | Consuming apps can publish this config and point the key at their
+        | own resolver implementation.
+        */
+        'workspace_resolver' => \QuickerFaster\UILibrary\Services\Navigation\NullWorkspaceResolver::class,
+
         'show_company_switcher' => true,
 
         /*
@@ -399,7 +438,7 @@ return [
     | apps can reorder, relabel, or disable columns by publishing this config.
     */
     'approvals' => [
-        'approver_resolver' => \QuickerFaster\UILibrary\Services\Approvals\DefaultApproverResolver::class,
+        'approver_resolver' => \QuickerFaster\UILibrary\Services\Approvals\WorkspaceScopedApproverResolver::class,
         'approver_label_resolver' => \QuickerFaster\UILibrary\Services\Approvals\DefaultApproverLabelResolver::class,
         'bypass_roles' => ['super_admin'],
         'list_columns' => [
@@ -418,27 +457,16 @@ return [
     |--------------------------------------------------------------------------
     |
     | Maps URL prefixes to allowed roles for module dashboard access.
-    | Override the library's generic defaults with business-specific role
-    | mappings.
+    | The consuming application should override this with its own
+    | business-specific role mappings.
     |
     | Roles use spatie/laravel-permission. Users with 'super_admin' or
     | 'admin' roles automatically bypass all checks.
     |
     */
     'module_access' => [
-        'hr/my-'         => ['employee', 'manager'],
-        'hr/leave-hub'   => ['employee', 'manager'],
-        'leave-requests' => ['employee', 'manager', 'hr_manager', 'admin', 'super_admin'],
-
-        'hr'             => ['hr_manager', 'admin', 'super_admin', 'company_admin'],
-        'leave'          => ['hr_manager', 'admin', 'super_admin', 'company_admin'],
-        'holiday'        => ['hr_manager', 'admin', 'super_admin', 'company_admin'],
-        'attendance'     => ['hr_manager', 'admin', 'super_admin', 'company_admin'],
-        'payroll'        => ['payroll_officer', 'hr_manager', 'admin', 'super_admin', 'company_admin'],
-
-        'organization'   => ['hr_manager', 'admin', 'super_admin', 'company_admin'],
-        'system'         => ['admin', 'super_admin', 'company_admin'],
-        'admin'          => ['admin', 'super_admin', 'company_admin'],
+        // Example: 'system' => ['super_admin'],
+        // Example: 'hr'     => ['admin', 'super_admin'],
     ],
 
     /*
@@ -508,6 +536,19 @@ return [
         'onboarding' => true,
         'tour' => true,
 
+        /*
+        |------------------------------------------------------------------
+        | Multi-Company Support
+        |------------------------------------------------------------------
+        |
+        | When enabled, the library exposes multi-company user assignment UI
+        | (navigation item, row actions, company switcher). Consuming apps
+        | that don't need multi-company support can disable this to keep the
+        | admin interface clean.
+        |
+        */
+        'multi_company' => false,
+
     ],
 
     /*
@@ -525,7 +566,7 @@ return [
         | Roles that can see the company switcher dropdown in the top nav.
         | Use '*' to allow all authenticated users.
         */
-        'switcher_roles' => '*',
+        'switcher_roles' => ['*'],
 
         /*
         |------------------------------------------------------------------
@@ -547,6 +588,20 @@ return [
         | - 'none'   : no default (user must pick)
         */
         'default_mode' => 'first',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tenancy Configuration
+    |--------------------------------------------------------------------------
+    | Controls the tenant column and session key used by CompanyScope and the
+    | HasCompanyScope trait. "company" is the library's domain-agnostic tenant
+    | term (already used by CompanyProvider, the company switcher, and the
+    | company_id convention across the library).
+    */
+    'tenancy' => [
+        'column' => 'company_id',
+        'session_key' => 'current_company_id',
     ],
 
     /*
@@ -576,7 +631,7 @@ return [
         | Use an array of role names (e.g. ['super_admin', 'admin']) to
         | restrict visibility to specific roles.
         */
-        'roles' => 'admin|super_admin|company_admin|hr_manager',
+        'roles' => '*',
 
         /*
         |------------------------------------------------------------------
@@ -714,12 +769,13 @@ return [
     'user_menu' => [
         'enabled' => true,
         'links' => [
+            /* This might be needed in a consuming app to give access to user profile
             [
                 'label' => 'My Profile',
-                'url' => '/hr/my-profile',
+                'url' => null,
                 'icon' => 'fas fa-user',
-                'route' => null,
-            ],
+                'route' => 'profile',
+            ],*/
             [
                 'label' => 'Edit My Account',
                 'url' => null,
@@ -752,7 +808,7 @@ return [
     |                      which traits are auto-injected.
     */
     'user' => [
-        'model' => 'App\Models\User',
+        'model' => env('UI_LIBRARY_USER_MODEL', config('auth.providers.users.model', 'App\Models\User')),
 
         'required_traits' => [
             \QuickerFaster\UILibrary\Traits\HasUILibraryUser::class,
@@ -795,7 +851,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Hardening for the centralized /{module}/{view}/{id?} route pattern
-    | (see docs/architecture/15-gaps-and-recommendations.md §10.7).
+    | (see docs/library/15-gaps-and-recommendations.md §10.7).
     |
     | The catch-all route is loaded LAST by ModuleServiceProvider so that
     | module-specific routes take precedence. These settings constrain
@@ -865,6 +921,57 @@ return [
             'enabled' => true,
             'max_attempts' => 60,
             'decay_minutes' => 1,
+        ],
+    ],
+    'invitations' => [
+        'expiration_days' => 7,
+        'mail' => [
+            'template' => 'qf::mail.invitation',
+        ],
+    ],
+    'quick_actions' => [
+        'enabled' => true,
+        'roles' => '*',
+        'command_palette' => [
+            'enabled' => true,
+            'shortcut' => 'Cmd+K',
+            'placeholder' => 'Search actions, records, pages...',
+            'max_recent_items' => 5,
+            'max_action_results' => 20,
+            'fuzzy_threshold' => 0.4,
+
+            /*
+            |--------------------------------------------------------------
+            | Search button (top nav)
+            |--------------------------------------------------------------
+            | The search-icon button in the top nav opens the command
+            | palette. Icon and title are customizable here.
+            */
+            'button_icon' => 'fas fa-search',
+            'button_title' => 'Search Actions (Cmd+K)',
+        ],
+        'top_nav_button' => [
+            'enabled' => true,
+            'icon' => 'fas fa-bolt',
+            'title' => 'Quick Actions',
+            'max_items' => 8,
+            'show_badge_on_first_visit' => true,
+        ],
+        'actions' => [],
+        'tracking' => [
+            'enabled' => true,
+            'track_page_views' => true,
+            'track_record_views' => true,
+            'track_record_creates' => true,
+            'track_record_updates' => true,
+            'retention_days' => 90,
+            'max_history_per_user' => 500,
+        ],
+        'ranking' => [
+            'recency_weight' => 0.6,
+            'frequency_weight' => 0.4,
+            'half_life_days' => 7,
+            'frequency_saturation' => 5,
         ],
     ],
 ];

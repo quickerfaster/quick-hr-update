@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
@@ -12,71 +12,51 @@ class UserSeeder extends Seeder
     /**
      * Run the database seeds.
      *
-     * @throws \RuntimeException If a required role does not exist in the database.
+     * @return void
      */
-    public function run(): void
+    public function run()
     {
-        // ─── Mobile app test users ─────────────────────────────────
-        $users = config('test-users.users', []);
+        $memberUser = User::create([
+            'id' => 1,
+            'name' => 'admin',
+            'email' => 'admin@softui.com',
+            'password' => Hash::make('secret'),
+        ]);
 
-        foreach ($users as $userData) {
-            $roleName = $userData['role'];
+        $superAdmin = User::create([
+            'id' => 2,
+            'name' => 'super admin',
+            'email' => 'superadmin@quickerfaster.com',
+            'password' => Hash::make('ChangeMe@12345'),
+        ]);
 
-            $role = Role::where('name', $roleName)->first();
+        $companyAdmin = User::create([
+            'id' => 3,
+            'name' => 'company admin',
+            'email' => 'gmadmin@agriwatts.ng',
+            'password' => Hash::make('Test@12345'),
+        ]);
 
-            if (! $role) {
-                throw new \RuntimeException(
-                    "Role '{$roleName}' not found. Ensure HrRoleSeeder has been run before UserSeeder."
-                );
-            }
+        $superAdminRole = Role::findByName('super_admin', 'web');
+        $companyAdminRole = Role::findByName('company_admin', 'web');
+        $memberRole = Role::findByName('member', 'web');
 
-            $user = User::firstOrCreate(
-                ['email' => $userData['email']],
-                [
-                    'name' => $userData['name'],
-                    'password' => Hash::make($userData['password']),
-                ]
-            );
-
-            $user->assignRole($role);
+        if ($superAdminRole) {
+            $superAdmin->assignRole($superAdminRole);
+        } else {
+            throw new \Exception('Role "super_admin" not found. Did you run RoleSeeder?');
         }
 
-        // ─── Default test user ─────────────────────────────────────
-        $default = config('test-users.default');
-
-        if ($default) {
-            User::firstOrCreate(
-                ['email' => $default['email']],
-                [
-                    'name' => $default['name'],
-                    'password' => Hash::make($default['password']),
-                ]
-            );
+        if ($companyAdminRole) {
+            $companyAdmin->assignRole($companyAdminRole);
+        } else {
+            throw new \Exception('Role "company_admin" not found. Did you run RoleSeeder?');
         }
 
-        // ─── ESS test user ─────────────────────────────────────────
-        $ess = config('test-users.ess');
-
-        if ($ess) {
-            $roleName = $ess['role'];
-
-            $role = Role::where('name', $roleName)->first();
-
-            if (! $role) {
-                throw new \RuntimeException(
-                    "Role '{$roleName}' not found. Ensure HrRoleSeeder has been run before UserSeeder."
-                );
-            }
-
-            $user = User::firstOrCreate(
-                ['email' => $ess['email']],
-                [
-                    'name' => $ess['name'],
-                    'password' => Hash::make($ess['password']),
-                ]
-            );
-
-            $user->assignRole($role);
+        if ($memberRole) {
+            $memberUser->assignRole($memberRole);
+        } else {
+            throw new \Exception('Role "member" not found. Did you run RoleSeeder?');
         }
     }
 }

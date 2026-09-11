@@ -186,7 +186,7 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/leave/leave-requests',
+      'view_all_link' => '/leave/leave-hub?tab=all-requests',
     ),
     10 =>
     array (
@@ -244,7 +244,7 @@ return array (
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/leave/leave-requests?filter[status]=Approved',
+      'view_all_link' => '/leave/leave-hub?tab=all-requests?filter[status]=Approved',
     ),
     11 =>
     array (
