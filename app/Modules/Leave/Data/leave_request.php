@@ -294,8 +294,6 @@ return [
   ],
   'simpleActions' => [
     '0' => 'show',
-    '1' => 'edit',
-    '2' => 'delete',
   ],
   'isTransaction' => false,
   'crudType' => 'drawers',
