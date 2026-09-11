@@ -15,12 +15,12 @@ class LeaveAccrualService
     public function runMonthlyAccrual(): void
     {
         $employees = Employee::where('status', 'Active')->get();
-        
+
         foreach ($employees as $employee) {
             $this->accrueForEmployee($employee);
         }
     }
-    
+
     /**
      * Accrue leave for a single employee
      */
@@ -30,7 +30,7 @@ class LeaveAccrualService
         $leaveTypes = LeaveType::where('is_active', true)
             ->where('deducts_from_balance', true)
             ->get();
-        
+
         foreach ($leaveTypes as $leaveType) {
             $balance = LeaveBalance::firstOrCreate(
                 [
@@ -40,17 +40,22 @@ class LeaveAccrualService
                 ],
                 [
                     'balance' => 0.00,
-                    'accrual_rate' => $leaveType->default_accrual_rate ?? 1.67, // 20 days/year ÷ 12 months
+                    'accrual_rate' => 1.67, // 20 days/year ÷ 12 months
                     'accrual_frequency' => 'Monthly'
                 ]
             );
-            
+
+            // Skip if accrual frequency is set to None
+            if (in_array($balance->accrual_frequency, [null, 'None'], true)) {
+                continue;
+            }
+
             // Apply monthly accrual
             $balance->increment('balance', $balance->accrual_rate);
-            
+
             // Cap at maximum if specified
-            if ($leaveType->max_balance) {
-                $balance->balance = min($balance->balance, $leaveType->max_balance);
+            if ($balance->max_balance) {
+                $balance->balance = min($balance->balance, $balance->max_balance);
                 $balance->save();
             }
         }
