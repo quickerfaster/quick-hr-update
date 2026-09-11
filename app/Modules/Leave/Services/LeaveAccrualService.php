@@ -45,8 +45,13 @@ class LeaveAccrualService
                 ]
             );
 
-            // Skip if accrual frequency is set to None
+            // Grant full annual balance upfront for "None" frequency
             if (in_array($balance->accrual_frequency, [null, 'None'], true)) {
+                // Grant full annual balance upfront if not yet granted
+                if ((float) $balance->balance === 0.0) {
+                    $annualAllowance = config("leave.annual_allowances.{$leaveType->code}", config('leave.annual_allowances.default', 20));
+                    $balance->update(['balance' => $annualAllowance]);
+                }
                 continue;
             }
 
