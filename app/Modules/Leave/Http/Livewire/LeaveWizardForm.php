@@ -147,8 +147,7 @@ class LeaveWizardForm extends WizardForm
             $year = date('Y', strtotime($this->fields['start_date']));
         }
 
-        $leaveTypes = LeaveType::query()
-            ->where('is_active', true)
+        $leaveTypes = LeaveType::withoutCompanyScope()
             ->orderBy('name')
             ->get();
 
@@ -169,7 +168,7 @@ class LeaveWizardForm extends WizardForm
                 }
             }
 
-            $options[$leaveType->id] = "{$leaveType->name} ({$balanceDays} days)";
+            $options[$leaveType->id] = "{$leaveType->name} ({$balanceDays} days balance left)";
         }
 
         return $options;
