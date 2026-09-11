@@ -417,7 +417,7 @@ return [
       'title' => 'Resume',
       'icon' => 'fas fa-pencil-alt',
       'action' => 'resume',
-      'wizardUrl' => '/leave/leave-requests',
+      'wizardUrl' => '/hr/leave-hub?tab=apply',
       'condition' => ['status' => ['Draft']],
     ],
     '1' => [
