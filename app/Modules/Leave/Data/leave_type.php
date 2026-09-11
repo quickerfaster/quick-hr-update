@@ -224,8 +224,8 @@ return [
       ],
       'badgeField' => 'is_active',
       'badgeColors' => [
-        'true' => 'success',
-        'false' => 'secondary',
+        1 => 'success',
+        0 => 'secondary',
       ],
     ],
     'card' => [

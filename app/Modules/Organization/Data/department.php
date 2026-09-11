@@ -178,8 +178,8 @@ return [
         ],
         'is_active' => [
             'label' => 'Active',
-            'type' => 'checkbox',
-            'validation' => ['boolean'],
+            'field_type' => 'checkbox',
+            'validation' => ['nullable', 'boolean'],
         ],
     ],
 
