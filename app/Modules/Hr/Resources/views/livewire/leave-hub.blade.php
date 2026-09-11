@@ -32,11 +32,11 @@
                     'employee_id' => $employeeId,
                     'employee_number' => $employeeNumber,
                 ],
-            ], key('leave-hub-overview-'.now()))
+            ], key('leave-hub-overview-'.$employeeId))
         @elseif ($activeTab === 'my-leaves')
-            @livewire('qf.data-table', ['configKey' => 'leave.leave_request', 'queryFilters' => [['employee_id', '=', $employeeId]]], key('leave-hub-my-leaves-'.now()))
+            @livewire('qf.data-table', ['configKey' => 'leave.leave_request', 'queryFilters' => [['employee_id', '=', $employeeId]]], key('leave-hub-my-leaves-'.$employeeId))
         @else
-            @livewire('qf.wizard', ['configKey' => 'leave.wizards.employee_self_service', 'presetData' => ['employee_id' => $employeeId]], key('leave-hub-apply-'.now()))
+            @livewire('qf.wizard', ['configKey' => 'leave.wizards.employee_self_service', 'presetData' => ['employee_id' => $employeeId]], key('leave-hub-apply-'.$employeeId))
         @endif
     </div>
 </div>

@@ -54,25 +54,17 @@ return [
     'deducts_from_balance' => [
       'display' => 'inline',
       'fillable' => true,
-      'field_type' => 'boolradio',
+      'field_type' => 'checkbox',
       'label' => 'Deducts from Balance',
-      'validation' => 'required',
-      'options' => [
-        '0' => 'Yes',
-        '1' => 'No',
-      ],
+      'validation' => 'nullable|boolean',
       'filterable' => true,
     ],
     'requires_approval' => [
       'display' => 'inline',
       'fillable' => true,
-      'field_type' => 'boolradio',
+      'field_type' => 'checkbox',
       'label' => 'Requires Approval',
-      'validation' => 'required',
-      'options' => [
-        '0' => 'Yes',
-        '1' => 'No',
-      ],
+      'validation' => 'nullable|boolean',
       'filterable' => true,
     ],
     'max_days_per_request' => [
@@ -85,13 +77,9 @@ return [
     'is_active' => [
       'display' => 'inline',
       'fillable' => true,
-      'field_type' => 'boolradio',
-      'label' => 'Status',
-      'validation' => 'required',
-      'options' => [
-        '0' => 'Active',
-        '1' => 'Inactive',
-      ],
+      'field_type' => 'checkbox',
+      'label' => 'Active',
+      'validation' => 'nullable|boolean',
       'filterable' => true,
     ],
   ],
