@@ -4,7 +4,7 @@ return array (
   'id' => 'employee_self_service',
   'title' => 'Request Leave',
   'description' => 'Submit a new leave request with your available balances shown',
-  'returnPath' => '',
+  'returnPath' => '/hr/leave-hub?tab=my-leaves',
   'steps' =>
   array (
     0 =>
