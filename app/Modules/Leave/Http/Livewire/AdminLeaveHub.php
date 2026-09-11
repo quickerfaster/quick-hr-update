@@ -6,11 +6,11 @@ use Livewire\Component;
 
 class AdminLeaveHub extends Component
 {
-    public string $activeTab = 'overview';
+    public string $activeTab = 'all-requests';
 
     public function mount(): void
     {
-        if (request()->has('tab') && in_array(request()->query('tab'), ['overview', 'all-requests', 'apply-for-employee'], true)) {
+        if (request()->has('tab') && in_array(request()->query('tab'), ['all-requests', 'apply-for-employee'], true)) {
             $this->activeTab = request()->query('tab');
         }
     }

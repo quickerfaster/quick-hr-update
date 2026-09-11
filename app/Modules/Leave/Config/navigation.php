@@ -25,7 +25,7 @@ return [
                 'key' => 'requests_overview',
                 'label' => 'Overview',
                 'icon' => 'fas fa-chart-bar',
-                'route' => '/leave/leave-hub?tab=overview',
+                'route' => '/leave/dashboard-requests-overview',
                 'permission' => 'view_requests_overview',
                 'order' => 1,
                 'page_title' => NULL,

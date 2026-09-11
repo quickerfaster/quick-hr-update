@@ -7,11 +7,6 @@
         x-data
         @update-url.window="history.replaceState(null, '', '?tab=' + $event.detail.tab)">
         <li class="nav-item">
-            <button class="nav-link {{ $activeTab === 'overview' ? 'active' : '' }}" wire:click="switchTab('overview')">
-                <i class="fas fa-chart-pie"></i> Overview
-            </button>
-        </li>
-        <li class="nav-item">
             <button class="nav-link {{ $activeTab === 'all-requests' ? 'active' : '' }}" wire:click="switchTab('all-requests')">
                 <i class="fas fa-list"></i> All Requests
             </button>
@@ -24,11 +19,7 @@
     </ul>
 
     <div>
-        @if ($activeTab === 'overview')
-            @livewire('qf.dashboard', [
-                'configKey' => 'leave.dashboards.dashboard_requests_overview',
-            ], key('admin-leave-hub-overview'))
-        @elseif ($activeTab === 'all-requests')
+        @if ($activeTab === 'all-requests')
             @livewire('qf.data-table', [
                 'configKey' => 'leave.leave_request',
             ], key('admin-leave-hub-all-requests'))
