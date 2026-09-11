@@ -8,7 +8,7 @@ return [
             'order' => 999,
             'roles' => ['*'],
             'route' => NULL,
-            'url' => 'leave/dashboard-requests-overview',
+            'url' => 'leave/leave-hub',
         ],
         'configuration' => [
             'label' => 'Configuration',
