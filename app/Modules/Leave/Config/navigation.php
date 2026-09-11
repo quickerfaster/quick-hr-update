@@ -8,7 +8,7 @@ return [
             'order' => 999,
             'roles' => ['*'],
             'route' => NULL,
-            'url' => 'leave/leave-hub',
+            'url' => 'leave/dashboard-requests-overview',
         ],
         'configuration' => [
             'label' => 'Configuration',
@@ -21,15 +21,6 @@ return [
     ],
     'contexts' => [
         'requests' => [
-            [
-                'key' => 'requests_overview',
-                'label' => 'Overview',
-                'icon' => 'fas fa-chart-bar',
-                'route' => '/leave/dashboard-requests-overview',
-                'permission' => 'view_requests_overview',
-                'order' => 1,
-                'page_title' => NULL,
-            ],
             [
                 'key' => 'leave_request',
                 'label' => 'Leave Requests',
