@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('leave_type_id')->constrained('leave_types', 'id')->onDelete('restrict');
             $table->date('start_date');
             $table->date('end_date');
-            $table->boolean('is_half_day')->default(false)->after('end_date');
-            $table->string('half_day_period', 10)->nullable()->after('is_half_day');
+            $table->boolean('is_half_day')->default(false);
+            $table->string('half_day_period', 10)->nullable();
             $table->text('reason')->nullable();
             $table->string('status')->default('Pending');
             $table->foreignId('approved_by')->nullable()->constrained('employees', 'id')->onDelete('set null');
