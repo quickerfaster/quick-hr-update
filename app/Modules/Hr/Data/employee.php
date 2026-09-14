@@ -185,6 +185,7 @@ return [
     ],
     'onQuery' => [
       '0' => 'deleted_at',
+      '1' => 'employee_id',
     ],
   ],
   'simpleActions' => [
