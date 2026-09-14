@@ -3047,16 +3047,16 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v3.8.8",
+            "version": "v3.8.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "ec19e5fb1e0b60df22ad15b901c2f7740267ba11"
+                "reference": "993a3f5051774ca12768067ab8644ea97c417417"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/ec19e5fb1e0b60df22ad15b901c2f7740267ba11",
-                "reference": "ec19e5fb1e0b60df22ad15b901c2f7740267ba11",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/993a3f5051774ca12768067ab8644ea97c417417",
+                "reference": "993a3f5051774ca12768067ab8644ea97c417417",
                 "shasum": ""
             },
             "require": {
@@ -3111,7 +3111,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v3.8.8"
+                "source": "https://github.com/livewire/livewire/tree/v3.8.9"
             },
             "funding": [
                 {
@@ -3119,7 +3119,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-09-07T16:02:29+00:00"
+            "time": "2026-09-14T19:27:17+00:00"
         },
         {
             "name": "maatwebsite/excel",
