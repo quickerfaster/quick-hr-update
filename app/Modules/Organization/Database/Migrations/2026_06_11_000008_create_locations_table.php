@@ -36,6 +36,14 @@ return new class extends Migration
                 $table->text('opening_hours')->nullable();
                 $table->date('opening_date')->nullable();
                 $table->date('closing_date')->nullable();
+
+                // HR-specific columns (consolidated from add_hr_specific_columns_to_locations_table)
+                $table->decimal('geofence_radius', 6, 2)->default(100)->nullable();
+                $table->string('external_id')->nullable();
+                $table->datetime('last_synced_at')->nullable();
+                $table->integer('employee_count')->default(0);
+                $table->integer('department_count')->default(0);
+
                 $table->timestamps();
                 $table->softDeletes();
             });

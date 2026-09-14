@@ -38,6 +38,7 @@ return new class extends Migration
             $table->index(['employee_number', 'timestamp']);
             $table->index(['event_type', 'timestamp']);
             $table->index(['sync_status', 'sync_attempts']);
+            $table->unique(['employee_id', 'event_type', 'timestamp'], 'clock_events_employee_event_time_unique');
             $table->softDeletes();
             $table->timestamps();
         });
