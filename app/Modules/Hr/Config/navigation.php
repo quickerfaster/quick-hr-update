@@ -89,7 +89,7 @@ return [
                 'key' => 'team_calendar',
                 'label' => 'Team Calendar',
                 'icon' => 'fas fa-calendar-alt',
-                'route' => '/hr/my-team-calendar',
+                'route' => '/hr/team-calendar',
                 'permission' => 'view_team_calendar',
                 'order' => 4,
                 'page_title' => NULL,

@@ -39,10 +39,17 @@ class OrganizationSeeder extends Seeder
         ]);
 
         Location::create([
-            'company_id' => $company->id,
-            'name' => 'Main Office',
-            'code' => 'MAIN',
+            'company_id'      => $company->id,
+            'name'            => 'Main Office',
+            'code'            => 'MAIN',
             'is_headquarters' => true,
+            'latitude'        => 9.0765,   // Abuja, Nigeria
+            'longitude'       => 7.3986,
+            'geofence_radius' => 200,       // 200m radius
+            'address'         => 'Central Business District',
+            'city'            => 'Abuja',
+            'country_code'    => 'NG',
+            'state_code'      => 'FC',
         ]);
     }
 }

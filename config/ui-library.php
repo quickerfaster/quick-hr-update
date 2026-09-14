@@ -440,7 +440,7 @@ return [
     'approvals' => [
         'approver_resolver' => \QuickerFaster\UILibrary\Services\Approvals\WorkspaceScopedApproverResolver::class,
         'approver_label_resolver' => \QuickerFaster\UILibrary\Services\Approvals\DefaultApproverLabelResolver::class,
-        'bypass_roles' => ['super_admin'],
+        'bypass_roles' => ['super_admin', 'hr_manager'],
         'list_columns' => [
             'workflow' => ['label' => 'Workflow', 'enabled' => true],
             'entity' => ['label' => 'Entity', 'enabled' => true],
@@ -732,7 +732,7 @@ return [
         //  Nav bell
         // ----------------------------------------------------------------
         'enabled' => true,
-        'roles' => ['super_admin', 'admin', 'user'],
+        'roles' => ['super_admin', 'company_admin', 'admin', 'user', 'employee', 'hr_manager'],
         'icon' => 'fas fa-bell',
         'title' => 'Notifications',
         'badge_enabled' => false, // Future feature

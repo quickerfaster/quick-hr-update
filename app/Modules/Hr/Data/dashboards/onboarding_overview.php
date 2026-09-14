@@ -94,7 +94,8 @@ return [
             'actions' => [
                 0 => [
                     'label' => 'Start',
-                    'url' => '/hr/employee-onboarding',
+                    'event' => 'navigate',
+                    'params' => ['url' => '/hr/employee-onboarding'],
                     'style' => 'primary',
                 ],
             ],

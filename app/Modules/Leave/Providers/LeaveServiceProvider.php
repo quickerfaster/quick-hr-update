@@ -5,6 +5,7 @@ namespace App\Modules\Leave\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Modules\Leave\Listeners\SyncLeaveRequestStatus;
 use QuickerFaster\UILibrary\Events\Workflows\WorkflowApproved;
+use QuickerFaster\UILibrary\Events\Workflows\WorkflowCancelled;
 use QuickerFaster\UILibrary\Events\Workflows\WorkflowRejected;
 use QuickerFaster\UILibrary\Events\Workflows\WorkflowRecalled;
 use Illuminate\Support\Facades\Event;
@@ -41,9 +42,15 @@ class LeaveServiceProvider extends ServiceProvider
 
         $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
 
+        // Register console commands
+        $this->commands([
+            \App\Modules\Leave\Console\Commands\AccrueLeaveCommand::class,
+        ]);
+
         // Register Leave-specific Livewire components
         \Livewire\Livewire::component('leave-wizard-form', \App\Modules\Leave\Http\Livewire\LeaveWizardForm::class);
         \Livewire\Livewire::component('qf.admin-leave-hub', \App\Modules\Leave\Http\Livewire\AdminLeaveHub::class);
+        \Livewire\Livewire::component('qf.leave-request-detail', \App\Modules\Leave\Http\Livewire\LeaveRequestDetail::class);
         \Livewire\Livewire::component('leave-document-upload', \App\Modules\Leave\Http\Livewire\LeaveDocumentUpload::class);
 
         Event::listen(
@@ -57,6 +64,10 @@ class LeaveServiceProvider extends ServiceProvider
         Event::listen(
             WorkflowRecalled::class,
             [SyncLeaveRequestStatus::class, 'handleWorkflowRecalled']
+        );
+        Event::listen(
+            WorkflowCancelled::class,
+            [SyncLeaveRequestStatus::class, 'handleWorkflowCancelled']
         );
     }
 }

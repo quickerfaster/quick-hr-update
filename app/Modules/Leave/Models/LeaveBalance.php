@@ -32,7 +32,7 @@ class LeaveBalance extends Model
 
 
     protected $fillable = [
-        'company_id', 'employee_id', 'leave_type_id', 'balance', 'accrual_rate', 'accrual_frequency', 'year'
+        'company_id', 'employee_id', 'leave_type_id', 'balance', 'accrual_rate', 'accrual_frequency', 'year', 'last_accrual_date'
     ];
 
     protected $guarded = [
@@ -42,7 +42,8 @@ class LeaveBalance extends Model
     protected $casts = [
         'balance' => 'decimal:2',
         'accrual_rate' => 'decimal:2',
-        'year' => 'integer'
+        'year' => 'integer',
+        'last_accrual_date' => 'date',
     ];
 
     protected $attributes = [

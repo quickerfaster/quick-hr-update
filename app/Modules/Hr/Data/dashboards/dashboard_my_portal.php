@@ -67,12 +67,12 @@ return [
             'type'         => 'stat',
             'title'        => 'Leave Balance',
             'size'         => 'col-12',
-            'model'        => 'App\\Modules\\Hr\\Models\\LeaveBalance',
+            'model'        => 'App\\Modules\\Leave\\Models\\LeaveBalance',
             'icon'         => 'fas fa-umbrella-beach',
             'aggregate'    => 'sum',
             'field'        => 'balance',
             'conditions'   => [
-                ['employee_id', '=', '{{ employee_number }}'],
+                ['employee_id', '=', '{{ employee_id }}'],
             ],
             'width'        => 3,
         ],
@@ -80,7 +80,7 @@ return [
             'type'         => 'stat',
             'title'        => 'Hours This Week',
             'size'         => 'col-12',
-            'model'        => 'App\\Modules\\Hr\\Models\\Attendance',
+            'model'        => 'App\\Modules\\Attendance\\Models\\Attendance',
             'icon'         => 'fas fa-clock',
             'aggregate'    => 'sum',
             'field'        => 'net_hours',
@@ -95,11 +95,11 @@ return [
             'type'         => 'stat',
             'title'        => 'Pending Approvals',
             'size'         => 'col-12',
-            'model'        => 'App\\Modules\\Hr\\Models\\LeaveRequest',
+            'model'        => 'App\\Modules\\Leave\\Models\\LeaveRequest',
             'icon'         => 'fas fa-hourglass-half',
             'aggregate'    => 'count',
             'conditions'   => [
-                ['employee_id', '=', '{{ employee_number }}'],
+                ['employee_id', '=', '{{ employee_id }}'],
                 ['status', '=', 'Pending'],
             ],
             'width'        => 3,
@@ -144,31 +144,10 @@ return [
             ],
             'width'       => 3,
         ],
-        // Clock In/Out is now handled by the qf.clock-in-out Livewire
-        // component rendered inline in the my-portal.blade.php view.
-        // This placeholder keeps the grid layout consistent.
-        [
-            'type'        => 'action_card',
-            'title'       => 'Clock In / Out',
-            'icon'        => 'fas fa-user-clock',
-            'color'       => 'success',
-            'description' => 'Record your attendance',
-            'actions'     => [
-                [
-                    'label'  => 'Open Clock In/Out',
-                    'event'  => 'openDrawer',
-                    'params' => [
-                        'component' => 'qf.clock-in-out',
-                        'params'    => [
-                            'employee-id' => '{{ employee_number }}',
-                        ],
-                        'title'     => 'Clock In / Out',
-                    ],
-                    'style'  => 'success',
-                ],
-            ],
-            'width'       => 3,
-        ],
+        // Clock In/Out is rendered inline in my-portal.blade.php
+        // as <livewire:qf.clock-in-out :employee-id="$employee->id" />
+        // This avoids the drawer parameter-passing issue where nested
+        // params from action_card widgets don't reach the inner component.
         [
             'type'        => 'action_card',
             'title'       => 'View Payslip',

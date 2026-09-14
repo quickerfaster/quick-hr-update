@@ -112,7 +112,7 @@ class AttendanceEventListener extends DataTableRecordListener
             ]);
 
             // Get employee number and date
-            $employeeNumber = $attendance->employee_number;
+            $employeeNumber = $attendance->employee?->employee_number;
             $dateString = $attendance->date->toDateString();
 
             // Recalculate using the AttendanceAggregator service

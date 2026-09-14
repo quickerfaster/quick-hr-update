@@ -96,6 +96,11 @@ class Department extends BaseDepartment
         return $this->belongsTo(\App\Modules\Hr\Models\Company::class, 'company_id', 'id');
     }
 
+    public function parentDepartment(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Modules\Hr\Models\Department::class, 'parent_department_id');
+    }
+
     public function employeePositions()
     {
         return $this->hasMany(\App\Modules\Hr\Models\EmployeePosition::class, 'department_id', 'id');

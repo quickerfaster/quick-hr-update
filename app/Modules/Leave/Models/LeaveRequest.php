@@ -36,6 +36,8 @@ class LeaveRequest extends Model implements Workflowable, Documentable
     public $timestamps = true;
 
 
+    protected $appends = ['title', 'workdays_count'];
+
     protected $fillable = [
         'company_id', 'employee_id', 'leave_type_id', 'start_date', 'end_date', 'is_half_day', 'half_day_period', 'reason', 'status', 'approved_by', 'approved_at', 'denial_reason', 'attendance_synced', 'attendance_records_count', 'last_sync_at', 'is_retroactive', 'reported_after_absence', 'workdays_count', 'overlap_with_holiday'
     ];
@@ -116,6 +118,44 @@ class LeaveRequest extends Model implements Workflowable, Documentable
     {
         $this->validate();
         return parent::save($options);
+    }
+
+    /**
+     * Computed title for notifications (e.g., "John Doe - Annual Leave").
+     */
+    public function getTitleAttribute(): string
+    {
+        $employeeName = $this->employee?->full_name ?? $this->employee?->name ?? 'Employee';
+        $leaveName = $this->leaveType?->name ?? 'Leave';
+        return "{$employeeName} - {$leaveName}";
+    }
+
+    /**
+     * Computed workdays count from start_date and end_date.
+     * Falls back to the DB column if already populated.
+     */
+    public function getWorkdaysCountAttribute(): int
+    {
+        if ($this->attributes['workdays_count'] ?? null) {
+            return (int) $this->attributes['workdays_count'];
+        }
+
+        if (!$this->start_date || !$this->end_date) {
+            return 0;
+        }
+
+        $start = \Carbon\Carbon::parse($this->start_date);
+        $end = \Carbon\Carbon::parse($this->end_date);
+        $days = 0;
+
+        while ($start->lte($end)) {
+            if (!$start->isWeekend()) {
+                $days++;
+            }
+            $start->addDay();
+        }
+
+        return $days;
     }
 
     public function employee()
@@ -230,5 +270,15 @@ class LeaveRequest extends Model implements Workflowable, Documentable
         }
 
         return $this->status;
+    }
+
+    /**
+     * Whether the leave has not yet started (start_date is in the future).
+     * Used by the Cancel Leave condition to prevent cancelling leaves
+     * that have already begun.
+     */
+    public function getHasNotStartedAttribute(): bool
+    {
+        return $this->start_date && $this->start_date->isFuture();
     }
 }

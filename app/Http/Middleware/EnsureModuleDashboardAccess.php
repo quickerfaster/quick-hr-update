@@ -40,6 +40,7 @@ class EnsureModuleDashboardAccess
 
         // Read from config with fallback to hardcoded defaults (defensive coding)
         $moduleRoleMap = config('ui-library.module_access', []) ?: [
+            'hr/leave-hub' => ['employee', 'manager', 'hr_manager', 'admin', 'super_admin'],
             'hr/my-'       => ['employee', 'manager'],
             'hr'           => ['hr_manager', 'admin', 'super_admin'],
             'leave'        => ['hr_manager', 'admin', 'super_admin'],

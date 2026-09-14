@@ -22,6 +22,15 @@ return [
     'contexts' => [
         'requests' => [
             [
+                'key' => 'request_overview',
+                'label' => 'Overview',
+                'icon' => 'fas fa-tachometer-alt',
+                'route' => '/leave/dashboard-requests-overview',
+                'permission' => 'view_leave_request',
+                'order' => 1,
+                'page_title' => NULL,
+            ],
+            [
                 'key' => 'leave_request',
                 'label' => 'Leave Requests',
                 'icon' => 'fas fa-calendar-alt',

@@ -623,7 +623,15 @@
                             'simpleActions' => ['show'],
                             'moreActions' => [
                                 ['title' => 'View Items', 'icon' => 'fas fa-list', 'route' => 'payroll-payslips.items', 'params' => ['id' => '{id}']]
-                            ]
+                            ],
+                            'controls' => [
+                                'search' => true,
+                                'filterColumns' => false,
+                                'addButton' => false,
+                                'editable' => false,
+                                'showHideColumns' => true,
+                                'files' => ['export' => ['csv', 'pdf'], 'print' => true],
+                            ],
                         ], key('payslips-'.$recordId))
                     @endif
 
@@ -697,6 +705,14 @@
                                 'configKey' => 'attendance.attendance',
                                 'queryFilters' => [['employee_id', '=', $employee->id]],
                                 'hiddenFields' => ['onTable' => ['employee_id']],
+                                'controls' => [
+                                    'search' => true,
+                                    'filterColumns' => false,
+                                    'addButton' => false,
+                                    'editable' => false,
+                                    'showHideColumns' => true,
+                                    'files' => ['export' => ['csv', 'pdf'], 'print' => true],
+                                ],
                             ],
                             key('attendance-' . $recordId)
                         )
@@ -704,19 +720,6 @@
 
                     {{-- Documents Tab --}}
                     @if ($activeTab === 'documents')
-                        <div class="mb-3 d-flex justify-content-end">
-                            @if ($this->canEdit() || $this->isSelfServiceMode)
-                                <button
-                                    wire:click="$dispatch('openDrawer', {
-                                        component: 'qf.data-table-form',
-                                        params: { configKey: 'hr.document', prefilledData: { employee_id: {{ $employee->id }} }, inline: true },
-                                        title: 'Upload Document'
-                                    })"
-                                    class="btn btn-sm btn-primary">
-                                    <i class="fas fa-upload"></i> Upload
-                                </button>
-                            @endif
-                        </div>
                         @livewire(
                             'qf.data-table',
                             [
@@ -724,6 +727,15 @@
                                 'queryFilters' => [['employee_id', '=', $employee->id]],
                                 'hiddenFields' => ['onTable' => ['employee_id']],
                                 'prefilledData' => ['employee_id' => $employee->id],
+                                'simpleActions' => ['show', 'create'],
+                                'controls' => [
+                                    'search' => true,
+                                    'filterColumns' => false,
+                                    'addButton' => true,
+                                    'editable' => false,
+                                    'showHideColumns' => true,
+                                    'files' => ['export' => ['csv', 'pdf'], 'print' => true],
+                                ],
                             ],
                             key('documents-' . $recordId)
                         )
@@ -737,6 +749,14 @@
                                 'configKey' => 'attendance.clock_event',
                                 'queryFilters' => [['employee_id', '=', $employee->id]],
                                 'hiddenFields' => ['onTable' => ['employee_id', 'employee_number']],
+                                'controls' => [
+                                    'search' => true,
+                                    'filterColumns' => false,
+                                    'addButton' => false,
+                                    'editable' => false,
+                                    'showHideColumns' => true,
+                                    'files' => ['export' => ['csv', 'pdf'], 'print' => true],
+                                ],
                                 'sort' => ['field' => 'timestamp', 'direction' => 'desc'],
                             ],
                             key('clockevents-' . $recordId)

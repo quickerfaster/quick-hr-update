@@ -39,4 +39,12 @@
     ]"
 >
     <livewire:qf.dashboard config-key="hr.dashboards.dashboard_my_portal" :parameters="$dashboardParams" />
+
+    @if ($employee)
+        <div class="row g-3 mt-3">
+            <div class="col-md-6 col-lg-4">
+                <livewire:qf.clock-in-out :employee-id="$employee->id" wire:key="clock-in-out-{{ $employee->id }}" />
+            </div>
+        </div>
+    @endif
 </x-qf::navigation-layout>

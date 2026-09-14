@@ -1,5 +1,5 @@
 <x-qf::navigation-layout
-    context="leave"
+    context="requests"
     moduleName="leave"
     :overrides="[
         'top_bar' => ['enabled' => true],

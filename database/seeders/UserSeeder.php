@@ -16,26 +16,32 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        $memberUser = User::create([
-            'id' => 1,
-            'name' => 'admin',
-            'email' => 'admin@softui.com',
-            'password' => Hash::make('secret'),
-        ]);
+        $memberUser = User::firstOrCreate(
+            ['email' => 'admin@softui.com'],
+            [
+                'name' => 'admin',
+                'password' => Hash::make('secret'),
+                'email_verified_at' => now(),
+            ]
+        );
 
-        $superAdmin = User::create([
-            'id' => 2,
-            'name' => 'super admin',
-            'email' => 'superadmin@quickerfaster.com',
-            'password' => Hash::make('ChangeMe@12345'),
-        ]);
+        $superAdmin = User::firstOrCreate(
+            ['email' => 'superadmin@quickerfaster.com'],
+            [
+                'name' => 'super admin',
+                'password' => Hash::make('ChangeMe@12345'),
+                'email_verified_at' => now(),
+            ]
+        );
 
-        $companyAdmin = User::create([
-            'id' => 3,
-            'name' => 'company admin',
-            'email' => 'gmadmin@agriwatts.ng',
-            'password' => Hash::make('Test@12345'),
-        ]);
+        $companyAdmin = User::firstOrCreate(
+            ['email' => 'gmadmin@agriwatts.ng'],
+            [
+                'name' => 'company admin',
+                'password' => Hash::make('Test@12345'),
+                'email_verified_at' => now(),
+            ]
+        );
 
         $superAdminRole = Role::findByName('super_admin', 'web');
         $companyAdminRole = Role::findByName('company_admin', 'web');

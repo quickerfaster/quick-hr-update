@@ -34,7 +34,19 @@
                 ],
             ], key('leave-hub-overview-'.$employeeId))
         @elseif ($activeTab === 'my-leaves')
-            @livewire('qf.data-table', ['configKey' => 'leave.leave_request', 'queryFilters' => [['employee_id', '=', $employeeId]]], key('leave-hub-my-leaves-'.$employeeId))
+            @livewire('qf.data-table', [
+                'configKey' => 'leave.leave_request',
+                'queryFilters' => [['employee_id', '=', $employeeId]],
+                'wizardUrl' => '/hr/leave-hub?tab=apply',
+                'controls' => [
+                    'search' => true,
+                    'filterColumns' => false,
+                    'addButton' => false,
+                    'editable' => false,
+                    'showHideColumns' => true,
+                    'files' => ['export' => ['csv', 'pdf'], 'print' => true],
+                ],
+            ], key('leave-hub-my-leaves-'.$employeeId))
         @else
             @livewire('qf.wizard', ['configKey' => 'leave.wizards.employee_self_service', 'presetData' => ['employee_id' => $employeeId]], key('leave-hub-apply-'.$employeeId))
         @endif

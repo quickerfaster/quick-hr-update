@@ -247,7 +247,7 @@ return [
       'filterable' => true,
     ],
   ],
-  'detailComponent' => '',
+  'detailComponent' => 'qf.leave-request-detail',
   'hiddenFields' => [
     'onTable' => [
       '0' => 'reason',
@@ -281,12 +281,10 @@ return [
     'onEditForm' => [
       '0' => 'employee_id',
       '1' => 'leave_type_id',
-      '2' => 'start_date',
-      '3' => 'end_date',
-      '4' => 'created_at',
-      '5' => 'updated_at',
-      '6' => 'deleted_at',
-      '7' => 'company_id',
+      '2' => 'created_at',
+      '3' => 'updated_at',
+      '4' => 'deleted_at',
+      '5' => 'company_id',
     ],
     'onQuery' => [
       '0' => 'deleted_at',
@@ -417,18 +415,34 @@ return [
       'title' => 'Resume',
       'icon' => 'fas fa-pencil-alt',
       'action' => 'resume',
-      'wizardUrl' => '/leave/leave-requests',
+      'wizardUrl' => '/leave/leave-hub?tab=apply-for-employee',
       'condition' => ['status' => ['Draft']],
     ],
     '1' => [
-      'title' => 'Restore',
+      'title' => 'Withdraw',
+      'icon' => 'fas fa-undo-alt',
+      'action' => 'recall',
+      'confirm' => 'Withdraw this leave request? The approval process will be cancelled.',
+      'successMessage' => 'Leave request withdrawn.',
+      'condition' => ['status' => ['Pending']],
+    ],
+    '4' => [
+        'title' => 'Cancel Leave',
+        'icon' => 'fas fa-ban',
+        'action' => 'cancel',
+        'confirm' => 'Cancel this approved leave? The leave days will be restored to your balance.',
+        'successMessage' => 'Leave request cancelled.',
+        'condition' => ['status' => ['Approved'], 'has_not_started' => [true]],
+    ],
+    '2' => [
+        'title' => 'Restore',
       'icon' => 'fas fa-trash-restore',
       'action' => 'restore',
       'confirm' => 'Restore this archived leave request?',
       'requiredPermission' => 'restore_leave_request',
       'condition' => ['trashed' => [true]],
     ],
-    '2' => [
+    '3' => [
       'title' => 'Permanently Delete',
       'icon' => 'fas fa-skull-crossbones',
       'action' => 'forceDelete',

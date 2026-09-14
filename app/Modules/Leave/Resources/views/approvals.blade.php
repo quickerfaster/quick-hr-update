@@ -1,5 +1,4 @@
 <x-qf::navigation-layout
-    configKey="leave.leave_request"
     context="requests"
     moduleName="leave"
     :overrides="[

@@ -62,8 +62,8 @@
 
 
 
-/* Modal content */
-.modal-content {
+/* Modal content (scoped to custom modal-wrapper, not Bootstrap modals) */
+.modal-wrapper .modal-content {
     position: relative;
     top: -100%;
     transform: translateY(0);

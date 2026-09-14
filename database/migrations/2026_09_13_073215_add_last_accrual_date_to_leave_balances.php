@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('companies', function (Blueprint $table) {
-            if (!Schema::hasColumn('companies', 'deleted_at')) {
-                $table->softDeletes();
-            }
+        Schema::table('leave_balances', function (Blueprint $table) {
+            $table->date('last_accrual_date')->nullable()->after('balance');
         });
     }
 
@@ -23,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('companies', function (Blueprint $table) {
-            $table->dropSoftDeletes();
+        Schema::table('leave_balances', function (Blueprint $table) {
+            $table->dropColumn('last_accrual_date');
         });
     }
 };

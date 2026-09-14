@@ -50,8 +50,8 @@ class AttendanceAggregator
             // Check for holiday
             $isHoliday = $this->isCompanyHoliday($dateOnly);
 
-            // Check for approved leave
-            $hasApprovedLeave = LeaveRequest::where('employee_id', $employeeNumber)
+            // Check for approved leave (use integer employee_id, not string employee_number)
+            $hasApprovedLeave = LeaveRequest::where('employee_id', $employee->id)
                 ->where('status', 'Approved')
                 ->whereDate('start_date', '<=', $dateOnly)
                 ->whereDate('end_date', '>=', $dateOnly)
@@ -109,7 +109,7 @@ class AttendanceAggregator
     {
         $holiday = Holiday::whereDate('date', $date)->first();
 
-        $attendance = $this->getOrCreateAttendanceRecord($employee, $date);
+        $attendance = $this->getOrCreateAttendanceRecord($employee, Carbon::parse($date));
 
         // Delete any existing sessions (shouldn't exist, but clean up)
         AttendanceSession::where('attendance_id', $attendance->id)->forceDelete();
@@ -140,7 +140,7 @@ class AttendanceAggregator
      */
     private function handleLeaveAttendance(Employee $employee, string $date): void
     {
-        $leaveRequest = LeaveRequest::where('employee_id', $employee->employee_number)
+        $leaveRequest = LeaveRequest::where('employee_id', $employee->id)
             ->where('status', 'Approved')
             ->whereDate('start_date', '<=', $date)
             ->whereDate('end_date', '>=', $date)
@@ -150,7 +150,7 @@ class AttendanceAggregator
             return;
         }
 
-        $attendance = $this->getOrCreateAttendanceRecord($employee, $date);
+        $attendance = $this->getOrCreateAttendanceRecord($employee, Carbon::parse($date));
 
         AttendanceSession::where('attendance_id', $attendance->id)->delete();
 
@@ -193,7 +193,7 @@ class AttendanceAggregator
      */
     private function handleUnplannedAbsence(Employee $employee, string $date): void
     {
-        $attendance = $this->getOrCreateAttendanceRecord($employee, $date);
+        $attendance = $this->getOrCreateAttendanceRecord($employee, Carbon::parse($date));
 
         AttendanceSession::where('attendance_id', $attendance->id)->delete();
 
