@@ -1,5 +1,5 @@
 #!/bin/bash
-PROJECT_DIR="/home/quickerf/quick_hr"
+PROJECT_DIR="/home/quickerf/agriwatts-demo"
 LOCKFILE="$PROJECT_DIR/storage/framework/queue-worker.lock"
 # PHP_BIN: find the correct PHP binary for cPanel cron.
 # .cpanel.yml uses 'ea-php84' as a bare command (works in deployment context),
@@ -92,6 +92,6 @@ cleanup_stale_lock
 
 ###### Add cron jobs ######
 ### running worker ###
-# * * * * * /home/quickerf/quick_hr/worker.sh >> /dev/null 2>&1
+# * * * * * /home/quickerf/agriwatts-demo/worker.sh >> /dev/null 2>&1
 ### cpanel's 2 minutes process restriction limit  test ###
 # * * * * * /usr/local/bin/php -r "sleep(120); echo 'done';" >> ~/sleep-test.log 2>&1
