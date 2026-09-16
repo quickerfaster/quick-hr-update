@@ -1,6 +1,6 @@
 <x-qf::navigation-layout
     configKey="hr.dashboards.dashboard_team_calendar"
-    context="people"
+    context="my-portal"
     moduleName="hr"
     :overrides="[]"
 >
