@@ -120,4 +120,32 @@ Route::middleware(['web', 'auth'])->group(function () {
         return view('leave::dashboard-configuration-overview');
     })->name('leave.dashboard-configuration-overview');
 
+    // Leave Approvers
+    Route::get('/leave/leave-approvers', function () {
+        return view('leave::leave-approvers');
+    })->name('leave.leave-approvers');
+
+    Route::get('leave-approvers/create', function (\Illuminate\Http\Request $request) {
+        return view('leave::leave-approvers.create', [
+            'configKey' => 'leave.leave_approver',
+            'returnParams' => $request->only(['page', 'perPage', 'search', 'sort', 'activeFilters'])
+        ]);
+    })->name('leave-approvers.create');
+
+    Route::get('leave-approvers/{id}', function (\Illuminate\Http\Request $request, $id) {
+        return view('leave::leave-approvers.show', [
+            'recordId' => (int) $id,
+            'configKey' => 'leave.leave_approver',
+            'returnParams' => $request->only(['page', 'perPage', 'search', 'sort', 'activeFilters'])
+        ]);
+    })->name('leave-approvers.show')->where('id', '[0-9]+');
+
+    Route::get('leave-approvers/{id}/edit', function (\Illuminate\Http\Request $request, $id) {
+        return view('leave::leave-approvers.edit', [
+            'recordId' => (int) $id,
+            'configKey' => 'leave.leave_approver',
+            'returnParams' => $request->only(['page', 'perPage', 'search', 'sort', 'activeFilters'])
+        ]);
+    })->name('leave-approvers.edit')->where('id', '[0-9]+');
+
 });
