@@ -5126,7 +5126,7 @@
             "dist": {
                 "type": "path",
                 "url": "/Users/mac/Projects/Libraries/ui-library",
-                "reference": "e543592e2434c61a7a9f5f3530ae86acf5874226"
+                "reference": "9f333677cc84034454c468d1882d0a4566f3c7ed"
             },
             "require": {
                 "barryvdh/laravel-dompdf": "^3.0",
