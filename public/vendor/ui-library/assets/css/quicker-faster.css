@@ -92,7 +92,7 @@
     opacity: 1;
 }
 
-/* Modal content animation - Slide down */
+/* Modal content animation - Slide down (already scoped to modal-wrapper) */
 .modal-wrapper.is-open .modal-content {
     top: 1vh;
     /* Small gap from top of viewport */
