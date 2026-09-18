@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b773e56ae08379ec00b818d0935f417b",
+    "content-hash": "361d08ad8e2750712cbc108fc8ac7f56",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -5122,17 +5122,11 @@
         },
         {
             "name": "quicker-faster/ui-library",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/quickerfaster/ui-library.git",
-                "reference": "fbee0af2b2440876df2332105f9487feda082ff3"
-            },
+            "version": "2.0.0",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/quickerfaster/ui-library/zipball/fbee0af2b2440876df2332105f9487feda082ff3",
-                "reference": "fbee0af2b2440876df2332105f9487feda082ff3",
-                "shasum": ""
+                "type": "path",
+                "url": "/Users/mac/Projects/Libraries/ui-library",
+                "reference": "da1d04879711a102ac8037b6d4368090364563d2"
             },
             "require": {
                 "barryvdh/laravel-dompdf": "^3.0",
@@ -5148,7 +5142,6 @@
                 "orchestra/testbench": "^8.0",
                 "phpunit/phpunit": "^10.0"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "laravel": {
@@ -5179,11 +5172,10 @@
                 "MIT"
             ],
             "description": "A config-driven Laravel UI library with Livewire 3, Fortify auth, and module auto-discovery",
-            "support": {
-                "source": "https://github.com/quickerfaster/ui-library/tree/main",
-                "issues": "https://github.com/quickerfaster/ui-library/issues"
-            },
-            "time": "2026-09-18T07:45:33+00:00"
+            "transport-options": {
+                "symlink": true,
+                "relative": false
+            }
         },
         {
             "name": "ralouphie/getallheaders",
