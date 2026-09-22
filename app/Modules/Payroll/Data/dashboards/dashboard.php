@@ -354,11 +354,7 @@ return array (
         0 =>
         array (
           'label' => 'Create',
-          'event' => 'openPayrollWizard',
-          'params' =>
-          array (
-            'type' => 'new',
-          ),
+          'url' => '/payroll/payroll-wizard',
           'style' => 'primary',
         ),
       ),

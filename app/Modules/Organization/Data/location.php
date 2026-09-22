@@ -12,11 +12,6 @@ return [
     'label' => 'Location',
     'label_plural' => 'Locations',
 
-    /*
-    |--------------------------------------------------------------------------
-    | Field Definitions
-    |--------------------------------------------------------------------------
-    */
     'fieldDefinitions' => [
         'company_id' => [
             'display' => 'inline',
@@ -25,6 +20,21 @@ return [
             'label' => 'Company',
             'validation' => 'required|exists:companies,id',
             'filterable' => true,
+            'searchable' => true,
+            'relationship' => [
+                'model' => 'App\Modules\Organization\Models\Company',
+                'type' => 'belongsTo',
+                'display_field' => 'name',
+                'searchable_fields' => ['name', 'code'],
+                'dynamic_property' => 'company',
+                'foreign_key' => 'company_id',
+                'inlineAdd' => false,
+            ],
+            'options' => [
+                'model' => 'App\Modules\Organization\Models\Company',
+                'column' => 'name',
+                'hintField' => 'code',
+            ],
         ],
         'name' => [
             'display' => 'inline',
@@ -146,195 +156,67 @@ return [
         ],
     ],
 
-    'columns' => [
-        'id' => [
-            'label' => 'ID',
-            'field' => 'id',
-            'sortable' => true,
-            'type' => 'text',
-            'visible' => true,
-        ],
-        'name' => [
-            'label' => 'Location Name',
-            'field' => 'name',
-            'sortable' => true,
-            'searchable' => true,
-            'type' => 'text',
-            'visible' => true,
-        ],
-        'code' => [
-            'label' => 'Code',
-            'field' => 'code',
-            'sortable' => true,
-            'searchable' => true,
-            'type' => 'text',
-            'visible' => true,
-        ],
-        'type' => [
-            'label' => 'Type',
-            'field' => 'type',
-            'sortable' => true,
-            'type' => 'text',
-            'visible' => false,
-        ],
-        'company_id' => [
-            'label' => 'Company',
-            'field' => 'company_id',
-            'sortable' => true,
-            'type' => 'text',
-            'visible' => true,
-        ],
-        'city' => [
-            'label' => 'City',
-            'field' => 'city',
-            'sortable' => true,
-            'searchable' => true,
-            'type' => 'text',
-            'visible' => false,
-        ],
-        'country_code' => [
-            'label' => 'Country',
-            'field' => 'country_code',
-            'sortable' => true,
-            'type' => 'text',
-            'visible' => false,
-        ],
-        'is_headquarters' => [
-            'label' => 'Headquarters',
-            'field' => 'is_headquarters',
-            'sortable' => true,
-            'type' => 'boolean',
-            'visible' => true,
-        ],
-        'is_active' => [
-            'label' => 'Active',
-            'field' => 'is_active',
-            'sortable' => true,
-            'type' => 'boolean',
-            'visible' => true,
-        ],
-        'created_at' => [
-            'label' => 'Created',
-            'field' => 'created_at',
-            'sortable' => true,
-            'type' => 'date',
-            'visible' => true,
-        ],
-    ],
-
-    'fields' => [
-        'company_id' => [
-            'label' => 'Company',
-            'type' => 'select',
-            'validation' => ['required', 'exists:companies,id'],
-        ],
-        'name' => [
-            'label' => 'Location Name',
-            'type' => 'text',
-            'validation' => ['required', 'string', 'max:255'],
-        ],
-        'code' => [
-            'label' => 'Code',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:50'],
-        ],
-        'type' => [
-            'label' => 'Type',
-            'type' => 'select',
-            'validation' => ['nullable', 'string', 'max:50'],
-            'options' => ['office' => 'Office', 'warehouse' => 'Warehouse', 'remote' => 'Remote', 'retail' => 'Retail'],
+    'fieldGroups' => [
+        'details' => [
+            'title' => 'Location Details',
+            'icon' => 'fas fa-map-marker-alt',
+            'fields' => ['company_id', 'name', 'code', 'type', 'is_headquarters', 'is_active'],
         ],
         'address' => [
-            'label' => 'Address',
-            'type' => 'textarea',
-            'validation' => ['nullable', 'string'],
+            'title' => 'Address',
+            'icon' => 'fas fa-map',
+            'fields' => ['address', 'city', 'state_code', 'country_code', 'postal_code'],
         ],
-        'city' => [
-            'label' => 'City',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:100'],
-        ],
-        'state_code' => [
-            'label' => 'State',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:100'],
-        ],
-        'country_code' => [
-            'label' => 'Country',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:100'],
-        ],
-        'postal_code' => [
-            'label' => 'Postal Code',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:20'],
-        ],
-        'phone' => [
-            'label' => 'Phone',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:50'],
-        ],
-        'email' => [
-            'label' => 'Email',
-            'type' => 'email',
-            'validation' => ['nullable', 'email', 'max:255'],
-        ],
-        'timezone' => [
-            'label' => 'Timezone',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:50'],
-        ],
-        'is_headquarters' => [
-            'label' => 'Is Headquarters',
-            'type' => 'checkbox',
-            'validation' => ['boolean'],
-        ],
-        'is_active' => [
-            'label' => 'Active',
-            'field_type' => 'checkbox',
-            'validation' => ['nullable', 'boolean'],
+        'contact' => [
+            'title' => 'Contact',
+            'icon' => 'fas fa-phone',
+            'fields' => ['phone', 'email', 'timezone'],
         ],
     ],
 
-    'filters' => [
-        'company_id' => [
-            'label' => 'Company',
-            'type' => 'select',
-        ],
-        'type' => [
-            'label' => 'Type',
-            'type' => 'select',
-            'options' => ['' => 'All', 'office' => 'Office', 'warehouse' => 'Warehouse', 'remote' => 'Remote', 'retail' => 'Retail'],
-        ],
-        'is_active' => [
-            'label' => 'Status',
-            'type' => 'select',
-            'options' => ['' => 'All', '1' => 'Active', '0' => 'Inactive'],
-        ],
+    'hiddenFields' => [
+        'onTable' => ['created_at', 'updated_at'],
+        'onNewForm' => ['created_at', 'updated_at'],
+        'onEditForm' => ['updated_at'],
+        'onQuery' => [],
     ],
+
+    'simpleActions' => ['show', 'edit', 'delete'],
+
+    'tableDefaultFields' => [
+        'name',
+        'code',
+        'type',
+        'company_id',
+        'city',
+        'is_active',
+    ],
+
+    'isTransaction' => false,
+    'crudType' => 'drawers',
+    'includeControllers' => false,
 
     'controls' => [
-        'create' => true,
-        'edit' => true,
-        'delete' => true,
-        'view' => true,
-        'export' => true,
-        'import' => true,
-        'print' => true,
+        'addButton' => true,
+        'files' => [
+            'export' => ['xls', 'csv', 'pdf'],
+            'print' => true,
+        ],
+        'perPage' => [10, 25, 50, 100],
+        'search' => true,
+        'showHideColumns' => true,
+        'filterColumns' => true,
         'softDelete' => true,
+        'restore' => true,
+        'forceDelete' => true,
+        'trashView' => true,
+        'bulkActions' => [
+            'export' => ['xls', 'csv', 'pdf'],
+            'delete' => true,
+            'restore' => true,
+            'forceDelete' => true,
+        ],
     ],
-
-    'detail' => [
-        'fields' => ['id', 'company_id', 'name', 'code', 'type', 'address', 'city', 'state_code', 'country_code', 'postal_code', 'phone', 'email', 'timezone', 'is_headquarters', 'is_active', 'created_at', 'updated_at'],
-    ],
-
-    'default_sort' => [
-        'field' => 'name',
-        'direction' => 'asc',
-    ],
-
-    'per_page_options' => [10, 25, 50, 100],
-    'default_per_page' => 25,
 
     'switchViews' => [
         'default' => 'list',
@@ -342,7 +224,7 @@ return [
         'list' => [
             'enabled' => true,
             'titleFields' => ['name'],
-            'subtitleFields' => ['code', 'type'],
+            'subtitleFields' => ['code'],
             'badgeField' => 'is_active',
             'badgeColors' => ['1' => 'success', '0' => 'secondary'],
         ],

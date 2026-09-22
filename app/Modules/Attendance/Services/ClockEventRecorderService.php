@@ -86,7 +86,7 @@ class ClockEventRecorderService implements ClockEventRecorder
 
         // Resolve company_id from the employee so the ClockEvent is visible
         // under the HasCompanyScope global scope after page refresh.
-        $companyId = Employee::find($resolvedId)?->company_id
+        $companyId = Employee::withoutCompanyScope()->find($resolvedId)?->company_id
             ?? Session::get(config('ui-library.tenancy.session_key', 'current_company_id'));
 
         // Capture GPS coordinates and resolve location name for audit (all event types)
@@ -98,13 +98,10 @@ class ClockEventRecorderService implements ClockEventRecorder
             $validator = app(GeofenceValidator::class);
             $geofenceResult = $validator->validate($resolvedId, (float) $latitude, (float) $longitude);
 
-            // Always capture the nearest location name for audit
-            $locationName = $geofenceResult['location_name'];
-
             // Enforce geofence for clock-in only (clock-out is unrestricted —
             // employees may need to clock out after leaving the office)
             if ($eventType === 'clock_in' && !$geofenceResult['passed']) {
-                Log::warning('Clock-in blocked by geofence', [
+                Log::warning('Clock-in blocked', [
                     'employee_id' => $resolvedId,
                     'latitude'    => $latitude,
                     'longitude'   => $longitude,
@@ -112,8 +109,16 @@ class ClockEventRecorderService implements ClockEventRecorder
                 ]);
 
                 throw new \RuntimeException(
-                    $geofenceResult['reason'] ?? 'Outside allowed geofence area.'
+                    'Clock-in failed: ' . ($geofenceResult['reason'] ?? 'Outside allowed geofence area.')
                 );
+            }
+
+            // Resolve location name: use company location when within geofence,
+            // otherwise reverse-geocode the actual GPS coordinates for audit.
+            if ($geofenceResult['passed']) {
+                $locationName = $geofenceResult['location_name'];
+            } else {
+                $locationName = $this->reverseGeocode((float) $latitude, (float) $longitude);
             }
 
             Log::info('Geofence validation', [
@@ -163,6 +168,62 @@ class ClockEventRecorderService implements ClockEventRecorder
                 ? $event->timestamp->toIso8601String()
                 : (string) $event->timestamp,
         ];
+    }
+
+    /**
+     * Reverse-geocode GPS coordinates to a human-readable location name
+     * using the free OpenStreetMap Nominatim API.
+     *
+     * Falls back to "lat, lng" format if the API is unreachable or
+     * returns no result.
+     */
+    private function reverseGeocode(float $latitude, float $longitude): string
+    {
+        try {
+            $url = sprintf(
+                'https://nominatim.openstreetmap.org/reverse?format=json&lat=%.6f&lon=%.6f&zoom=18&addressdetails=1',
+                $latitude,
+                $longitude
+            );
+
+            $context = stream_context_create([
+                'http' => [
+                    'header' => "User-Agent: QuickerFaster-HR/1.0\r\n",
+                    'timeout' => 5,
+                ],
+            ]);
+
+            $response = @file_get_contents($url, false, $context);
+
+            if ($response === false) {
+                Log::warning('Reverse geocode failed — network error', [
+                    'latitude'  => $latitude,
+                    'longitude' => $longitude,
+                ]);
+                return sprintf('%.4f, %.4f', $latitude, $longitude);
+            }
+
+            $data = json_decode($response, true);
+
+            if (!empty($data['display_name'])) {
+                return $data['display_name'];
+            }
+
+            Log::info('Reverse geocode returned no display_name', [
+                'latitude'  => $latitude,
+                'longitude' => $longitude,
+                'response'  => $data,
+            ]);
+
+            return sprintf('%.4f, %.4f', $latitude, $longitude);
+        } catch (\Throwable $e) {
+            Log::warning('Reverse geocode exception', [
+                'latitude'  => $latitude,
+                'longitude' => $longitude,
+                'error'     => $e->getMessage(),
+            ]);
+            return sprintf('%.4f, %.4f', $latitude, $longitude);
+        }
     }
 
     /**

@@ -574,6 +574,40 @@ Inspect `calculation_metadata.breakdown.overtime_calculation` for the step-by-st
 
 **Resolution:** This is fixed in the current version — `ClockEventRecorderService` now sets `company_id` from the employee record.
 
+### "No default attendance policy found" Error
+
+**Cause:** No `AttendancePolicy` with `is_default = true` exists for the employee's company. The calculator's last-resort fallback at [`AttendanceCalculator:524`](../../app/Modules/Attendance/Services/AttendanceCalculator.php:524) queries `AttendancePolicy::where('is_default', true)` which is scoped by `HasCompanyScope` to the session's current company.
+
+**Resolution:** Create a default attendance policy via **Attendance → Policies** with `is_default = true` and assign it to the company. Or create a **Policy Assignment** linking an existing policy to the company.
+
+**Policy resolution priority chain** (all levels must fail to trigger this error):
+1. Employee-specific (`EmployeePosition.attendance_policy_id`)
+2. Shift-specific (`PolicyAssignment` → Shift)
+3. Department (`PolicyAssignment` → Department)
+4. Location (`PolicyAssignment` → Location)
+5. Company (`PolicyAssignment` → Company)
+6. System default (`is_default = true`)
+
+### "No job position is assigned to your profile" Error
+
+**Cause:** The employee has no `EmployeePosition` record. [`GeofenceValidator`](../../app/Modules/Attendance/Services/GeofenceValidator.php) now returns `passed: false` (was `passed: true` with silent skip) when no position exists, and the error propagates to the user via [`ClockInOut`](../../src/Http/Livewire/QuickActions/ClockInOut.php).
+
+**Resolution:** Create an Employee Position via **HR → Employee Positions**.
+
+### Company Scope Bypass in Clock-In Pipeline (2026-09-21)
+
+The clock-in/out pipeline now uses `withoutCompanyScope()` on `Employee` queries and `withoutGlobalScope(CompanyScope::class)` on `EmployeePosition` eager loads. This ensures employees can be found regardless of the company switcher state. Affected files:
+
+| File | Change |
+|------|--------|
+| [`ClockEventRecorderService`](../../app/Modules/Attendance/Services/ClockEventRecorderService.php:89) | `Employee::withoutCompanyScope()->find()` |
+| [`ProcessAttendanceJob`](../../app/Modules/Attendance/Jobs/ProcessAttendanceJob.php:27) | `Employee::withoutCompanyScope()->with([...])->find()` |
+| [`AttendanceAggregator`](../../app/Modules/Attendance/Services/AttendanceAggregator.php:44) | `Employee::withoutCompanyScope()->with([...])->where()` |
+| [`AttendanceCalculator`](../../app/Modules/Attendance/Services/AttendanceCalculator.php:35) | `Employee::withoutCompanyScope()->with([...])->where()` |
+| [`GeofenceValidator`](../../app/Modules/Attendance/Services/GeofenceValidator.php:39) | `Employee::withoutCompanyScope()->with([...])->find()` |
+
+**Rationale**: These are direct lookups by employee ID/number — company scoping is unnecessary and causes failures when `company_id` is NULL or the session's company differs from the employee's company. Policy resolution continues to use `HasCompanyScope` on `AttendancePolicy` and `PolicyAssignment` queries, which is correct — policies should be company-scoped.
+
 ### How to Recalculate Attendance
 
 ```bash

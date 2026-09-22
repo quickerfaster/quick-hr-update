@@ -76,7 +76,7 @@
                                     'width' => 12,
                                     'photo_url' => $widgetParams['photo_url'] ?? null,
                                     'full_name' => $widgetParams['full_name'] ?? $fullName,
-                                    'employee_number' => $widgetParams['employee_number'] ?? $employee->employee_number,
+                                    'record_number' => $widgetParams['record_number'] ?? $employee->employee_number,
                                     'title' => $widgetParams['title'] ?? $jobTitle,
                                     'fields' => $widgetParams['fields'] ?? [['label' => 'Department', 'value' => $departmentName], ['label' => 'Status', 'value' => $status], ['label' => 'Hire Date', 'value' => $hireDate ?? '—'], ['label' => 'Manager', 'value' => $currentPosition?->manager?->name ?? '—'], ['label' => 'Work Email', 'value' => $employee->email ?? '—']],
                                     'actions' => $widgetParams['actions'] ?? [],
@@ -388,8 +388,7 @@
                                                     </div>
                                                     <div
                                                         class="col-sm-8 text-dark fw-medium border-bottom pb-2 border-light">
-                                                        {!! $this->renderField('position', $field, $currentPosition->$field ?? null) ?:
-                                                            '<span class="text-muted fst-italic">—</span>' !!}
+                                                        {{ $positionDisplayNames[$field] ?? '—' }}
                                                     </div>
                                                 @endforeach
                                             </div>
@@ -631,6 +630,11 @@
                                 'editable' => false,
                                 'showHideColumns' => true,
                                 'files' => ['export' => ['csv', 'pdf'], 'print' => true],
+                                'softDelete' => false,
+                                'restore' => false,
+                                'forceDelete' => false,
+                                'trashView' => false,
+                                'bulkActions' => [],
                             ],
                         ], key('payslips-'.$recordId))
                     @endif
@@ -705,6 +709,8 @@
                                 'configKey' => 'attendance.attendance',
                                 'queryFilters' => [['employee_id', '=', $employee->id]],
                                 'hiddenFields' => ['onTable' => ['employee_id']],
+                                'simpleActions' => ['show'],
+                                'moreActions' => [],
                                 'controls' => [
                                     'search' => true,
                                     'filterColumns' => false,
@@ -712,6 +718,11 @@
                                     'editable' => false,
                                     'showHideColumns' => true,
                                     'files' => ['export' => ['csv', 'pdf'], 'print' => true],
+                                    'softDelete' => false,
+                                    'restore' => false,
+                                    'forceDelete' => false,
+                                    'trashView' => false,
+                                    'bulkActions' => [],
                                 ],
                             ],
                             key('attendance-' . $recordId)
@@ -728,6 +739,7 @@
                                 'hiddenFields' => ['onTable' => ['employee_id']],
                                 'prefilledData' => ['employee_id' => $employee->id],
                                 'simpleActions' => ['show', 'create'],
+                                'moreActions' => [],
                                 'controls' => [
                                     'search' => true,
                                     'filterColumns' => false,
@@ -735,6 +747,11 @@
                                     'editable' => false,
                                     'showHideColumns' => true,
                                     'files' => ['export' => ['csv', 'pdf'], 'print' => true],
+                                    'softDelete' => false,
+                                    'restore' => false,
+                                    'forceDelete' => false,
+                                    'trashView' => false,
+                                    'bulkActions' => [],
                                 ],
                             ],
                             key('documents-' . $recordId)
@@ -749,6 +766,8 @@
                                 'configKey' => 'attendance.clock_event',
                                 'queryFilters' => [['employee_id', '=', $employee->id]],
                                 'hiddenFields' => ['onTable' => ['employee_id', 'employee_number']],
+                                'simpleActions' => ['show'],
+                                'moreActions' => [],
                                 'controls' => [
                                     'search' => true,
                                     'filterColumns' => false,
@@ -756,6 +775,11 @@
                                     'editable' => false,
                                     'showHideColumns' => true,
                                     'files' => ['export' => ['csv', 'pdf'], 'print' => true],
+                                    'softDelete' => false,
+                                    'restore' => false,
+                                    'forceDelete' => false,
+                                    'trashView' => false,
+                                    'bulkActions' => [],
                                 ],
                                 'sort' => ['field' => 'timestamp', 'direction' => 'desc'],
                             ],

@@ -241,6 +241,21 @@ class EmployeePosition extends Model
      */
     protected static function booted()
     {
+        // Auto-set company_id from the associated employee to prevent
+        // cross-company record mismatches when admins create records
+        // in "All Companies" mode.
+        static::saving(function (self $position) {
+            // Auto-set company_id from the associated employee
+            if ($position->employee_id) {
+                $employee = \App\Modules\Hr\Models\Employee::withoutCompanyScope()
+                    ->find($position->employee_id);
+
+                if ($employee && $employee->company_id) {
+                    $position->company_id = $employee->company_id;
+                }
+            }
+        });
+
         static::updating(function (self $position) {
             $original = $position->getOriginal();
             $changes = [];
@@ -284,6 +299,12 @@ class EmployeePosition extends Model
                 $companyId = $department?->company_id;
                 if ($position->employee) {
                     $position->employee->updateQuietly(['company_id' => $companyId]);
+
+                    // Recompute onboarding_status after department/company change
+                    $hasCompany = (bool) ($position->employee->company_id ?: $companyId);
+                    \DB::table('employees')->where('id', $position->employee_id)->update([
+                        'onboarding_status' => $hasCompany ? 'complete' : 'position_pending',
+                    ]);
                 }
             }
         });
@@ -309,6 +330,12 @@ class EmployeePosition extends Model
             $companyId = $department?->company_id;
             if ($position->employee) {
                 $position->employee->updateQuietly(['company_id' => $companyId]);
+
+                // Recompute onboarding_status now that position exists
+                $hasCompany = (bool) ($position->employee->company_id ?: $companyId);
+                \DB::table('employees')->where('id', $position->employee_id)->update([
+                    'onboarding_status' => $hasCompany ? 'complete' : 'position_pending',
+                ]);
             }
         });
 
@@ -335,6 +362,22 @@ class EmployeePosition extends Model
 
                 EmployeeJobHistory::create($historyData);
             });
+        });
+
+        /**
+         * After any save (create or update), always recompute onboarding_status.
+         */
+        static::saved(function (self $position) {
+            if (!$position->employee) {
+                return;
+            }
+
+            $hasCompany = (bool) ($position->employee->company_id
+                ?: $position->department?->company_id);
+
+            \DB::table('employees')->where('id', $position->employee_id)->update([
+                'onboarding_status' => $hasCompany ? 'complete' : 'position_pending',
+            ]);
         });
     }
 

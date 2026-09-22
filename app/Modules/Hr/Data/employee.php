@@ -163,6 +163,19 @@ return [
       ],
       'multiSelect' => true,
     ],
+    'onboarding_status' => [
+      'display' => 'inline',
+      'fillable' => false,
+      'field_type' => 'select',
+      'label' => 'Onboarding',
+      'validation' => 'nullable|string|in:complete,position_pending,company_pending',
+      'filterable' => true,
+      'options' => [
+        'complete' => '✅ Complete',
+        'position_pending' => '🟠 Needs Position',
+        'company_pending' => '🔴 Needs Company',
+      ],
+    ],
   ],
   'detailComponent' => 'qf.employee-detail',
   'hiddenFields' => [
@@ -203,6 +216,7 @@ return [
     '3' => 'email',
     '4' => 'company_id',
     '5' => 'hire_date',
+    '6' => 'onboarding_status',
   ],
   'addRoutes' => false,
   'dispatchEvents' => false,

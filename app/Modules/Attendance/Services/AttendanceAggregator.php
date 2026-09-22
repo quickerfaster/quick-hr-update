@@ -41,7 +41,12 @@ class AttendanceAggregator
             $dateOnly = $dateObj->toDateString();
 
             // Get employee
-            $employee = Employee::where('employee_number', $employeeNumber)->first();
+            $employee = Employee::withoutCompanyScope()
+                ->with(['employeePosition' => function ($q) {
+                    $q->withoutGlobalScope(\QuickerFaster\UILibrary\Scopes\CompanyScope::class);
+                }])
+                ->where('employee_number', $employeeNumber)
+                ->first();
             if (!$employee) {
                 Log::error("Employee not found: {$employeeNumber}");
                 return;
@@ -90,14 +95,13 @@ class AttendanceAggregator
                     'sessions' => $result['sessions_created']
                 ]);
             } catch (\Exception $e) {
-                Log::error("Calculator failed, using fallback", [
+                Log::error("Calculator failed", [
                     'employee' => $employeeNumber,
                     'date' => $dateOnly,
                     'error' => $e->getMessage()
                 ]);
 
-                // Fallback to legacy processing
-                // $this->fallbackCalculation($employee, $dateOnly);
+                throw $e;
             }
         });
     }

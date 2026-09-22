@@ -46,8 +46,17 @@ class EmployeeOnboardingWizard extends Component
     {
         $user = Auth::user();
 
-        // Step 1: Check for pre-linked employee (e.g. from invitation)
+        // Step 1: Check for pre-linked employee (e.g. from invitation).
+        // Pre-linked employees have user_id = null because they were created
+        // before the user account existed. Also check by email as fallback.
         $employee = Employee::withoutCompanyScope()->where('user_id', $user->id)->first();
+
+        if (!$employee) {
+            $employee = Employee::withoutCompanyScope()
+                ->where('email', $user->email)
+                ->whereNull('user_id')
+                ->first();
+        }
 
         if ($employee) {
             $this->employee = $employee;

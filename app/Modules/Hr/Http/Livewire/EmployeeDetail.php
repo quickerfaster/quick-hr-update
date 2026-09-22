@@ -43,6 +43,7 @@ class EmployeeDetail extends Component
     protected ?FieldFactory $fieldFactory = null;
     public $selfServiceConfig = [];
     public $isSelfServiceMode = false;
+    public array $positionDisplayNames = [];
 
     protected $listeners = [
         'employeeSelected' => 'jumpToEmployee',
@@ -201,7 +202,7 @@ class EmployeeDetail extends Component
         // - jobHistory (hasMany) for audit trail
         // - profile, workPatterns, etc.
         $this->employee->load([
-            'employeeProfile',
+            'employeeProfile' => fn ($q) => $q->withoutGlobalScopes(),
             'employeePosition.jobTitle',           // current position
             'employeePosition.department',
             'employeePosition.manager',
@@ -217,9 +218,24 @@ class EmployeeDetail extends Component
         $this->moduleName = $resolver->getModuleName();
 
         $this->profile = $this->employee->employeeProfile;
+
+        // Sync profile company_id to match employee so the DataTableForm
+        // can find it when opening the edit drawer (CompanyScope fix).
+        // Only sync in self-service mode (ESS user viewing own profile)
+        // or when the profile has no company assigned yet. This prevents
+        // admins from accidentally changing a profile's company assignment
+        // when viewing cross-company employees.
+        if ($this->profile && $this->employee->company_id
+            && ($this->isSelfServiceMode || !$this->profile->company_id)
+            && $this->profile->company_id !== $this->employee->company_id) {
+            $this->profile->updateQuietly(['company_id' => $this->employee->company_id]);
+        }
+
         $this->currentPosition = $this->employee->employeePosition;          // simple hasOne
         $this->jobHistory = $this->employee->jobHistory;             // collection of EmployeeJobHistory
         $this->workPatterns = $this->employee->employeeWorkPatterns;
+
+        $this->resolvePositionDisplayNames();
 
         // Payroll profile (separate query)
         $payrollModel = \App\Modules\Payroll\Models\EmployeePayrollProfile::class;
@@ -228,6 +244,53 @@ class EmployeeDetail extends Component
         if ($this->activeTab !== '') {
             $this->loadTabData($this->activeTab);
         }
+    }
+
+    /**
+     * Resolve FK values on the current position to human-readable display names.
+     *
+     * Uses withoutGlobalScopes() to bypass CompanyScope on related models
+     * (JobTitle, Department, Location, etc.) that would otherwise filter out
+     * records belonging to a different company than the session company.
+     */
+    protected function resolvePositionDisplayNames(): void
+    {
+        if (!$this->currentPosition) {
+            $this->positionDisplayNames = [];
+            return;
+        }
+
+        $pos = $this->currentPosition;
+
+        // Collect all FK values that need resolution
+        $jobTitleId     = $pos->job_title_id;
+        $departmentId   = $pos->department_id;
+        $managerId      = $pos->manager_id;
+        $reportsToId    = $pos->reports_to;
+        $locationId     = $pos->location_id;
+        $shiftId        = $pos->shift_id;
+        $policyId       = $pos->attendance_policy_id;
+
+        // Batch-resolve using withoutGlobalScopes to bypass company filtering.
+        // Use withTrashed() for models that may use SoftDeletes, so we still
+        // resolve the name even if the record was soft-deleted.
+        $jobTitle     = $jobTitleId     ? \App\Modules\Hr\Models\JobTitle::withoutGlobalScopes()->withTrashed()->find($jobTitleId) : null;
+        $department   = $departmentId   ? \App\Modules\Hr\Models\Department::withoutGlobalScopes()->withTrashed()->find($departmentId) : null;
+        $manager      = $managerId      ? \App\Modules\Hr\Models\Employee::withoutGlobalScopes()->withTrashed()->find($managerId) : null;
+        $reportsTo    = $reportsToId    ? \App\Modules\Hr\Models\Employee::withoutGlobalScopes()->withTrashed()->find($reportsToId) : null;
+        $location     = $locationId     ? \App\Modules\Hr\Models\Location::withoutGlobalScopes()->withTrashed()->find($locationId) : null;
+        $shift        = $shiftId        ? \App\Modules\Attendance\Models\Shift::withoutGlobalScopes()->withTrashed()->find($shiftId) : null;
+        $policy       = $policyId       ? \App\Modules\Attendance\Models\AttendancePolicy::withoutGlobalScopes()->withTrashed()->find($policyId) : null;
+
+        $this->positionDisplayNames = [
+            'job_title_id'          => $jobTitle?->title ?? $jobTitle?->name ?? $jobTitleId ?? '—',
+            'department_id'         => $department?->name ?? $departmentId ?? '—',
+            'manager_id'            => $manager ? trim(($manager->first_name ?? '') . ' ' . ($manager->last_name ?? '')) : ($managerId ?? '—'),
+            'reports_to'            => $reportsTo ? trim(($reportsTo->first_name ?? '') . ' ' . ($reportsTo->last_name ?? '')) : ($reportsToId ?? '—'),
+            'location_id'           => $location?->name ?? $locationId ?? '—',
+            'shift_id'              => $shift?->name ?? $shiftId ?? '—',
+            'attendance_policy_id'  => $policy?->name ?? $policyId ?? '—',
+        ];
     }
 
     /**
@@ -606,12 +669,13 @@ class EmployeeDetail extends Component
         $widgetParams = [
             'full_name' => $this->fullName,
             'photo_url' => $this->photoUrl,
-            'title' => $this->jobTitle,
+            'record_number' => $this->employee->employee_number ?? '',
+            'title' => $this->positionDisplayNames['job_title_id'] ?? $this->jobTitle,
             'fields' => [
-                ['label' => 'Department', 'value' => $this->departmentName],
+                ['label' => 'Department', 'value' => $this->positionDisplayNames['department_id'] ?? $this->departmentName],
                 ['label' => 'Status', 'value' => $this->status],
                 ['label' => 'Hire Date', 'value' => $this->hireDate ?? '—'],
-                ['label' => 'Manager', 'value' => $this->currentPosition?->manager?->name ?? '—'],
+                ['label' => 'Manager', 'value' => $this->positionDisplayNames['manager_id'] ?? '—'],
                 ['label' => 'Work Email', 'value' => $this->employee->email ?? '—'],
             ],
             'actions' => $this->canEdit()

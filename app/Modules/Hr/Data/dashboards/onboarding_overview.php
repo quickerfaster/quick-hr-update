@@ -27,7 +27,100 @@ return [
             'aggregate' => 'count',
             'width' => 3,
         ],
+        // --- Onboarding Gap Tracking ---
         2 => [
+            'type' => 'stat',
+            'title' => 'Missing Position',
+            'size' => 'col-12',
+            'model' => 'App\\Modules\\Hr\\Models\\Employee',
+            'icon' => 'fas fa-user-tag',
+            'aggregate' => 'count',
+            'conditions' => [
+                ['onboarding_status', '=', 'position_pending'],
+            ],
+            'width' => 3,
+            'color' => 'warning',
+        ],
+        3 => [
+            'type' => 'stat',
+            'title' => 'Missing Company',
+            'size' => 'col-12',
+            'model' => 'App\\Modules\\Hr\\Models\\Employee',
+            'icon' => 'fas fa-building',
+            'aggregate' => 'count',
+            'conditions' => [
+                ['onboarding_status', '=', 'company_pending'],
+            ],
+            'width' => 3,
+            'color' => 'danger',
+        ],
+        4 => [
+            'type' => 'stat',
+            'title' => 'Incomplete Onboarding',
+            'size' => 'col-12',
+            'model' => 'App\\Modules\\Hr\\Models\\Employee',
+            'icon' => 'fas fa-exclamation-triangle',
+            'aggregate' => 'count',
+            'conditions' => [
+                ['onboarding_status', '!=', 'complete'],
+                ['onboarding_status', '!=', null],
+            ],
+            'width' => 3,
+            'color' => 'warning',
+        ],
+        // --- End Onboarding Gap Tracking ---
+        5 => [
+            'type' => 'list',
+            'title' => 'Incomplete Onboarding',
+            'size' => 'col-12',
+            'model' => 'App\\Modules\\Hr\\Models\\Employee',
+            'icon' => 'fas fa-clipboard-list',
+            'description' => 'Employees needing position or company assignment',
+            'limit' => 10,
+            'sort' => ['created_at', 'asc'],
+            'conditions' => [
+                ['onboarding_status', '!=', 'complete'],
+                ['onboarding_status', '!=', null],
+            ],
+            'columns' => [
+                ['label' => 'Name', 'field' => 'first_name'],
+                ['label' => 'Email', 'field' => 'email'],
+                ['label' => 'Status', 'field' => 'onboarding_status', 'format' => 'badge'],
+            ],
+            'width' => 6,
+            'show_view_all' => false,
+            'id_field' => 'user_id',
+            'row_actions' => [
+                [
+                    'label'     => 'Assign Company',
+                    'icon'      => 'fas fa-building',
+                    'event'     => 'openDrawer',
+                    'params'    => [
+                        'component' => 'qf.user-company-assignment',
+                        'params'    => ['user' => '{{ user_id }}'],
+                        'title'     => 'Assign Company',
+                    ],
+                    'style'     => 'danger',
+                ],
+                [
+                    'label'     => 'Add Job Info',
+                    'icon'      => 'fas fa-briefcase',
+                    'event'     => 'openDrawer',
+                    'params'    => [
+                        'component' => 'qf.data-table-form',
+                        'params'    => [
+                            'configKey'     => 'hr.employee_position',
+                            'recordId'      => '{{ employeePosition.id }}',
+                            'prefilledData' => ['employee_id' => '{{ id }}'],
+                            'inline'        => true,
+                        ],
+                        'title'     => 'Add Job Details',
+                    ],
+                    'style'     => 'warning',
+                ],
+            ],
+        ],
+        6 => [
             'type' => 'list',
             'title' => 'Recent Invitations',
             'size' => 'col-12',
@@ -52,7 +145,7 @@ return [
                     'label' => 'Role',
                     'field' => 'role',
                 ],
-                3 => [
+                7 => [
                     'label' => 'Sent',
                     'field' => 'created_at',
                     'format' => 'date',
@@ -62,7 +155,7 @@ return [
             'show_view_all' => true,
             'view_all_link' => '/hr/invitations',
         ],
-        3 => [
+        7 => [
             'type' => 'action_card',
             'title' => 'Send Invitation',
             'size' => 'col-12',
@@ -85,7 +178,28 @@ return [
             ],
             'width' => 3,
         ],
-        4 => [
+        8 => [
+            'type' => 'action_card',
+            'title' => 'Assign Companies',
+            'size' => 'col-12',
+            'icon' => 'fas fa-building',
+            'color' => 'danger',
+            'description' => 'Bulk-assign companies to employees missing assignment',
+            'actions' => [
+                0 => [
+                    'label' => 'Assign',
+                    'event' => 'openDrawer',
+                    'params' => [
+                        'component' => 'qf.user-company-assignment',
+                        'params' => [],
+                        'title' => 'Assign Companies to Employees',
+                    ],
+                    'style' => 'danger',
+                ],
+            ],
+            'width' => 3,
+        ],
+        9 => [
             'type' => 'action_card',
             'title' => 'Onboard New Hire',
             'size' => 'col-12',

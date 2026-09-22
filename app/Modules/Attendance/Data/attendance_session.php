@@ -253,8 +253,6 @@ return [
   ],
   'simpleActions' => [
     '0' => 'show',
-    '1' => 'edit',
-    '2' => 'delete',
   ],
   'isTransaction' => false,
   'crudType' => 'drawers',
@@ -392,6 +390,29 @@ return [
   ],
   'moreActions' => [
     '0' => [
+      'title' => 'View Attendance',
+      'icon' => 'fas fa-calendar-check',
+      'url' => '/attendance/attendances',
+      'params' => ['attendance_id' => '{attendance_id}'],
+      'newTab' => true,
+    ],
+    '1' => [
+      'title' => 'View Clock-In Event',
+      'icon' => 'fas fa-sign-in-alt',
+      'url' => '/attendance/clock-events',
+      'params' => ['clock_event_id' => '{clock_in_event_id}'],
+      'newTab' => true,
+      'condition' => ['clock_in_event_id' => ['not_null' => true]],
+    ],
+    '2' => [
+      'title' => 'View Clock-Out Event',
+      'icon' => 'fas fa-sign-out-alt',
+      'url' => '/attendance/clock-events',
+      'params' => ['clock_event_id' => '{clock_out_event_id}'],
+      'newTab' => true,
+      'condition' => ['clock_out_event_id' => ['not_null' => true]],
+    ],
+    '3' => [
       'title' => 'Validate Session',
       'icon' => 'fas fa-check-circle',
       'dispatchStandardEvent' => true,
@@ -401,7 +422,7 @@ return [
       ],
       'confirm' => 'Run validation checks on this session?',
     ],
-    '1' => [
+    '4' => [
       'title' => 'Recalculate Duration',
       'icon' => 'fas fa-calculator',
       'dispatchStandardEvent' => true,
@@ -411,14 +432,14 @@ return [
       ],
       'confirm' => 'Recalculate duration from start/end times?',
     ],
-    '2' => [
+    '5' => [
       'title' => 'Restore',
       'icon' => 'fas fa-trash-restore',
       'action' => 'restore',
       'confirm' => 'Restore this archived session?',
       'condition' => ['trashed' => [true]],
     ],
-    '3' => [
+    '6' => [
       'title' => 'Permanently Delete',
       'icon' => 'fas fa-skull-crossbones',
       'action' => 'forceDelete',

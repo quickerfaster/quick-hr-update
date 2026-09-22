@@ -21,9 +21,9 @@
     {{-- Single User Mode --}}
     {{-- ======================================== --}}
     @if($mode === 'single')
-    <div class="row">
-        <!-- Left Panel: User Selector -->
-        <div class="col-md-5">
+    <div class="d-flex flex-column gap-3">
+        <!-- User Selector -->
+        <div>
             <div class="card">
                 <div class="card-header">
                     <h6 class="mb-0">Select User</h6>
@@ -69,8 +69,8 @@
             </div>
         </div>
 
-        <!-- Right Panel: Company Assignment -->
-        <div class="col-md-7">
+        <!-- Company Assignment -->
+        <div>
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">
@@ -96,7 +96,7 @@
 
                     @if(!$selectedUser)
                         <p class="text-muted text-center py-4">
-                            <i class="fas fa-arrow-left me-2"></i>
+                            <i class="fas fa-arrow-up me-2"></i>
                             Search and select a user to manage their company assignments.
                         </p>
                     @elseif($companies->isEmpty())
@@ -160,9 +160,9 @@
     {{-- Bulk Assignment Mode --}}
     {{-- ======================================== --}}
     @else
-    <div class="row">
-        <!-- Left Panel: Multi-User Selector -->
-        <div class="col-md-5">
+    <div class="d-flex flex-column gap-3">
+        <!-- Multi-User Selector -->
+        <div>
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">Select Users</h6>
@@ -230,8 +230,8 @@
             </div>
         </div>
 
-        <!-- Right Panel: Company Assignment -->
-        <div class="col-md-7">
+        <!-- Company Assignment -->
+        <div>
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h6 class="mb-0">
@@ -261,7 +261,7 @@
 
                     @if(count($selectedUserIds) === 0)
                         <p class="text-muted text-center py-4">
-                            <i class="fas fa-arrow-left me-2"></i>
+                            <i class="fas fa-arrow-up me-2"></i>
                             Search and add users to begin bulk company assignment.
                         </p>
                     @elseif($companies->isEmpty())

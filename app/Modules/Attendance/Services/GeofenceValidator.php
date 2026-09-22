@@ -36,16 +36,20 @@ class GeofenceValidator
      */
     public function validate(int $employeeId, float $latitude, float $longitude): array
     {
-        $employee = Employee::with(['employeePosition.location'])->find($employeeId);
+        $employee = Employee::withoutCompanyScope()
+            ->with(['employeePosition' => function ($q) {
+                $q->withoutGlobalScope(\QuickerFaster\UILibrary\Scopes\CompanyScope::class);
+            }, 'employeePosition.location'])
+            ->find($employeeId);
 
         if (!$employee) {
-            return $this->skip('Employee not found');
+            return $this->fail('Employee record not found. Please contact HR.');
         }
 
         $position = $employee->employeePosition;
 
         if (!$position) {
-            return $this->skip('Employee has no position assigned');
+            return $this->fail('No job position is assigned to your profile. Please contact HR.');
         }
 
         // Priority 1: Employee's assigned location
@@ -147,6 +151,21 @@ class GeofenceValidator
             'distance_meters'  => null,
             'geofence_radius'  => null,
             'reason'           => "Geofence skipped: {$reason}",
+        ];
+    }
+
+    /**
+     * Return a fail result — validation blocked, clock-in denied.
+     */
+    private function fail(string $reason): array
+    {
+        return [
+            'passed'           => false,
+            'location_id'      => null,
+            'location_name'    => null,
+            'distance_meters'  => null,
+            'geofence_radius'  => null,
+            'reason'           => $reason,
         ];
     }
 

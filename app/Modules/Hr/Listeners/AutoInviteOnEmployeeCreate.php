@@ -34,11 +34,20 @@ class AutoInviteOnEmployeeCreate extends DataTableRecordListener
 
         $this->hrInvitationService->createWithEmployeeLink(
             email: $employee->email,
-            role: 'employee',
+            role: session('hr_invite_role', 'employee'),
             employeeId: $employee->id,
-            createdBy: auth()->id()
+            createdBy: auth()->id(),
+            companyId: session('hr_invite_company_id') ?: $employee->company_id,
         );
 
+        // Assign company to the employee if one was selected during invitation
+        $inviteCompanyId = session('hr_invite_company_id');
+        if ($inviteCompanyId && !$employee->company_id) {
+            $employee->updateQuietly(['company_id' => (int) $inviteCompanyId]);
+        }
+
         session()->forget('hr_send_invitation_on_create');
+        session()->forget('hr_invite_role');
+        session()->forget('hr_invite_company_id');
     }
 }

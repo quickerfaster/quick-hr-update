@@ -15,11 +15,6 @@ return [
     'label' => 'Company',
     'label_plural' => 'Companies',
 
-    /*
-    |--------------------------------------------------------------------------
-    | Field Definitions
-    |--------------------------------------------------------------------------
-    */
     'fieldDefinitions' => [
         'name' => [
             'display' => 'inline',
@@ -163,195 +158,67 @@ return [
         ],
     ],
 
-    'columns' => [
-        'id' => [
-            'label' => 'ID',
-            'field' => 'id',
-            'sortable' => true,
-            'type' => 'text',
-            'visible' => true,
+    'fieldGroups' => [
+        'details' => [
+            'title' => 'Company Details',
+            'icon' => 'fas fa-building',
+            'fields' => ['name', 'code', 'email', 'phone', 'website', 'is_active'],
         ],
-        'name' => [
-            'label' => 'Company Name',
-            'field' => 'name',
-            'sortable' => true,
-            'searchable' => true,
-            'type' => 'text',
-            'visible' => true,
+        'location' => [
+            'title' => 'Location',
+            'icon' => 'fas fa-map-marker-alt',
+            'fields' => ['address', 'city', 'state', 'country', 'postal_code'],
         ],
-        'code' => [
-            'label' => 'Code',
-            'field' => 'code',
-            'sortable' => true,
-            'searchable' => true,
-            'type' => 'text',
-            'visible' => true,
-        ],
-        'email' => [
-            'label' => 'Email',
-            'field' => 'email',
-            'sortable' => true,
-            'searchable' => true,
-            'type' => 'text',
-            'visible' => true,
-        ],
-        'phone' => [
-            'label' => 'Phone',
-            'field' => 'phone',
-            'sortable' => true,
-            'type' => 'text',
-            'visible' => false,
-        ],
-        'city' => [
-            'label' => 'City',
-            'field' => 'city',
-            'sortable' => true,
-            'searchable' => true,
-            'type' => 'text',
-            'visible' => false,
-        ],
-        'country' => [
-            'label' => 'Country',
-            'field' => 'country',
-            'sortable' => true,
-            'searchable' => true,
-            'type' => 'text',
-            'visible' => false,
-        ],
-        'is_active' => [
-            'label' => 'Active',
-            'field' => 'is_active',
-            'sortable' => true,
-            'type' => 'boolean',
-            'visible' => true,
-        ],
-        'created_at' => [
-            'label' => 'Created',
-            'field' => 'created_at',
-            'sortable' => true,
-            'type' => 'date',
-            'visible' => true,
+        'settings' => [
+            'title' => 'Settings',
+            'icon' => 'fas fa-cog',
+            'fields' => ['currency_code', 'timezone', 'date_format', 'tax_id', 'registration_number'],
         ],
     ],
 
-    'fields' => [
-        'name' => [
-            'label' => 'Company Name',
-            'type' => 'text',
-            'validation' => ['required', 'string', 'max:255'],
-        ],
-        'code' => [
-            'label' => 'Code',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:50'],
-        ],
-        'email' => [
-            'label' => 'Email',
-            'type' => 'email',
-            'validation' => ['nullable', 'email', 'max:255'],
-        ],
-        'phone' => [
-            'label' => 'Phone',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:50'],
-        ],
-        'website' => [
-            'label' => 'Website',
-            'type' => 'url',
-            'validation' => ['nullable', 'url', 'max:255'],
-        ],
-        'address' => [
-            'label' => 'Address',
-            'type' => 'textarea',
-            'validation' => ['nullable', 'string'],
-        ],
-        'city' => [
-            'label' => 'City',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:100'],
-        ],
-        'state' => [
-            'label' => 'State',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:100'],
-        ],
-        'country' => [
-            'label' => 'Country',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:100'],
-        ],
-        'postal_code' => [
-            'label' => 'Postal Code',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:20'],
-        ],
-        'tax_id' => [
-            'label' => 'Tax ID',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:100'],
-        ],
-        'registration_number' => [
-            'label' => 'Registration Number',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:100'],
-        ],
-        'currency_code' => [
-            'label' => 'Currency',
-            'type' => 'select',
-            'validation' => ['nullable', 'string', 'max:3'],
-            'options' => ['USD' => 'USD', 'EUR' => 'EUR', 'GBP' => 'GBP', 'NGN' => 'NGN'],
-        ],
-        'timezone' => [
-            'label' => 'Timezone',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:50'],
-        ],
-        'date_format' => [
-            'label' => 'Date Format',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:20'],
-        ],
-        'is_active' => [
-            'label' => 'Active',
-            'field_type' => 'checkbox',
-            'validation' => ['nullable', 'boolean'],
-        ],
+    'hiddenFields' => [
+        'onTable' => ['created_at', 'updated_at'],
+        'onNewForm' => ['created_at', 'updated_at'],
+        'onEditForm' => ['updated_at'],
+        'onQuery' => [],
     ],
 
-    'filters' => [
-        'is_active' => [
-            'label' => 'Status',
-            'type' => 'select',
-            'options' => ['' => 'All', '1' => 'Active', '0' => 'Inactive'],
-        ],
-        'country' => [
-            'label' => 'Country',
-            'type' => 'text',
-        ],
+    'simpleActions' => ['show', 'edit', 'delete'],
+
+    'tableDefaultFields' => [
+        'name',
+        'code',
+        'email',
+        'city',
+        'country',
+        'is_active',
     ],
+
+    'isTransaction' => false,
+    'crudType' => 'drawers',
+    'includeControllers' => false,
 
     'controls' => [
-        'create' => true,
-        'edit' => true,
-        'delete' => true,
-        'view' => true,
-        'export' => true,
-        'import' => true,
-        'print' => true,
+        'addButton' => true,
+        'files' => [
+            'export' => ['xls', 'csv', 'pdf'],
+            'print' => true,
+        ],
+        'perPage' => [10, 25, 50, 100],
+        'search' => true,
+        'showHideColumns' => true,
+        'filterColumns' => true,
         'softDelete' => true,
+        'restore' => true,
+        'forceDelete' => true,
+        'trashView' => true,
+        'bulkActions' => [
+            'export' => ['xls', 'csv', 'pdf'],
+            'delete' => true,
+            'restore' => true,
+            'forceDelete' => true,
+        ],
     ],
-
-    'detail' => [
-        'fields' => ['id', 'name', 'code', 'email', 'phone', 'website', 'address', 'city', 'state_code', 'country_code', 'postal_code', 'tax_id', 'registration_number', 'currency_code', 'timezone', 'date_format', 'is_active', 'created_at', 'updated_at'],
-    ],
-
-    'default_sort' => [
-        'field' => 'name',
-        'direction' => 'asc',
-    ],
-
-    'per_page_options' => [10, 25, 50, 100],
-    'default_per_page' => 25,
 
     'switchViews' => [
         'default' => 'list',
@@ -359,7 +226,7 @@ return [
         'list' => [
             'enabled' => true,
             'titleFields' => ['name'],
-            'subtitleFields' => ['code', 'email'],
+            'subtitleFields' => ['code'],
             'badgeField' => 'is_active',
             'badgeColors' => ['1' => 'success', '0' => 'secondary'],
         ],

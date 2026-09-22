@@ -490,8 +490,6 @@ return [
 
   'simpleActions' => [
     '0' => 'show',
-    '1' => 'edit',
-    '2' => 'delete',
   ],
 
   'isTransaction' => false,
@@ -611,6 +609,13 @@ return [
 
   'moreActions' => [
     '0' => [
+      'title' => 'View Clock Events',
+      'icon' => 'fas fa-clock',
+      'url' => '/attendance/clock-events',
+      'params' => ['employee_id' => '{employee_id}', 'date' => '{date}'],
+      'newTab' => true,
+    ],
+    '1' => [
       'title' => 'Approve for Payroll',
       'icon' => 'fas fa-check-circle',
       'updateModelField' => true,
@@ -621,7 +626,7 @@ return [
       'requiredRole' => ['payroll_officer', 'hr_admin'],
       'condition' => ['is_approved' => false],
     ],
-    '1' => [
+    '2' => [
       'title' => 'Request Review',
       'icon' => 'fas fa-exclamation-triangle',
       'updateModelField' => true,
@@ -631,7 +636,7 @@ return [
       'requiredRole' => ['supervisor', 'manager', 'hr_admin', 'payroll_officer'],
       'condition' => ['needs_review' => false, 'is_approved' => false],
     ],
-    '2' => [
+    '3' => [
       'title' => 'Mark as Resolved',
       'icon' => 'fas fa-check',
       'updateModelField' => true,
@@ -641,7 +646,7 @@ return [
       'requiredRole' => ['manager', 'hr_admin'],
       'condition' => ['needs_review' => true],
     ],
-    '3' => [
+    '4' => [
       'title' => 'Adjust Attendance',
       'icon' => 'fas fa-edit',
       'url' => '/attendance/adjust-attendance',
@@ -649,7 +654,7 @@ return [
       'requiredRole' => ['manager', 'hr_admin'],
       'condition' => ['is_approved' => false],
     ],
-    '4' => [
+    '5' => [
       'title' => 'Recalculate Hours',
       'icon' => 'fas fa-redo-alt',
       'dispatchStandardEvent' => true,
@@ -664,19 +669,13 @@ return [
       'requiredRole' => ['hr_admin', 'system_admin'],
       'condition' => ['is_approved' => false],
     ],
-    '5' => [
+    '6' => [
       'title' => 'View Work Sessions',
       'icon' => 'fas fa-history',
       'url' => '/attendance/attendance-work-sessions',
       'newTab' => true,
       'params' => ['attendance_id' => '{id}'],
       'requiredRole' => ['employee', 'supervisor', 'manager', 'hr_admin', 'payroll_officer'],
-    ],
-    '6' => [
-      'title' => 'Export Timesheet',
-      'icon' => 'fas fa-file-export',
-      'requiredRole' => ['payroll_officer'],
-      'params' => ['attendance_id' => '{id}'],
     ],
     '7' => [
       'title' => 'Restore',

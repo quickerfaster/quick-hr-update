@@ -98,15 +98,20 @@ class ClockEventController extends Controller
      */
     private function processClockEvent(array $internalData, Request $request)
     {
-        // Resolve integer employee_id from employee_number
-        $employeeId = Employee::where('employee_number', $internalData['employee_number'])->value('id');
-        if (!$employeeId) {
+        // Resolve integer employee_id from employee_number (bypass CompanyScope —
+        // API calls may not have a session company context).
+        $employee = Employee::withoutCompanyScope()
+            ->where('employee_number', $internalData['employee_number'])
+            ->first(['id', 'company_id']);
+        if (!$employee) {
             return [
                 'status' => 'error',
                 'message' => 'Employee not found',
                 'employee_number' => $internalData['employee_number'],
             ];
         }
+        $employeeId = $employee->id;
+        $companyId = $employee->company_id;
 
         // Convert microdegrees to decimal for storage
         $lat = $internalData['latitude'] ? round($internalData['latitude'] / 1_000_000, 8) : null;
@@ -134,6 +139,7 @@ class ClockEventController extends Controller
 
         // Save raw event with both integer employee_id and string employee_number
         $event = ClockEvent::create([
+            'company_id' => $companyId,
             'employee_id' => $employeeId,
             'employee_number' => $internalData['employee_number'],
             'event_type' => $eventType,

@@ -124,13 +124,12 @@ return [
             'icon' => 'fas fa-play-circle',
             'description' => 'Create a new payroll run',
             'actions' => [
-                0 => [
-                    'label' => 'Create',
-                    'event' => 'openPayrollWizard',
-                    'params' => ['type' => 'new'],
-                    'style' => 'primary',
-                ],
-            ],
+               0 => [
+                   'label' => 'Create',
+                   'url' => '/payroll/payroll-wizard',
+                   'style' => 'primary',
+               ],
+           ],
             'width' => 3,
         ],
         9 => [

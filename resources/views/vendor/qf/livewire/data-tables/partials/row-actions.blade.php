@@ -110,9 +110,9 @@
             @endphp
 
             <button type="button"
-                wire:click="$dispatch('toggleCollapsible', { 
+                wire:click="$dispatch('toggleCollapsible', {
                     collapsibleId: 'expand-{{ $record->id }}',
-                    component: '{{ $expandComponent }}', 
+                    component: '{{ $expandComponent }}',
                     params: {{ json_encode($expandParams) }},
                     title: '{{ $expandTitle }}',
                     target: 'expand-{{ $record->id }}'
@@ -125,7 +125,7 @@
         {{-- Trashed record: show badge + restore / force delete buttons --}}
         <span class="badge rounded-pill bg-white text-secondary border fw-medium px-2 small">Deleted</span>
 
-        @if (in_array('restore', $simpleActions) && $authService->canRestore($user, $record)) 
+        @if (in_array('restore', $simpleActions) && $authService->canRestore($user, $record))
             <button wire:click="restore({{ $record->id }})" class="btn btn-action-icon text-success-hover" title="Restore">
                 <i class="fas fa-trash-restore"></i>
             </button>
@@ -170,7 +170,7 @@
                             @php
                                 $href = $routeName
                                     ? route($routeName, $routeParams)
-                                    : ($url . '/' . $record->id);
+                                    : (str_contains($url, '{id}') ? str_replace('{id}', $record->id, $url) : $url . '/' . $record->id);
                             @endphp
                             <a class="dropdown-item d-flex align-items-center py-2" href="{{ $href }}"
                                 @if (!empty($action['newTab'])) target="_blank" rel="noopener noreferrer" @endif>

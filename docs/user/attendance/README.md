@@ -171,3 +171,78 @@ Every clock event stores:
 - Timezone
 
 This provides a complete audit trail for compliance and dispute resolution.
+
+---
+
+## Troubleshooting Clock-In Errors
+
+### "No default attendance policy found"
+
+**Cause**: No attendance policy with `is_default = true` exists for the employee's company. The system requires at least one default policy to calculate attendance metrics (grace periods, overtime thresholds, break rules).
+
+**Resolution** (Admin):
+1. Navigate to **Attendance → Policies → Attendance Policies**
+2. Click **Add New** (or edit an existing policy)
+3. Fill in the policy details (name, grace period, overtime thresholds, etc.)
+4. Check the **"Default Policy"** checkbox — this sets `is_default = true`
+5. Ensure the policy's **Company** matches the employee's company
+6. Set **Effective Date** to today or earlier
+7. Ensure **Active** is checked
+8. Click **Save**
+
+> **Important**: The default policy must belong to the **same company** the employee is clocking in under. If you have multiple companies, each needs its own default policy (or a company-level Policy Assignment).
+
+> **Alternative**: Instead of a system-wide default, you can assign policies at specific levels via **Attendance → Policies → Policy Assignments**. The system resolves policies in this priority order: Employee → Shift → Department → Location → Company → System Default.
+
+### "No job position is assigned to your profile"
+
+**Cause**: The employee record exists but has no `EmployeePosition` record. A position is required for clock-in because it determines the employee's company, department, location, shift, and attendance policy.
+
+**Resolution** (Admin):
+1. Navigate to **HR → Employee Positions** (or **People → Positions**)
+2. Click **Add New**
+3. Select the **Employee**, **Company**, **Job Title**, and **Department**
+4. Optionally assign a **Shift** and **Attendance Policy**
+5. Save — the employee can now clock in
+
+### "Employee or Position not found"
+
+**Cause**: The employee record or their position could not be resolved. This typically occurs when:
+- The employee's `company_id` is `NULL` and a specific company is selected in the company switcher
+- The employee's position references a department/location that doesn't exist
+
+**Resolution** (Admin):
+1. Verify the employee has a **Company** assigned (edit the employee record)
+2. Verify the employee has an **Employee Position** (see above)
+3. Ensure the position's **Department** and **Location** exist and are active
+
+### "Outside geofence" or "Clock-in failed: Outside allowed geofence area"
+
+**Cause**: The employee's GPS coordinates are outside the configured geofence radius of their assigned work location.
+
+**Resolution**:
+- Employee must clock in from within the geofence radius of their assigned location
+- Admin can increase the **Geofence Radius** on the location, or mark it as **Remote** to skip validation
+- Clock-out is always allowed regardless of location
+
+### Cross-Company Record Mismatch ("All Companies" Mode)
+
+**Cause**: When an admin is in "All Companies" mode, the DataTable form shows a company dropdown on every record. If the admin selects different companies for related records (e.g., Employee = Company A, Employee Position = Company B), the records become mismatched.
+
+**Impact**: Clock-in/out fails because the position's company doesn't match the employee's company. Attendance policies can't be resolved. Payroll can't determine the correct pay schedule.
+
+**Prevention**: The system now **auto-sets** the `company_id` on new Employee Position records based on the selected Employee's company. When you select an Employee, the Company field is automatically populated and should not be changed.
+
+> **Important**: Always verify that related records (Employee + Position) belong to the same company. If you notice a mismatch, edit the Position record and re-select the Employee — the company will auto-correct.
+
+### Clock-In Requirements Checklist
+
+For an employee to successfully clock in, ALL of the following must be in place:
+
+| # | Requirement | Where to Configure |
+|---|------------|-------------------|
+| 1 | Employee has a **Company** assigned | HR → Employees → Edit |
+| 2 | Employee has an **Employee Position** | HR → Employee Positions |
+| 3 | Position has a **Department** | Organization → Departments |
+| 4 | A **default Attendance Policy** exists for the company | Attendance → Policies |
+| 5 | Employee is at an **approved work location** (if geofencing is active) | Organization → Locations |

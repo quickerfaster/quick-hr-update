@@ -126,6 +126,7 @@ public function getEmployeesProperty()
     }
 
     $query = EmployeePosition::withoutCompanyScope()
+        ->with(['employee' => fn ($q) => $q->withoutGlobalScopes()])
         ->join('employees', 'employee_positions.employee_id', '=', 'employees.id')
         ->select('employee_positions.*')
         ->where('employee_positions.employment_status', 'Active')

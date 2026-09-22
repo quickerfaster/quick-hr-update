@@ -32,7 +32,12 @@ class AttendanceCalculator
     {
         return DB::transaction(function () use ($employeeNumber, $date) {
             // 1. Get employee with all required relations
-            $employee = Employee::with(['employeePosition.department.company'])
+            $employee = Employee::withoutCompanyScope()->with([
+                'employeePosition' => function ($q) {
+                    $q->withoutGlobalScope(\QuickerFaster\UILibrary\Scopes\CompanyScope::class);
+                },
+                'employeePosition.department.company',
+            ])
                 ->where('employee_number', $employeeNumber)
                 ->first();
 
@@ -70,6 +75,7 @@ class AttendanceCalculator
             // 7. CREATE new sessions from processed events
             foreach ($sessions as $session) {
                 AttendanceSession::create([
+                    'company_id' => $employee->company_id,
                     'attendance_id' => $attendance->id,
                     'clock_in_event_id' => $session['clock_in_event_id'] ?? null,
                     'clock_out_event_id' => $session['clock_out_event_id'] ?? null,

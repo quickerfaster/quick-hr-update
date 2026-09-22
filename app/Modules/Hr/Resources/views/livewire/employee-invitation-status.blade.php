@@ -67,6 +67,36 @@
             </div>
         @endif
 
+        {{-- Onboarding Completion Status --}}
+        @if ($hasUser)
+        <hr class="my-3">
+        <h6 class="fw-bold text-dark mb-3">
+            <i class="fas fa-clipboard-check me-2"></i>Onboarding Progress
+        </h6>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span>Company Assignment</span>
+                @if ($employee->company_id)
+                    <span class="badge bg-success">
+                        <i class="fas fa-check me-1"></i>{{ $employee->company->name ?? 'Assigned' }}
+                    </span>
+                @else
+                    <span class="badge bg-danger">Missing</span>
+                @endif
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span>Job / Position</span>
+                @if ($employee->employeePosition)
+                    <span class="badge bg-success">
+                        <i class="fas fa-check me-1"></i>Assigned
+                    </span>
+                @else
+                    <span class="badge bg-warning text-dark">Missing</span>
+                @endif
+            </li>
+        </ul>
+        @endif
+
         {{-- Flash Message --}}
         @if (session()->has('message'))
             <div class="alert alert-success alert-dismissible fade show mt-3 mb-0" role="alert">

@@ -108,7 +108,7 @@
                                 <div class="col-12 col-lg-8">
                                     <div class="card border-info-subtle bg-info-subtle bg-opacity-10">
                                         <div class="card-body">
-                                            <div class="form-check">
+                                            <div class="form-check mb-3">
                                                 <input class="form-check-input"
                                                     type="checkbox"
                                                     id="sendInvitation"
@@ -123,6 +123,28 @@
                                                         will be pre-linked to this employee record.
                                                     </small>
                                                 </label>
+                                            </div>
+
+                                            <div x-show="$wire.sendInvitation" x-transition class="row g-3 mt-2">
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold small">Assign Role</label>
+                                                    <select class="form-select form-select-sm" wire:model="inviteRole">
+                                                        @foreach ($roles as $value => $label)
+                                                            <option value="{{ $value }}">{{ $label }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <small class="text-muted">Role assigned when the employee accepts the invitation.</small>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label fw-semibold small">Assign Company</label>
+                                                    <select class="form-select form-select-sm" wire:model="inviteCompanyId">
+                                                        <option value="">— Select Company —</option>
+                                                        @foreach ($companies as $id => $name)
+                                                            <option value="{{ $id }}">{{ $name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <small class="text-muted">Company the employee will belong to.</small>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

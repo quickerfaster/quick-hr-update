@@ -12,11 +12,6 @@ return [
     'label' => 'Division',
     'label_plural' => 'Divisions',
 
-    /*
-    |--------------------------------------------------------------------------
-    | Field Definitions
-    |--------------------------------------------------------------------------
-    */
     'fieldDefinitions' => [
         'company_id' => [
             'display' => 'inline',
@@ -25,6 +20,21 @@ return [
             'label' => 'Company',
             'validation' => 'required|exists:companies,id',
             'filterable' => true,
+            'searchable' => true,
+            'relationship' => [
+                'model' => 'App\Modules\Organization\Models\Company',
+                'type' => 'belongsTo',
+                'display_field' => 'name',
+                'searchable_fields' => ['name', 'code'],
+                'dynamic_property' => 'company',
+                'foreign_key' => 'company_id',
+                'inlineAdd' => false,
+            ],
+            'options' => [
+                'model' => 'App\Modules\Organization\Models\Company',
+                'column' => 'name',
+                'hintField' => 'code',
+            ],
         ],
         'department_id' => [
             'display' => 'inline',
@@ -33,6 +43,21 @@ return [
             'label' => 'Department',
             'validation' => 'required|exists:departments,id',
             'filterable' => true,
+            'searchable' => true,
+            'relationship' => [
+                'model' => 'App\Modules\Organization\Models\Department',
+                'type' => 'belongsTo',
+                'display_field' => 'name',
+                'searchable_fields' => ['name', 'code'],
+                'dynamic_property' => 'department',
+                'foreign_key' => 'department_id',
+                'inlineAdd' => false,
+            ],
+            'options' => [
+                'model' => 'App\Modules\Organization\Models\Department',
+                'column' => 'name',
+                'hintField' => 'code',
+            ],
         ],
         'name' => [
             'display' => 'inline',
@@ -84,135 +109,61 @@ return [
         ],
     ],
 
-    'columns' => [
-        'id' => [
-            'label' => 'ID',
-            'field' => 'id',
-            'sortable' => true,
-            'type' => 'text',
-            'visible' => true,
-        ],
-        'name' => [
-            'label' => 'Division Name',
-            'field' => 'name',
-            'sortable' => true,
-            'searchable' => true,
-            'type' => 'text',
-            'visible' => true,
-        ],
-        'code' => [
-            'label' => 'Code',
-            'field' => 'code',
-            'sortable' => true,
-            'searchable' => true,
-            'type' => 'text',
-            'visible' => true,
-        ],
-        'company_id' => [
-            'label' => 'Company',
-            'field' => 'company_id',
-            'sortable' => true,
-            'type' => 'text',
-            'visible' => true,
-        ],
-        'department_id' => [
-            'label' => 'Department',
-            'field' => 'department_id',
-            'sortable' => true,
-            'type' => 'text',
-            'visible' => false,
-        ],
-        'is_active' => [
-            'label' => 'Active',
-            'field' => 'is_active',
-            'sortable' => true,
-            'type' => 'boolean',
-            'visible' => true,
-        ],
-        'created_at' => [
-            'label' => 'Created',
-            'field' => 'created_at',
-            'sortable' => true,
-            'type' => 'date',
-            'visible' => true,
-        ],
-    ],
-
-    'fields' => [
-        'company_id' => [
-            'label' => 'Company',
-            'type' => 'select',
-            'validation' => ['required', 'exists:companies,id'],
-        ],
-        'department_id' => [
-            'label' => 'Department',
-            'type' => 'select',
-            'validation' => ['required', 'exists:departments,id'],
-        ],
-        'name' => [
-            'label' => 'Division Name',
-            'type' => 'text',
-            'validation' => ['required', 'string', 'max:255'],
-        ],
-        'code' => [
-            'label' => 'Code',
-            'type' => 'text',
-            'validation' => ['nullable', 'string', 'max:50'],
+    'fieldGroups' => [
+        'details' => [
+            'title' => 'Division Details',
+            'icon' => 'fas fa-layer-group',
+            'fields' => ['company_id', 'department_id', 'name', 'code', 'is_active'],
         ],
         'description' => [
-            'label' => 'Description',
-            'type' => 'textarea',
-            'validation' => ['nullable', 'string'],
-        ],
-        'is_active' => [
-            'label' => 'Active',
-            'field_type' => 'checkbox',
-            'validation' => ['nullable', 'boolean'],
+            'title' => 'Description',
+            'icon' => 'fas fa-align-left',
+            'fields' => ['description'],
         ],
     ],
 
-    'filters' => [
-        'company_id' => [
-            'label' => 'Company',
-            'type' => 'select',
-        ],
-        'department_id' => [
-            'label' => 'Department',
-            'type' => 'select',
-        ],
-        'is_active' => [
-            'label' => 'Status',
-            'type' => 'select',
-            'options' => ['' => 'All', '1' => 'Active', '0' => 'Inactive'],
-        ],
+    'hiddenFields' => [
+        'onTable' => ['created_at', 'updated_at'],
+        'onNewForm' => ['created_at', 'updated_at'],
+        'onEditForm' => ['updated_at'],
+        'onQuery' => [],
     ],
 
-    'controls' => [
-        'create' => true,
-        'edit' => true,
-        'delete' => true,
-        'view' => true,
-        'export' => true,
-        'import' => true,
-        'print' => true,
-        'softDelete' => true,
+    'simpleActions' => ['show', 'edit', 'delete'],
+
+    'tableDefaultFields' => [
+        'name',
+        'code',
+        'company_id',
+        'department_id',
+        'is_active',
     ],
 
     'isTransaction' => false,
     'crudType' => 'drawers',
     'includeControllers' => false,
 
-    'detail' => [
-        'fields' => ['id', 'company_id', 'department_id', 'name', 'code', 'description', 'is_active', 'created_at', 'updated_at'],
+    'controls' => [
+        'addButton' => true,
+        'files' => [
+            'export' => ['xls', 'csv', 'pdf'],
+            'print' => true,
+        ],
+        'perPage' => [10, 25, 50, 100],
+        'search' => true,
+        'showHideColumns' => true,
+        'filterColumns' => true,
+        'softDelete' => true,
+        'restore' => true,
+        'forceDelete' => true,
+        'trashView' => true,
+        'bulkActions' => [
+            'export' => ['xls', 'csv', 'pdf'],
+            'delete' => true,
+            'restore' => true,
+            'forceDelete' => true,
+        ],
     ],
-
-    'default_sort' => [
-        'field' => 'name',
-        'direction' => 'asc',
-    ],
-
-    'per_page_options' => [10, 25, 50, 100],
-    'default_per_page' => 25,
 
     'switchViews' => [
         'default' => 'list',

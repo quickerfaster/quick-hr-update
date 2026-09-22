@@ -24,7 +24,8 @@ class HrInvitationService
         string $role,
         int $employeeId,
         ?string $message = null,
-        ?int $createdBy = null
+        ?int $createdBy = null,
+        ?int $companyId = null
     ): Invitation {
         $employee = Employee::findOrFail($employeeId);
 
@@ -39,7 +40,8 @@ class HrInvitationService
             role: $role,
             message: $personalizedMessage,
             invitable: $employee,
-            createdBy: $createdBy
+            createdBy: $createdBy,
+            companyId: $companyId ?? $employee->company_id,
         );
     }
 

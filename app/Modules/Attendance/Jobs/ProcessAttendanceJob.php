@@ -24,7 +24,11 @@ class ProcessAttendanceJob implements ShouldQueue
 
     public function handle(AttendanceAggregator $aggregator): void
     {
-        $employee = Employee::find($this->employeeId);
+        $employee = Employee::withoutCompanyScope()
+            ->with(['employeePosition' => function ($q) {
+                $q->withoutGlobalScope(\QuickerFaster\UILibrary\Scopes\CompanyScope::class);
+            }])
+            ->find($this->employeeId);
         if (!$employee) {
             \Log::error("ProcessAttendanceJob: Employee {$this->employeeId} not found");
             return;

@@ -109,6 +109,9 @@ class HrsServiceProvider extends ServiceProvider
             \QuickerFaster\UILibrary\Events\DataTableRecordSaved::class,
             \App\Modules\Hr\Listeners\AutoInviteOnEmployeeCreate::class
         );
+
+        // Register Employee onboarding status observer
+        \App\Modules\Hr\Models\Employee::observe(\App\Modules\Hr\Observers\EmployeeOnboardingObserver::class);
     }
 
     /**

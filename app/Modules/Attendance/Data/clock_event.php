@@ -213,9 +213,11 @@ return [
   'tableDefaultFields' => [
     '0' => 'company_id',
     '1' => 'employee_id',
-    '2' => 'event_type',
-    '3' => 'timestamp',
-    '4' => 'method',
+    '2' => 'employee.first_name',
+    '3' => 'employee.last_name',
+    '4' => 'event_type',
+    '5' => 'timestamp',
+    '6' => 'method',
   ],
   'addRoutes' => false,
   'dispatchEvents' => false,
@@ -297,13 +299,27 @@ return [
   ],
   'moreActions' => [
     '0' => [
+      'title' => 'View Attendance',
+      'icon' => 'fas fa-calendar-check',
+      'url' => '/attendance/attendances',
+      'params' => ['employee_id' => '{employee_id}', 'date' => '{timestamp_date}'],
+      'newTab' => true,
+    ],
+    '1' => [
+      'title' => 'View Sessions',
+      'icon' => 'fas fa-history',
+      'url' => '/attendance/attendance-sessions',
+      'params' => ['clock_event_id' => '{id}'],
+      'newTab' => true,
+    ],
+    '2' => [
       'title' => 'Restore',
       'icon' => 'fas fa-trash-restore',
       'action' => 'restore',
       'confirm' => 'Restore this archived clock event?',
       'condition' => ['trashed' => [true]],
     ],
-    '1' => [
+    '3' => [
       'title' => 'Permanently Delete',
       'icon' => 'fas fa-skull-crossbones',
       'action' => 'forceDelete',
@@ -319,11 +335,13 @@ return [
     'list' => [
       'enabled' => true,
       'titleFields' => [
-        '0' => 'employee_id',
+        '0' => 'employee.first_name',
+        '1' => 'employee.last_name',
       ],
       'subtitleFields' => [
-        '0' => 'event_type',
-        '1' => 'timestamp',
+        '0' => 'employee_id',
+        '1' => 'event_type',
+        '2' => 'timestamp',
       ],
       'contentFields' => [
         '0' => 'method',
@@ -342,11 +360,13 @@ return [
     'card' => [
       'enabled' => true,
       'titleFields' => [
-        '0' => 'employee_id',
+        '0' => 'employee.first_name',
+        '1' => 'employee.last_name',
       ],
       'subtitleFields' => [
-        '0' => 'event_type',
-        '1' => 'timestamp',
+        '0' => 'employee_id',
+        '1' => 'event_type',
+        '2' => 'timestamp',
       ],
       'contentFields' => [
         '0' => 'method',

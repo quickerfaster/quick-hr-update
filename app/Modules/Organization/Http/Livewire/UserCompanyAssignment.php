@@ -4,6 +4,7 @@ namespace App\Modules\Organization\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\User;
+use App\Modules\Hr\Models\Employee;
 use QuickerFaster\UILibrary\Core\Organization\Models\Company;
 
 class UserCompanyAssignment extends Component
@@ -92,6 +93,16 @@ class UserCompanyAssignment extends Component
         $user = User::findOrFail($this->selectedUserId);
         $user->companies()->sync($this->assignedCompanyIds);
 
+        // Update employee's company_id and recompute onboarding_status
+        $employee = Employee::where('user_id', $user->id)->first();
+        if ($employee) {
+            $company = $user->companies()->first();
+            \DB::table('employees')->where('id', $employee->id)->update([
+                'company_id' => $company?->id,
+                'onboarding_status' => $employee->employeePosition()->exists() ? 'complete' : 'position_pending',
+            ]);
+        }
+
         $this->saved = true;
         $this->dispatch('notify', ['type' => 'success', 'message' => 'Company assignments saved successfully.']);
     }
@@ -173,6 +184,17 @@ class UserCompanyAssignment extends Component
             if ($user) {
                 // syncWithoutDetaching: adds new companies, preserves existing assignments
                 $user->companies()->syncWithoutDetaching($this->bulkAssignedCompanyIds);
+
+                // Update employee's company_id and recompute onboarding_status
+                $employee = Employee::where('user_id', $user->id)->first();
+                if ($employee && !$employee->company_id) {
+                    $company = $user->companies()->first();
+                    \DB::table('employees')->where('id', $employee->id)->update([
+                        'company_id' => $company?->id,
+                        'onboarding_status' => $employee->employeePosition()->exists() ? 'complete' : 'position_pending',
+                    ]);
+                }
+
                 $count++;
             }
         }

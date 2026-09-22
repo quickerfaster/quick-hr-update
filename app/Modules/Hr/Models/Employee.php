@@ -200,6 +200,32 @@ class Employee extends Model implements Documentable, Invitable
     }
 
     /**
+     * Human-readable onboarding status label.
+     */
+    public function getOnboardingStatusLabelAttribute(): string
+    {
+        return match($this->onboarding_status) {
+            'complete' => 'Complete',
+            'position_pending' => 'Needs Position',
+            'company_pending' => 'Needs Company',
+            default => 'Not Started',
+        };
+    }
+
+    /**
+     * Bootstrap badge color for onboarding status.
+     */
+    public function getOnboardingStatusColorAttribute(): string
+    {
+        return match($this->onboarding_status) {
+            'complete' => 'success',
+            'position_pending' => 'warning',
+            'company_pending' => 'danger',
+            default => 'secondary',
+        };
+    }
+
+    /**
      * Get the unique identifier for this invitable entity.
      */
     public function getInvitableId(): int|string

@@ -5,12 +5,19 @@
     "description": "The skeleton application for the Laravel framework.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
+
+
     "repositories": [
         {
             "type": "vcs",
             "url": "https://github.com/quickerfaster/ui-library"
         }
+
     ],
+
+
+
+
     "require": {
         "php": "^8.3",
         "fakerphp/faker": "^1.23",
