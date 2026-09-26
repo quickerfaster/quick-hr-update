@@ -306,7 +306,6 @@ class EmployeeWithDependenciesSeeder extends Seeder
                     'attendance_policy_id' => $attendancePolicy->id,
                     'location_id' => $location->id,
                     'shift_id' => $shift->id,
-                    'pay_schedule_id' => $paySchedule->id,
                     'manager_id' => null,
                     'reports_to' => null,
                     'pay_type' => $payType,
