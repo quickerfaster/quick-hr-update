@@ -113,6 +113,13 @@ class UserCompanyAssignment extends Component
 
         if ($this->selectedUser) {
             $this->assignedCompanyIds = $this->selectedUser->companies->pluck('id')->toArray();
+
+            // Fallback: if the pivot table is empty but the user has a direct
+            // company_id (set during invitation acceptance), pre-check that
+            // company so the admin sees the existing assignment.
+            if (empty($this->assignedCompanyIds) && $this->selectedUser->company_id) {
+                $this->assignedCompanyIds = [(int) $this->selectedUser->company_id];
+            }
         }
 
         $this->saved = false;

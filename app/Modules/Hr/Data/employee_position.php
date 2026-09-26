@@ -224,27 +224,6 @@ return [
         'Daily' => 'Daily',
       ],
     ],
-    'pay_schedule_id' => [
-      'display' => 'inline',
-      'fillable' => true,
-      'field_type' => 'select',
-      'label' => 'Pay Schedule',
-      'validation' => 'nullable|integer|exists:pay_schedules,id',
-      'filterable' => true,
-      'relationship' => [
-        'model' => 'App\Modules\Payroll\Models\PaySchedule',
-        'type' => 'belongsTo',
-        'display_field' => 'name',
-        'dynamic_property' => 'paySchedule',
-        'foreign_key' => 'pay_schedule_id',
-        'inlineAdd' => false,
-      ],
-      'options' => [
-        'model' => 'App\Modules\Payroll\Models\PaySchedule',
-        'column' => 'name',
-        'hintField' => '',
-      ],
-    ],
     'location_id' => [
       'display' => 'inline',
       'fillable' => true,
@@ -446,7 +425,6 @@ return [
         '1' => 'hourly_rate',
         '2' => 'pay_frequency',
         '3' => 'salary_currency',
-        '4' => 'pay_schedule_id',
       ],
     ],
     'attendance_policies' => [
@@ -531,12 +509,6 @@ return [
       'type' => 'belongsTo',
       'model' => 'App\Modules\Attendance\Models\AttendancePolicy',
       'foreignKey' => 'attendance_policy_id',
-      'localKey' => '',
-    ],
-    'paySchedule' => [
-      'type' => 'belongsTo',
-      'model' => 'App\Modules\Payroll\Models\PaySchedule',
-      'foreignKey' => 'pay_schedule_id',
       'localKey' => '',
     ],
   ],

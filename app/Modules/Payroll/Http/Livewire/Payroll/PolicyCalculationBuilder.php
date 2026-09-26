@@ -3,9 +3,12 @@
 namespace App\Modules\Payroll\Http\Livewire\Payroll;
 
 use Livewire\Component;
+use QuickerFaster\UILibrary\Traits\HasCurrencySymbol;
 
 class PolicyCalculationBuilder extends Component
 {
+    use HasCurrencySymbol;
+
     public string $policyType = 'benefit';
     public ?string $existingJson = null;
 
@@ -18,6 +21,7 @@ class PolicyCalculationBuilder extends Component
     public float $employeeValue = 0;
     public float $employerValue = 0;
     public string $calculationBase = 'base_salary'; // NEW: base_salary or gross_pay
+    public string $currencySymbol = '$';
 
     protected $listeners = [
         'parentPolicyTypeChanged' => 'setPolicyType',
@@ -28,6 +32,16 @@ class PolicyCalculationBuilder extends Component
         $this->policyType = $policyType;
         $this->existingJson = $existingJson;
         $this->loadFromJson();
+
+        // Resolve currency symbol from current company context
+        $companyId = session('current_company_id');
+        if ($companyId) {
+            $company = \App\Modules\Hr\Models\Company::find($companyId);
+            $code = $company?->currency_code ?? 'USD';
+        } else {
+            $code = 'USD';
+        }
+        $this->currencySymbol = $this->getCurrencySymbol($code);
     }
 
     public function setPolicyType(string $newType): void

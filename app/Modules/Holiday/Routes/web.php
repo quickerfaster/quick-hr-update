@@ -26,6 +26,9 @@ Route::middleware(['web', 'auth'])->group(function () {
 
     // Holiday Batch Creation
     Route::get('/holiday/holiday-batch-creation', function () {
+        if (!\QuickerFaster\UILibrary\Services\AccessControl\AuthorizationService::canAccessView('create_holiday')) {
+            abort(403, 'This action is unauthorized.');
+        }
         return view('holiday::holiday-batch-creation');
     })->name('holiday.holiday-batch-creation');
 

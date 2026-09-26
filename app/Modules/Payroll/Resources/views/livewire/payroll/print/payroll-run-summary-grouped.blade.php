@@ -102,11 +102,11 @@
         <tr>
             <td>{{ $groupName }}</td>
             <td class="text-end">{{ $totals['count'] }}</td>
-            <td class="text-end">{{ number_format($totals['gross'], 2) }}</td>
-            <td class="text-end">{{ number_format($totals['deductions'], 2) }}</td>
-            <td class="text-end">{{ number_format($totals['taxes'], 2) }}</td>
-            <td class="text-end">{{ number_format($totals['employer_contributions'], 2) }}</td>
-            <td class="text-end">{{ number_format($totals['net'], 2) }}</td>
+            <td class="text-end">{{ $currencySymbol }}{{ number_format($totals['gross'], 2) }}</td>
+            <td class="text-end">{{ $currencySymbol }}{{ number_format($totals['deductions'], 2) }}</td>
+            <td class="text-end">{{ $currencySymbol }}{{ number_format($totals['taxes'], 2) }}</td>
+            <td class="text-end">{{ $currencySymbol }}{{ number_format($totals['employer_contributions'], 2) }}</td>
+            <td class="text-end">{{ $currencySymbol }}{{ number_format($totals['net'], 2) }}</td>
         </tr>
         @endforeach
     </tbody>
@@ -114,11 +114,11 @@
         <tr class="total-row">
             <td><strong>GRAND TOTAL</strong></td>
             <td class="text-end"><strong>{{ array_sum(array_column($groupTotals, 'count')) }}</strong></td>
-            <td class="text-end"><strong>{{ number_format($grandGross, 2) }}</strong></td>
-            <td class="text-end"><strong>{{ number_format($grandDeductions, 2) }}</strong></td>
-            <td class="text-end"><strong>{{ number_format($grandTaxes, 2) }}</strong></td>
-            <td class="text-end"><strong>{{ number_format($grandEmployer, 2) }}</strong></td>
-            <td class="text-end"><strong>{{ number_format($grandNet, 2) }}</strong></td>
+            <td class="text-end"><strong>{{ $currencySymbol }}{{ number_format($grandGross, 2) }}</strong></td>
+            <td class="text-end"><strong>{{ $currencySymbol }}{{ number_format($grandDeductions, 2) }}</strong></td>
+            <td class="text-end"><strong>{{ $currencySymbol }}{{ number_format($grandTaxes, 2) }}</strong></td>
+            <td class="text-end"><strong>{{ $currencySymbol }}{{ number_format($grandEmployer, 2) }}</strong></td>
+            <td class="text-end"><strong>{{ $currencySymbol }}{{ number_format($grandNet, 2) }}</strong></td>
         </tr>
     </tfoot>
 </table>
@@ -152,20 +152,20 @@
                 @php $emp = $payslip->employee; @endphp
                 <tr>
                     <td>{{ $emp->first_name }} {{ $emp->last_name }} (#{{ $emp->employee_number }})</td>
-                    <td class="text-end">{{ number_format($payslip->gross_pay, 2) }}</td>
-                    <td class="text-end">{{ number_format($payslip->total_deductions, 2) }}</td>
-                    <td class="text-end">{{ number_format($payslip->total_taxes, 2) }}</td>
-                    <td class="text-end">{{ number_format($payslip->employer_contribution_total ?? 0, 2) }}</td>
-                    <td class="text-end">{{ number_format($payslip->net_pay, 2) }}</td>
+                    <td class="text-end">{{ $currencySymbol }}{{ number_format($payslip->gross_pay, 2) }}</td>
+                    <td class="text-end">{{ $currencySymbol }}{{ number_format($payslip->total_deductions, 2) }}</td>
+                    <td class="text-end">{{ $currencySymbol }}{{ number_format($payslip->total_taxes, 2) }}</td>
+                    <td class="text-end">{{ $currencySymbol }}{{ number_format($payslip->employer_contribution_total ?? 0, 2) }}</td>
+                    <td class="text-end">{{ $currencySymbol }}{{ number_format($payslip->net_pay, 2) }}</td>
                 </tr>
             @endforeach
             <tr class="subtotal-row">
                 <td><strong>Subtotal for {{ $groupName }}</strong></td>
-                <td class="text-end"><strong>{{ number_format($groupGross, 2) }}</strong></td>
-                <td class="text-end"><strong>{{ number_format($groupDeductions, 2) }}</strong></td>
-                <td class="text-end"><strong>{{ number_format($groupTaxes, 2) }}</strong></td>
-                <td class="text-end"><strong>{{ number_format($groupEmployer, 2) }}</strong></td>
-                <td class="text-end"><strong>{{ number_format($groupNet, 2) }}</strong></td>
+                <td class="text-end"><strong>{{ $currencySymbol }}{{ number_format($groupGross, 2) }}</strong></td>
+                <td class="text-end"><strong>{{ $currencySymbol }}{{ number_format($groupDeductions, 2) }}</strong></td>
+                <td class="text-end"><strong>{{ $currencySymbol }}{{ number_format($groupTaxes, 2) }}</strong></td>
+                <td class="text-end"><strong>{{ $currencySymbol }}{{ number_format($groupEmployer, 2) }}</strong></td>
+                <td class="text-end"><strong>{{ $currencySymbol }}{{ number_format($groupNet, 2) }}</strong></td>
             </tr>
         </tbody>
     </table>

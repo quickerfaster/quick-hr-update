@@ -207,7 +207,7 @@ return array (
         array (
           'label' => 'Net Pay',
           'field' => 'net_pay_sum',
-          'format' => 'currency',
+          'format' => 'currency', 'currency_code' => 'NGN',
         ),
       ),
       'width' => 6,
@@ -251,7 +251,7 @@ return array (
         array (
           'label' => 'Total Gross',
           'field' => 'total_gross_pay',
-          'format' => 'currency',
+          'format' => 'currency', 'currency_code' => 'NGN',
         ),
       ),
       'width' => 6,
@@ -335,7 +335,7 @@ return array (
         array (
           'label' => 'Net Pay',
           'field' => 'net_pay',
-          'format' => 'currency',
+          'format' => 'currency', 'currency_code' => 'NGN',
         ),
       ),
       'width' => 6,

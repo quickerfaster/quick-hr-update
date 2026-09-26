@@ -102,7 +102,7 @@ return [
       'display' => 'inline',
       'fillable' => true,
       'editable' => true,
-      'field_type' => 'number',
+      'field_type' => 'currency',
       'label' => 'Amount',
       'validation' => 'required|numeric',
     ],

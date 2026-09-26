@@ -110,13 +110,24 @@ class PayrollRunDetail extends Component
             return;
         }
 
+        $now = now();
+        $processedBy = auth()->user()->name ?? auth()->id();
+
         $this->run->update([
             'status' => 'paid',
-            'processed_at' => now(),
-            'processed_by' => auth()->user()->name ?? auth()->id(),
+            'processed_at' => $now,
+            'processed_by' => $processedBy,
         ]);
 
-        $this->dispatch('showAlert', ['type' => 'success', 'message' => 'Payroll run marked as paid.']);
+        // Cascade paid status to all associated payslips
+        \App\Modules\Payroll\Models\PayrollPayslip::withoutCompanyScope()
+            ->where('payroll_run_id', $this->run->id)
+            ->update([
+                'payment_status' => 'paid',
+                'paid_at' => $now,
+            ]);
+
+        $this->dispatch('showAlert', ['type' => 'success', 'message' => 'Payroll run and all payslips marked as paid.']);
         $this->run->refresh();
     }
 
@@ -322,12 +333,17 @@ public function queueSummaryPdf()
 
     // Determine currency code and company name safely
     if ($this->run->paySchedule) {
-        $currencyCode = $this->run->paySchedule->currency_code ?? 'USD';
+        $currencyCode = $this->run->paySchedule->currency_code
+            ?? $this->run->base_currency
+            ?? $this->run->company?->currency_code
+            ?? 'USD';
         $companyName = optional($this->run->paySchedule->company)->name ?? config('app.name', 'Quick HR');
     } else {
 
         // Multi-company or run without pay schedule
-        $currencyCode = $this->run->base_currency ?? 'USD';
+        $currencyCode = $this->run->base_currency
+            ?? $this->run->company?->currency_code
+            ?? 'USD';
         if ($this->run->is_multi_company) {
             $companyName = 'All Companies';
         } else {

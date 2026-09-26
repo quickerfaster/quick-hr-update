@@ -8,6 +8,7 @@ use App\Modules\Payroll\Http\Controllers\PayslipController;
 use App\Modules\Payroll\Http\Controllers\BankFileController;
 use App\Modules\Payroll\Models\PayrollRun;
 use Barryvdh\DomPDF\Facade\Pdf;
+use QuickerFaster\UILibrary\Traits\HasCurrencySymbol;
 
 Route::middleware([
     'web',
@@ -71,9 +72,12 @@ Route::middleware([
         ->name('payroll.bank-file');
 
     Route::get('/payroll/payroll-run/{run}/print-summary', function (PayrollRun $run) {
-        $currencyCode = $run->paySchedule?->currency_code ?? $run->base_currency ?? 'USD';
+        $currencyCode = $run->paySchedule?->currency_code
+            ?? $run->base_currency
+            ?? $run->company?->currency_code
+            ?? 'USD';
         $companyName = $run->paySchedule?->company?->name ?? ($run->is_multi_company ? 'All Companies' : config('app.name', 'Quick HR'));
-        $currencySymbol = "N";
+        $currencySymbol = HasCurrencySymbol::resolveCurrencySymbol($currencyCode);
         $run->load('payslips.employee');
 
         return view('payroll::livewire.payroll.print.payroll-run-summary', [
@@ -88,6 +92,12 @@ Route::middleware([
         if (!in_array($group_by, $validGroups)) {
             abort(404);
         }
+
+        $currencyCode = $run->paySchedule?->currency_code
+            ?? $run->base_currency
+            ?? $run->company?->currency_code
+            ?? 'USD';
+        $currencySymbol = HasCurrencySymbol::resolveCurrencySymbol($currencyCode);
 
         $run->load([
             'payslips' => function ($query) {
@@ -120,6 +130,7 @@ Route::middleware([
             'run' => $run,
             'groups' => $groups,
             'groupBy' => $group_by,
+            'currencySymbol' => $currencySymbol,
         ]);
     })->name('payroll-run.summary-grouped');
 
@@ -129,9 +140,12 @@ Route::middleware([
 
     // Summary PDF download
     Route::get('/payroll/payroll-run/{run}/summary-pdf', function (PayrollRun $run) {
-        $currencyCode = $run->paySchedule?->currency_code ?? $run->base_currency ?? 'USD';
+        $currencyCode = $run->paySchedule?->currency_code
+            ?? $run->base_currency
+            ?? $run->company?->currency_code
+            ?? 'USD';
         $companyName = $run->paySchedule?->company?->name ?? ($run->is_multi_company ? 'All Companies' : config('app.name', 'Quick HR'));
-        $currencySymbol = "N";
+        $currencySymbol = HasCurrencySymbol::resolveCurrencySymbol($currencyCode);
         $run->load('payslips.employee');
 
         $pdf = Pdf::loadView('payroll::livewire.payroll.print.payroll-run-summary', [
@@ -145,6 +159,9 @@ Route::middleware([
 
     // Payroll Wizard
     Route::get('/payroll/payroll-wizard', function () {
+        if (!\QuickerFaster\UILibrary\Services\AccessControl\AuthorizationService::canAccessView('create_payroll_run')) {
+            abort(403, 'This action is unauthorized.');
+        }
         return view('payroll::payroll-wizard');
     })->name('payroll.payroll-wizard');
 

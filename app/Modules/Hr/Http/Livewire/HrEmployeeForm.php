@@ -59,18 +59,29 @@ class HrEmployeeForm extends DataTableForm
             ? $this->fieldGroups
             : array_intersect_key($this->fieldGroups, array_flip($this->allowedGroups));
 
-        $roles = \Spatie\Permission\Models\Role::pluck('name', 'name')->toArray();
-        $companies = \App\Modules\Hr\Models\Company::orderBy('name')->pluck('name', 'id')->toArray();
+        $roles = \QuickerFaster\UILibrary\Services\AccessControl\AuthorizationService::getAssignableRoles();
+
+        // In single-company mode, only show the current company.
+        // In "All Companies" mode, show all companies so the admin can choose.
+        $sessionCompanyId = (int) session('current_company_id', 0);
+        if ($sessionCompanyId > 0) {
+            $companies = \App\Modules\Hr\Models\Company::where('id', $sessionCompanyId)
+                ->pluck('name', 'id')->toArray();
+        } else {
+            $companies = \App\Modules\Hr\Models\Company::orderBy('name')
+                ->pluck('name', 'id')->toArray();
+        }
 
         return view('hr::livewire.hr-employee-form', [
-            'displayGroups'    => $displayGroups,
-            'fieldDefinitions' => $this->fieldDefinitions,
-            'hiddenFields'     => $this->hiddenFields,
-            'isEditMode'       => $this->isEditMode,
-            'inline'           => $this->inline,
-            'modalId'          => $this->modalId,
-            'roles'            => $roles,
-            'companies'        => $companies,
+            'displayGroups'     => $displayGroups,
+            'fieldDefinitions'  => $this->fieldDefinitions,
+            'hiddenFields'      => $this->hiddenFields,
+            'isEditMode'        => $this->isEditMode,
+            'inline'            => $this->inline,
+            'modalId'           => $this->modalId,
+            'roles'             => $roles,
+            'companies'         => $companies,
+            'sessionCompanyId'  => $sessionCompanyId,
         ]);
     }
 }

@@ -161,7 +161,7 @@ return array (
           'label' => 'Total Net',
           'field' => 'payslips_sum_net_pay',
           'aggregate' => 'sum',
-          'format' => 'currency',
+          'format' => 'currency', 'currency_code' => 'NGN',
         ),
       ),
       'width' => 6,
@@ -378,7 +378,7 @@ return array (
         array (
           'label' => 'Net Pay',
           'field' => 'net_pay',
-          'format' => 'currency',
+          'format' => 'currency', 'currency_code' => 'NGN',
         ),
       ),
       'width' => 6,

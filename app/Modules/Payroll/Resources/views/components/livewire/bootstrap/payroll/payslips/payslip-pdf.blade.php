@@ -18,16 +18,9 @@
             padding-bottom: 15px;
             margin-bottom: 20px;
         }
-        .company-info {
-            flex: 2;
-        }
-        .payslip-info {
-            flex: 1;
-            text-align: right;
-        }
-        .section {
-            margin: 15px 0;
-        }
+        .company-info { flex: 2; }
+        .payslip-info { flex: 1; text-align: right; }
+        .section { margin: 15px 0; }
         .section-title {
             font-weight: bold;
             margin-bottom: 8px;
@@ -48,8 +41,11 @@
             background-color: #f5f5f5;
             font-weight: bold;
         }
-        .text-right {
-            text-align: right;
+        .text-right { text-align: right; }
+        .subtotal-row td {
+            border-top: 2px solid #333;
+            font-weight: bold;
+            background-color: #f9f9f9;
         }
         .net-pay {
             font-size: 14px;
@@ -74,8 +70,15 @@
                 <img src="{{ $company['logo_path'] }}" style="height: 40px; margin-bottom: 10px;">
             @endif
             <h2>{{ $company['name'] }}</h2>
-            <div>{{ $company['address'] }}</div>
-            <div>Phone: {{ $company['phone'] }}</div>
+            @if($company['address'])
+                <div>{{ $company['address'] }}</div>
+            @endif
+            @if($company['phone'])
+                <div>Phone: {{ $company['phone'] }}</div>
+            @endif
+            @if($company['email'])
+                <div>Email: {{ $company['email'] }}</div>
+            @endif
         </div>
         <div class="payslip-info">
             <h3>PAYSLIP</h3>
@@ -88,74 +91,89 @@
     <div class="section">
         <div><strong>Employee:</strong> {{ $employee['name'] }} ({{ $employee['id'] }})</div>
         <div><strong>Address:</strong> {{ $employee['address'] }}</div>
+        @if($payroll_run['title'])
+            <div><strong>Payroll Run:</strong> #{{ $payroll_run['id'] }} — {{ $payroll_run['title'] }}</div>
+        @endif
         <div><strong>Pay Period:</strong> {{ $payroll_run['period_start'] }} to {{ $payroll_run['period_end'] }}</div>
+        @if($payroll_run['payment_date'])
+            <div><strong>Payment Date:</strong> {{ $payroll_run['payment_date'] }}</div>
+        @endif
     </div>
 
     <!-- Earnings -->
     <div class="section">
         <div class="section-title">EARNINGS</div>
-        <table>
-            <tr>
-                <td>Base Salary</td>
-                <td class="text-right">${{ number_format($payslip['base_salary'], 2) }}</td>
-            </tr>
-            @if($payslip['overtime_pay'] > 0)
-            <tr>
-                <td>Overtime Pay</td>
-                <td class="text-right">${{ number_format($payslip['overtime_pay'], 2) }}</td>
-            </tr>
-            @endif
-            @if($payslip['bonus_amount'] > 0)
-            <tr>
-                <td>Bonus</td>
-                <td class="text-right">${{ number_format($payslip['bonus_amount'], 2) }}</td>
-            </tr>
-            @endif
-            @if($payslip['allowance_amount'] > 0)
-            <tr>
-                <td>Allowances</td>
-                <td class="text-right">${{ number_format($payslip['allowance_amount'], 2) }}</td>
-            </tr>
-            @endif
-            <tr style="background-color: #f9f9f9; font-weight: bold;">
-                <td>Gross Pay</td>
-                <td class="text-right">${{ number_format($payslip['gross_pay'], 2) }}</td>
-            </tr>
-        </table>
+        @if($payslip['earnings']->isNotEmpty())
+            <table>
+                @foreach($payslip['earnings'] as $item)
+                    <tr>
+                        <td>{{ $item->label }}</td>
+                        <td class="text-right">{{ $payslip['currency_symbol'] }}{{ number_format($item->amount, 2) }}</td>
+                    </tr>
+                @endforeach
+                <tr class="subtotal-row">
+                    <td>Gross Pay</td>
+                    <td class="text-right">{{ $payslip['currency_symbol'] }}{{ number_format($payslip['gross_pay'], 2) }}</td>
+                </tr>
+            </table>
+        @else
+            <table>
+                <tr class="subtotal-row">
+                    <td>Gross Pay</td>
+                    <td class="text-right">{{ $payslip['currency_symbol'] }}{{ number_format($payslip['gross_pay'], 2) }}</td>
+                </tr>
+            </table>
+        @endif
     </div>
 
     <!-- Deductions -->
     <div class="section">
         <div class="section-title">DEDUCTIONS</div>
-        <table>
-            @if($payslip['tax_deductions'] > 0)
-            <tr>
-                <td>Income Tax</td>
-                <td class="text-right">${{ number_format($payslip['tax_deductions'], 2) }}</td>
-            </tr>
-            @endif
-            @if($payslip['benefit_deductions'] > 0)
-            <tr>
-                <td>Benefits</td>
-                <td class="text-right">${{ number_format($payslip['benefit_deductions'], 2) }}</td>
-            </tr>
-            @endif
-            @if($payslip['other_deductions'] > 0)
-            <tr>
-                <td>Other Deductions</td>
-                <td class="text-right">${{ number_format($payslip['other_deductions'], 2) }}</td>
-            </tr>
-            @endif
-            <tr style="background-color: #f9f9f9; font-weight: bold;">
-                <td>Total Deductions</td>
-                <td class="text-right">${{ number_format($payslip['total_deductions'], 2) }}</td>
-            </tr>
-        </table>
+        @if($payslip['deductions']->isNotEmpty())
+            <table>
+                @foreach($payslip['deductions'] as $item)
+                    <tr>
+                        <td>{{ $item->label }}</td>
+                        <td class="text-right">{{ $payslip['currency_symbol'] }}{{ number_format($item->amount, 2) }}</td>
+                    </tr>
+                @endforeach
+                <tr class="subtotal-row">
+                    <td>Total Deductions</td>
+                    <td class="text-right">{{ $payslip['currency_symbol'] }}{{ number_format($payslip['total_deductions'], 2) }}</td>
+                </tr>
+            </table>
+        @else
+            <table>
+                <tr>
+                    <td>No deductions this period</td>
+                    <td class="text-right">-</td>
+                </tr>
+                <tr class="subtotal-row">
+                    <td>Total Deductions</td>
+                    <td class="text-right">{{ $payslip['currency_symbol'] }}{{ number_format($payslip['total_deductions'], 2) }}</td>
+                </tr>
+            </table>
+        @endif
     </div>
+
+    <!-- Employer Contributions (if any) -->
+    @if($payslip['employer_contributions']->isNotEmpty())
+        <div class="section">
+            <div class="section-title">EMPLOYER CONTRIBUTIONS</div>
+            <table>
+                @foreach($payslip['employer_contributions'] as $item)
+                    <tr>
+                        <td>{{ $item->label }}</td>
+                        <td class="text-right">{{ $payslip['currency_symbol'] }}{{ number_format($item->amount, 2) }}</td>
+                    </tr>
+                @endforeach
+            </table>
+        </div>
+    @endif
 
     <!-- Net Pay -->
     <div class="net-pay">
-        NET PAY: ${{ number_format($payslip['net_pay'], 2) }}
+        NET PAY: {{ $payslip['currency_symbol'] }}{{ number_format($payslip['net_pay'], 2) }}
     </div>
 
     <!-- Signatories -->
@@ -164,11 +182,11 @@
         <table style="width: 100%;">
             <tr>
                 <td style="width: 50%; vertical-align: top;">
-                    <div>Prepared By: {{ $payroll_run['prepared_by'] ?? 'N/A' }}</div>
+                    <div>Prepared By: {{ $payroll_run['prepared_by'] ?: '______________________' }}</div>
                     <div style="margin-top: 40px; border-top: 1px solid #333;">Signature</div>
                 </td>
                 <td style="width: 50%; vertical-align: top;">
-                    <div>Approved By: {{ $payroll_run['approved_by'] ?? 'N/A' }}</div>
+                    <div>Approved By: {{ $payroll_run['approved_by'] ?: '______________________' }}</div>
                     <div style="margin-top: 40px; border-top: 1px solid #333;">Signature</div>
                 </td>
             </tr>

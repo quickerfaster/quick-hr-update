@@ -83,7 +83,7 @@ return [
     'value' => [
       'display' => 'inline',
       'fillable' => true,
-      'field_type' => 'number',
+      'field_type' => 'currency',
       'label' => 'Value',
       'validation' => 'required|numeric|min:0',
     ],

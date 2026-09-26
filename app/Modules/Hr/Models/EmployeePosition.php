@@ -39,7 +39,6 @@ class EmployeePosition extends Model
 
     protected $fillable = [
         'company_id',
-        'pay_schedule_id',
         'employee_id',
         'job_title_id',
         'department_id',
@@ -301,9 +300,9 @@ class EmployeePosition extends Model
                     $position->employee->updateQuietly(['company_id' => $companyId]);
 
                     // Recompute onboarding_status after department/company change
-                    $hasCompany = (bool) ($position->employee->company_id ?: $companyId);
+                    $status = self::computeOnboardingStatus($position);
                     \DB::table('employees')->where('id', $position->employee_id)->update([
-                        'onboarding_status' => $hasCompany ? 'complete' : 'position_pending',
+                        'onboarding_status' => $status,
                     ]);
                 }
             }
@@ -332,9 +331,9 @@ class EmployeePosition extends Model
                 $position->employee->updateQuietly(['company_id' => $companyId]);
 
                 // Recompute onboarding_status now that position exists
-                $hasCompany = (bool) ($position->employee->company_id ?: $companyId);
+                $status = self::computeOnboardingStatus($position);
                 \DB::table('employees')->where('id', $position->employee_id)->update([
-                    'onboarding_status' => $hasCompany ? 'complete' : 'position_pending',
+                    'onboarding_status' => $status,
                 ]);
             }
         });
@@ -372,13 +371,34 @@ class EmployeePosition extends Model
                 return;
             }
 
-            $hasCompany = (bool) ($position->employee->company_id
-                ?: $position->department?->company_id);
+            $status = self::computeOnboardingStatus($position);
 
             \DB::table('employees')->where('id', $position->employee_id)->update([
-                'onboarding_status' => $hasCompany ? 'complete' : 'position_pending',
+                'onboarding_status' => $status,
             ]);
         });
+    }
+
+    /**
+     * Compute the onboarding_status for an employee based on their position.
+     *
+     * States:
+     *   - 'company_pending'  — no company assigned to the employee
+     *   - 'position_pending' — company assigned but position is bare (no job title or department)
+     *   - 'complete'         — company assigned AND position has job details
+     */
+    protected static function computeOnboardingStatus(self $position): string
+    {
+        $hasCompany = (bool) ($position->employee->company_id
+            ?: $position->department?->company_id);
+
+        if (! $hasCompany) {
+            return 'company_pending';
+        }
+
+        $hasJobDetails = (bool) ($position->job_title_id || $position->department_id);
+
+        return $hasJobDetails ? 'complete' : 'position_pending';
     }
 
     /**

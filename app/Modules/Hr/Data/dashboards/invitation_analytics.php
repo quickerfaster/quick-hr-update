@@ -104,7 +104,7 @@ return [
                 ],
                 2 => [
                     'label' => 'Role',
-                    'field' => 'role',
+                    'field' => 'roleRelation.name',
                 ],
                 3 => [
                     'label' => 'Sent',

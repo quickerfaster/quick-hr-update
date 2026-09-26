@@ -31,6 +31,10 @@
 
 
         @php
+            $currencyCode = $run->paySchedule?->currency_code
+                ?? $run->base_currency
+                ?? $run->company?->currency_code
+                ?? 'USD';
 
             $customWidgets = [
                 'title' => 'Executive Summary',
@@ -47,6 +51,8 @@
                         'model' => 'App\Modules\Payroll\Models\PayrollPayslip',
                         'aggregate' => 'sum',
                         'field' => 'gross_pay',
+                        'format' => 'currency',
+                        'currency_code' => $currencyCode,
                         'conditions' => [['payroll_run_id', '=', $run->id]],
                     ],
                     [
@@ -56,6 +62,8 @@
                         'model' => 'App\Modules\Payroll\Models\PayrollPayslip',
                         'aggregate' => 'sum',
                         'field' => 'total_deductions',
+                        'format' => 'currency',
+                        'currency_code' => $currencyCode,
                         'conditions' => [['payroll_run_id', '=', $run->id]],
                     ],
                     [
@@ -65,6 +73,8 @@
                         'model' => 'App\Modules\Payroll\Models\PayrollPayslip',
                         'aggregate' => 'sum',
                         'field' => 'total_taxes',
+                        'format' => 'currency',
+                        'currency_code' => $currencyCode,
                         'conditions' => [['payroll_run_id', '=', $run->id]],
                     ],
                     [
@@ -74,6 +84,8 @@
                         'model' => 'App\Modules\Payroll\Models\PayrollPayslip',
                         'aggregate' => 'sum',
                         'field' => 'net_pay',
+                        'format' => 'currency',
+                        'currency_code' => $currencyCode,
                         'conditions' => [['payroll_run_id', '=', $run->id]],
                     ],
                     // Chart
@@ -86,12 +98,13 @@
                         'aggregate' => 'sum',
                         'field' => 'gross_pay',
                         'chart_type' => 'bar',
+                        'currency_code' => $currencyCode,
                         'conditions' => [['payroll_run_id', '=', $run->id]],
                     ],
                     // Grouped tables using the custom grouped_list processor
                     [
                         'type' => 'grouped_list',
-                        'title' => 'Summary by Company',
+                        'currency_code' => $currencyCode,                        'title' => 'Summary by Company',
                         'width' => 12,
                         'model' => 'App\Modules\Payroll\Models\PayrollPayslip',
                         'group_by' => 'employee.company.name',
@@ -115,7 +128,7 @@
                     ],
                     [
                         'type' => 'grouped_list',
-                        'title' => 'Summary by Department',
+                        'currency_code' => $currencyCode,                        'title' => 'Summary by Department',
                         'width' => 6,
                         'model' => 'App\Modules\Payroll\Models\PayrollPayslip',
                         'group_by' => 'employee.employeePosition.department.name',
@@ -136,7 +149,7 @@
                     ],
                     [
                         'type' => 'grouped_list',
-                        'title' => 'Summary by Location',
+                        'currency_code' => $currencyCode,                        'title' => 'Summary by Location',
                         'width' => 6,
                         'model' => 'App\Modules\Payroll\Models\PayrollPayslip',
                         'group_by' => 'employee.employeePosition.location.name',

@@ -50,6 +50,7 @@ class PayrollServiceProvider extends ServiceProvider
         Livewire::component('qf.payslip-items', \App\Modules\Payroll\Http\Livewire\Payroll\PayslipItems::class);
         Livewire::component('qf.policy-calculation-builder', \App\Modules\Payroll\Http\Livewire\Payroll\PolicyCalculationBuilder::class);
         Livewire::component('payroll.executive-summary', \App\Modules\Payroll\Http\Livewire\Payroll\PayrollExecutiveSummary::class);
+        Livewire::component('qf.payslip-detail', \App\Modules\Payroll\Http\Livewire\Payroll\PayslipDetail::class);
 
         Event::listen(
             WorkflowApproved::class,

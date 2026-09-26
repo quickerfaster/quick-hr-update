@@ -5,9 +5,13 @@ use App\Modules\Attendance\Http\Controllers\ClockEventController;
 
 Route::middleware([
     'web',
+    'auth',
 ])->group(function () {
 
     // Clock Event API routes (for Android sync)
+    // These require authentication — the Android app must send a valid
+    // session cookie or API token. Without auth, anyone could inject
+    // fake clock events.
     Route::post('/api/clock-events', [ClockEventController::class, 'store'])
         ->name('clock-events.store');
 

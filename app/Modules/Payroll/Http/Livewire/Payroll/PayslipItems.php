@@ -17,9 +17,11 @@ class PayslipItems extends Component
     public function mount(int $recordId): void
     {
         $this->payslipId = $recordId;
-        $payslip = PayrollPayslip::with('items', 'employee.employeePosition')->find($recordId);
+        $payslip = PayrollPayslip::with('items', 'employee.employeePosition', 'employee.company')->find($recordId);
         $this->items = $payslip ? $payslip->items : collect();
-        $currencyCode = $payslip->employee->employeePosition->salary_currency ?? 'USD';
+        $currencyCode = $payslip->employee->employeePosition->salary_currency
+            ?? $payslip->employee->company->currency_code
+            ?? 'USD';
         $this->currencySymbol = $this->getCurrencySymbol($currencyCode);
     }
 

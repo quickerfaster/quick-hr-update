@@ -111,7 +111,10 @@ return [
                         'params'    => [
                             'configKey'     => 'hr.employee_position',
                             'recordId'      => '{{ employeePosition.id }}',
-                            'prefilledData' => ['employee_id' => '{{ id }}'],
+                            'prefilledData' => [
+                                'employee_id' => '{{ id }}',
+                                'company_id'  => '{{ company_id }}',
+                            ],
                             'inline'        => true,
                         ],
                         'title'     => 'Add Job Details',
@@ -143,7 +146,7 @@ return [
                 ],
                 2 => [
                     'label' => 'Role',
-                    'field' => 'role',
+                    'field' => 'roleRelation.name',
                 ],
                 7 => [
                     'label' => 'Sent',

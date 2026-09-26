@@ -1,7 +1,7 @@
 
 @php
     $isActive = false;
-    
+
     // Resolve the URL for this item, handling both named routes and URL paths.
     // Named routes (no slashes, e.g. "admin.users") use Laravel's route() helper.
     // URL paths (contain slashes, e.g. "/module/resource" or "module/resource") use url().
@@ -15,7 +15,7 @@
     } else {
         $itemUrl = '#';
     }
-    
+
     // 1. Try route/URL matching
     if (isset($item['route'])) {
         // If route is a named route (no slashes)
@@ -24,20 +24,21 @@
         } else {
             // Direct URL comparison
             $routePath = parse_url($item['route'], PHP_URL_PATH) ?? $item['route'];
-            $isActive = request()->url() === url($routePath);
+            $routeUrl = url($routePath);
+            $isActive = request()->url() === $routeUrl || str_starts_with(request()->url(), $routeUrl . '/');
         }
     } elseif (isset($item['url'])) {
         $isActive = request()->url() === url($item['url']);
     }
-    
+
     // 2. If not active yet, try model name matching (fallback for detail pages)
     if (!$isActive && !empty($currentModelName)) {
         $itemKey = $item['modelName'] ?? $item['key'] ?? '';
         $itemLabel = $item['label'] ?? '';
-        
+
         // Normalize model name: "SomeModelName" -> "some_model_name"
         $normalizedModel = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $currentModelName));
-        
+
         // Compare with item key (already snake_case) or label (case-insensitive)
         $isActive = ($itemKey === $normalizedModel) || (strtolower($itemLabel) === strtolower($currentModelName));
     }
@@ -69,7 +70,7 @@
         $permission = 'view_' . \Illuminate\Support\Str::singular(str_replace('-', '_', $viewName));
         $hasPermission = \QuickerFaster\UILibrary\Services\AccessControl\AuthorizationService::canAccessView($permission);
     }
-        
+
 @endphp
 
 @if ($hasPermission)
@@ -97,7 +98,7 @@
 @endif
 
 
-{{-- Optional: Add CSS for the active class  
+{{-- Optional: Add CSS for the active class
 <style>
     .nav-link.active {
         background-color: rgba(13, 110, 253, 0.1);

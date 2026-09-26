@@ -145,12 +145,16 @@
                                     {{ $run->period_end->format('M d, Y') }}
                                 </div>
 
-                                @if ($run->base_currency)
-                                    <div class="col-sm-4 text-muted fw-semibold small text-uppercase">Base Currency</div>
-                                    <div class="col-sm-8 text-dark fw-medium border-bottom pb-2 border-light">
-                                        {{ $run->base_currency }}
-                                    </div>
-                                @endif
+                                @php
+                                    $displayCurrency = $run->paySchedule->currency_code
+                                        ?? $run->base_currency
+                                        ?? $run->company?->currency_code
+                                        ?? 'USD';
+                                @endphp
+                                <div class="col-sm-4 text-muted fw-semibold small text-uppercase">Base Currency</div>
+                                <div class="col-sm-8 text-dark fw-medium border-bottom pb-2 border-light">
+                                    {{ $displayCurrency }}
+                                </div>
 
                                 @if ($run->payment_date)
                                     <div class="col-sm-4 text-muted fw-semibold small text-uppercase">Payment Date</div>
@@ -171,7 +175,10 @@
                         </div>
                         <div class="card-body p-4">
                             @php
-                                $defaultCurrency = $run->paySchedule->currency_code ?? ($run->base_currency ?? 'USD');
+                                $defaultCurrency = $run->paySchedule->currency_code
+                                    ?? $run->base_currency
+                                    ?? $run->company?->currency_code
+                                    ?? 'USD';
                                 $currencySymbol = $this->getCurrencySymbol($defaultCurrency);
                             @endphp
                             <div class="row gy-3">

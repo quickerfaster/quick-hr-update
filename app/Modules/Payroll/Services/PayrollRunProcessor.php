@@ -150,15 +150,42 @@ private function processSalariedDailyEmployee(PayrollRun $run, $employee, $posit
             'total_deductions' => 0.00,
             'net_pay' => $data['net_pay'],
             'payslip_number' => $this->generatePayslipNumber($run, $employee),
+            'currency_code' => $run->base_currency ?? 'USD',
         ]);
     }
 
     /**
-     * Generate unique payslip number
+     * Generate a unique, sequential payslip number using the atomic
+     * payslip_number_sequence table (same pattern as employee numbers).
+     *
+     * Format: PAYSLIP-{year}-{month}-{sequence:6}
+     * Example: PAYSLIP-2026-09-000042
+     *
+     * The atomic UPDATE guarantees no collisions, ever.
      */
     private function generatePayslipNumber(PayrollRun $run, $employee): string
     {
-        return 'PSL-' . now()->format('Y') . '-' . str_pad($run->id, 6, '0', STR_PAD_LEFT);
+        $sequenceName = 'payslip_number';
+
+        if (\DB::table('payslip_number_sequence')->where('name', $sequenceName)->doesntExist()) {
+            \DB::table('payslip_number_sequence')->insert([
+                'name'          => $sequenceName,
+                'current_value' => 1,
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]);
+        }
+
+        \DB::update(
+            'UPDATE payslip_number_sequence SET current_value = current_value + 1, updated_at = ? WHERE name = ?',
+            [now(), $sequenceName]
+        );
+
+        $sequence = (int) \DB::table('payslip_number_sequence')
+            ->where('name', $sequenceName)
+            ->value('current_value');
+
+        return 'PAYSLIP-' . now()->format('Y-m') . '-' . str_pad($sequence, 6, '0', STR_PAD_LEFT);
     }
 
     /**

@@ -17,8 +17,8 @@
             <table class="table table-sm table-bordered">
                 <thead>
                     <tr>
-                        <th>Start (₦)</th>
-                        <th>End (₦)</th>
+                        <th>Start ({{ $currencySymbol }})</th>
+                        <th>End ({{ $currencySymbol }})</th>
                         <th>Rate (%)</th>
                         <th style="width: 50px"></th>
                     </tr>
@@ -96,7 +96,7 @@
                         <div class="input-group">
                             <span class="input-group-text">
                                 @if ($calculationType === 'fixed')
-                                    <i class="fas fa-dollar-sign"></i>
+                                    {{ $currencySymbol }}
                                 @else
                                     <i class="fas fa-percent"></i>
                                 @endif
@@ -129,7 +129,7 @@
                         <div class="input-group">
                             <span class="input-group-text">
                                 @if ($calculationType === 'fixed')
-                                    <i class="fas fa-dollar-sign"></i>
+                                    {{ $currencySymbol }}
                                 @else
                                     <i class="fas fa-percent"></i>
                                 @endif

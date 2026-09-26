@@ -1,6 +1,6 @@
 @php
     use QuickerFaster\UILibrary\Services\Config\ConfigResolver;
-    $resolver = app(ConfigResolver::class, ['configKey' => "payroll._payslip"]);
+    $resolver = app(ConfigResolver::class, ['configKey' => "payroll.payroll_payslip"]);
     $config = $resolver->getConfig();
     $customComponent = !empty($config['detailComponent']) ? $config['detailComponent'] : 'qf.data-table-detail';
 @endphp
@@ -12,5 +12,5 @@
         'titleRow' => ['enabled' => false],
         'context_menu' => ['enabled' => true],
     ]">
-    @livewire($customComponent, ["inline" => true, "recordId" => $recordId, "configKey" => "payroll._payslip", "returnParams" => $returnParams])
+    @livewire($customComponent, ["inline" => true, "recordId" => $recordId, "configKey" => "payroll.payroll_payslip", "returnParams" => $returnParams])
 </x-qf::navigation-layout>

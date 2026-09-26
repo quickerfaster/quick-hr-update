@@ -134,7 +134,12 @@
                             @endif
                         </td>
                         <td>
-                            {{ $this->getCurrencySymbol($emp->salary_currency ?? 'USD') }}{{ number_format($emp->base_salary, 2) }}
+                            @php
+                                $adjCurrency = $emp->salary_currency
+                                    ?? $emp->employee?->company?->currency_code
+                                    ?? 'USD';
+                            @endphp
+                            {{ $this->getCurrencySymbol($adjCurrency) }}{{ number_format($emp->base_salary, 2) }}
                         </td>
                         <td>
                             <div class="input-group input-group-sm">

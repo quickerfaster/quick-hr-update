@@ -9,7 +9,7 @@ return [
             'route' => NULL,
             'url' => 'hr/dashboard',
             'permission' => 'view_hidden_dashboard',
-            'roles' => ['*'],
+            'roles' => ['super_admin', 'admin', 'company_admin'],
         ],
         'my-portal' => [
             'label' => 'My Portal',
@@ -27,7 +27,7 @@ return [
             'route' => NULL,
             'url' => 'hr/dashboard-organization-overview',
             'permission' => 'view_organization_overview',
-            'roles' => ['*'],
+            'roles' => ['hr_manager', 'hr_officer', 'recruiter', 'super_admin', 'admin', 'company_admin'],
         ],
         'people' => [
             'label' => 'People',
@@ -35,7 +35,8 @@ return [
             'order' => 999,
             'route' => NULL,
             'url' => 'hr/dashboard-people-overview',
-            'roles' => ['*'],
+            'permission' => 'view_people_overview',
+            'roles' => ['hr_manager', 'hr_officer', 'manager', 'supervisor', 'recruiter', 'super_admin', 'admin', 'company_admin'],
         ],
         'manage' => [
             'label' => 'Manage',
@@ -44,7 +45,7 @@ return [
             'route' => NULL,
             'url' => 'hr/dashboard-manage-overview',
             'permission' => 'view_manage_overview',
-            'roles' => ['*'],
+            'roles' => ['hr_manager', 'hr_officer', 'recruiter', 'super_admin', 'admin', 'company_admin'],
         ],
         'onboarding' => [
             'label' => 'Onboarding',
@@ -53,7 +54,7 @@ return [
             'route' => NULL,
             'url' => 'hr/onboarding-overview',
             'permission' => 'view_invitation',
-            'roles' => ['*'],
+            'roles' => ['hr_manager', 'hr_officer', 'recruiter', 'super_admin', 'admin', 'company_admin'],
         ],
     ],
     'contexts' => [

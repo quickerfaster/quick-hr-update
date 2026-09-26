@@ -114,7 +114,7 @@ class Step1EmployeeRecord extends Component
                     'company_id' => $companyId ?: $employee->company_id,
                 ]);
 
-                $this->autoCreatePosition($employee, $companyId);
+                $this->setOnboardingStatus($employee);
 
                 $this->dispatch('stepComplete', employeeId: $employee->id, step: 1);
                 $this->dispatch('stepSaved', employeeId: $employee->id);
@@ -156,42 +156,17 @@ class Step1EmployeeRecord extends Component
             ));
             $employee = $existingEmployee;
         } elseif (empty($employeeNumber)) {
-            $maxRetries = 5;
-            $sequenceOffset = 0;
+            $generator = app(ValueGenerator::class);
+            $employeeNumber = $generator->generate(
+                Employee::class,
+                'employee_number',
+                ['autoGenerate' => true],
+            );
 
-            for ($attempt = 0; $attempt < $maxRetries; $attempt++) {
-                try {
-                    $generator = app(ValueGenerator::class);
-                    $baseNumber = $generator->generate(
-                        Employee::class,
-                        'employee_number',
-                        ['autoGenerate' => true],
-                    );
-
-                    // If retrying after a collision, increment the sequence
-                    if ($sequenceOffset > 0) {
-                        $employeeNumber = preg_replace_callback(
-                            '/(\d+)$/',
-                            fn ($m) => str_pad((int)$m[1] + $sequenceOffset, strlen($m[1]), '0', STR_PAD_LEFT),
-                            $baseNumber
-                        );
-                    } else {
-                        $employeeNumber = $baseNumber;
-                    }
-
-                    $employee = Employee::withoutCompanyScope()->updateOrCreate(
-                        ['user_id' => $user->id],
-                        array_merge(['employee_number' => $employeeNumber], $baseAttributes)
-                    );
-
-                    break; // Success — exit retry loop
-                } catch (UniqueConstraintViolationException $e) {
-                    $sequenceOffset++;
-                    if ($attempt === $maxRetries - 1) {
-                        throw $e; // Re-throw on final attempt
-                    }
-                }
-            }
+            $employee = Employee::withoutCompanyScope()->updateOrCreate(
+                ['user_id' => $user->id],
+                array_merge(['employee_number' => $employeeNumber], $baseAttributes)
+            );
         } else {
             $employee = Employee::withoutCompanyScope()->updateOrCreate(
                 ['user_id' => $user->id],
@@ -199,37 +174,42 @@ class Step1EmployeeRecord extends Component
             );
         }
 
-        // Only auto-create position for pre-linked employees (Method 1).
-        // For new employees (Method 2), the admin creates the position later
-        // with proper job_title_id, department_id, etc.
-        if ($this->isPreLinked) {
-            $this->autoCreatePosition($employee, $companyId);
-        }
+        // Set onboarding_status based on what the admin has already done.
+        // Position creation is left to the admin — the wizard only handles
+        // the employee record. If the admin already created a position
+        // before sending the invitation, mark onboarding as complete.
+        $this->setOnboardingStatus($employee);
 
         $this->dispatch('stepComplete', employeeId: $employee->id, step: 1);
         $this->dispatch('stepSaved', employeeId: $employee->id);
     }
 
     /**
-     * Auto-create a minimal EmployeePosition if none exists, so the
-     * employee has a position record from day one (prevents null FKs).
+     * Set the employee's onboarding_status based on whether the admin
+     * has already created a position and assigned a company.
+     *
+     * - complete:         admin created position before invitation
+     * - position_pending: has company, needs position (admin handles later)
+     * - company_pending:  needs both company and position
      */
-    protected function autoCreatePosition($employee, ?int $companyId): void
+    protected function setOnboardingStatus($employee): void
     {
-        if (!$companyId) {
-            return;
+        $hasPosition = \App\Modules\Hr\Models\EmployeePosition::withoutGlobalScopes()
+            ->where('employee_id', $employee->id)
+            ->exists();
+
+        $hasCompany = (bool) ($employee->company_id ?? null);
+
+        if ($hasPosition) {
+            $status = 'complete';
+        } elseif ($hasCompany) {
+            $status = 'position_pending';
+        } else {
+            $status = 'company_pending';
         }
 
-        if (\App\Modules\Hr\Models\EmployeePosition::withoutGlobalScopes()
-                ->where('employee_id', $employee->id)->exists()) {
-            return;
-        }
-
-        \App\Modules\Hr\Models\EmployeePosition::create([
-            'employee_id'        => $employee->id,
-            'company_id'         => $companyId,
-            'employment_status'  => 'Active',
-            'effective_date'     => $this->hire_date,
+        \DB::table('employees')->where('id', $employee->id)->update([
+            'onboarding_status' => $status,
         ]);
     }
 

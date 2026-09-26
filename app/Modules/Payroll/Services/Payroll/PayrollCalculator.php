@@ -37,9 +37,13 @@ class PayrollCalculator
             return;
         }
 
-        // Get total employee count
-        $totalEmployees = EmployeePosition::withoutCompanyScope()->where('pay_schedule_id', $this->run->pay_schedule_id)
-            ->where('employment_status', 'Active')
+        // Get total employee count via employee_payroll_profiles
+        $totalEmployees = EmployeePosition::withoutCompanyScope()
+            ->join('employee_payroll_profiles', 'employee_positions.employee_id', '=', 'employee_payroll_profiles.employee_id')
+            ->where('employee_payroll_profiles.pay_schedule_id', $this->run->pay_schedule_id)
+            ->where('employee_payroll_profiles.is_active', 1)
+            ->where('employee_positions.employment_status', 'Active')
+            ->whereNull('employee_positions.deleted_at')
             ->count();
 
         // Create or reset progress record (outside transaction, so immediately visible)
@@ -57,9 +61,14 @@ class PayrollCalculator
             PayrollPayslip::withoutCompanyScope()->where('payroll_run_id', $this->run->id)->delete();
         });
 
-        // Process employees in chunks – each employee’s data saved in its own transaction
-        EmployeePosition::withoutCompanyScope()->where('pay_schedule_id', $this->run->pay_schedule_id)
-            ->where('employment_status', 'Active')
+        // Process employees in chunks – each employee's data saved in its own transaction
+        EmployeePosition::withoutCompanyScope()
+            ->join('employee_payroll_profiles', 'employee_positions.employee_id', '=', 'employee_payroll_profiles.employee_id')
+            ->where('employee_payroll_profiles.pay_schedule_id', $this->run->pay_schedule_id)
+            ->where('employee_payroll_profiles.is_active', 1)
+            ->where('employee_positions.employment_status', 'Active')
+            ->whereNull('employee_positions.deleted_at')
+            ->select('employee_positions.*')
             ->with([
                 'employee' => function ($q) {
                     $q->withoutCompanyScope();
@@ -568,11 +577,39 @@ protected function annualizeSalary(float $salary, string $frequency): float
 }
 
     /**
-     * Generate unique payslip number.
+     * Generate a unique, sequential payslip number using the atomic
+     * payslip_number_sequence table (same pattern as employee numbers).
+     *
+     * Format: PAYSLIP-{year}-{month}-{sequence:6}
+     * Example: PAYSLIP-2026-09-000042
+     *
+     * The atomic UPDATE guarantees no collisions, ever.
      */
     protected function generatePayslipNumber(string $employeeNumber): string
     {
-        return 'PS-' . $employeeNumber . '-' . $this->run->id . '-' . now()->format('YmdHis');
+        $sequenceName = 'payslip_number';
+
+        // Auto-create the sequence row on first use
+        if (\DB::table('payslip_number_sequence')->where('name', $sequenceName)->doesntExist()) {
+            \DB::table('payslip_number_sequence')->insert([
+                'name'          => $sequenceName,
+                'current_value' => 1,
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]);
+        }
+
+        // Atomic increment — row-level lock prevents duplicates
+        \DB::update(
+            'UPDATE payslip_number_sequence SET current_value = current_value + 1, updated_at = ? WHERE name = ?',
+            [now(), $sequenceName]
+        );
+
+        $sequence = (int) \DB::table('payslip_number_sequence')
+            ->where('name', $sequenceName)
+            ->value('current_value');
+
+        return 'PAYSLIP-' . now()->format('Y-m') . '-' . str_pad($sequence, 6, '0', STR_PAD_LEFT);
     }
 
     // -----------------------------------------------------------------
@@ -1133,6 +1170,7 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
         'total_benefit_deductions' => $totalDeductions,
         'net_pay' => $netPay,
         'payment_status' => 'pending',
+        'currency_code' => $this->run->base_currency ?? 'USD',
     ]);
 
     // Create line items

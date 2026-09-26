@@ -83,7 +83,15 @@
 
         <div class="alert alert-info">
             <strong>Total Cash Required:</strong>
-            {{ $previewData['employees'][0]['currency_symbol'] ?? '$' }}{{ number_format($previewData['total_cash_required'] ?? 0, 2) }}
+            @php
+                $run = \App\Modules\Payroll\Models\PayrollRun::withoutCompanyScope()->find($payrollRunId);
+                $totalCurrencyCode = $run->paySchedule?->currency_code
+                    ?? $run->base_currency
+                    ?? $run->company?->currency_code
+                    ?? 'USD';
+                $totalCurrencySymbol = $this->getCurrencySymbol($totalCurrencyCode);
+            @endphp
+            {{ $totalCurrencySymbol }}{{ number_format($previewData['total_cash_required'] ?? 0, 2) }}
         </div>
 
         {{-- Filters --}}
@@ -219,7 +227,10 @@
                     @forelse($payslips as $payslip)
                         @php
                             $position = $payslip->employee->employeePosition;
-                            $currencySymbol = $this->getCurrencySymbol($position->salary_currency ?? 'USD');
+                            $previewCurrency = $position->salary_currency
+                                ?? $payslip->employee?->company?->currency_code
+                                ?? 'USD';
+                            $currencySymbol = $this->getCurrencySymbol($previewCurrency);
                         @endphp
                         <tr wire:key="payslip-{{ $payslip->id }}">
                             <td>{{ $payslip->employee->first_name }} {{ $payslip->employee->last_name }}

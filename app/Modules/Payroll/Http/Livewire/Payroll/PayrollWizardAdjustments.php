@@ -84,16 +84,19 @@ public function mount(int $stepIndex, int $payrollRunId): void
             return;
         }
 
-        $positionQuery = EmployeePosition::withoutCompanyScope();
+        $positionQuery = EmployeePosition::withoutCompanyScope()
+            ->join('employees', 'employee_positions.employee_id', '=', 'employees.id');
 
         // Only filter by pay_schedule_id for single-company runs.
         // Multi-company runs have pay_schedule_id = null and must include
         // employees across all schedules.
         if (!$run->is_multi_company) {
-            $positionQuery->where('pay_schedule_id', $run->pay_schedule_id);
+            $positionQuery->join('employee_payroll_profiles', 'employees.id', '=', 'employee_payroll_profiles.employee_id')
+                ->where('employee_payroll_profiles.pay_schedule_id', $run->pay_schedule_id)
+                ->where('employee_payroll_profiles.is_active', 1);
         }
 
-        $allEmployeeIds = $positionQuery->pluck('employee_id');
+        $allEmployeeIds = $positionQuery->pluck('employee_positions.employee_id');
 
         foreach ($allEmployeeIds as $employeeId) {
             $this->tempAdjustments[$employeeId] = [
@@ -132,9 +135,11 @@ public function getEmployeesProperty()
         ->where('employee_positions.employment_status', 'Active')
         ->whereNull('employee_positions.deleted_at');
 
-    // Single‑company: filter by pay_schedule_id
+    // Single‑company: filter by pay_schedule_id via employee_payroll_profiles
     if (!$run->is_multi_company) {
-        $query->where('employee_positions.pay_schedule_id', $run->pay_schedule_id);
+        $query->join('employee_payroll_profiles', 'employees.id', '=', 'employee_payroll_profiles.employee_id')
+            ->where('employee_payroll_profiles.pay_schedule_id', $run->pay_schedule_id)
+            ->where('employee_payroll_profiles.is_active', 1);
     }
 
     // Search
@@ -325,19 +330,19 @@ protected function saveAdjustmentForEmployee($employeeId, $type, $amount): void
 
     public function save(): void
     {
-        /*foreach ($this->tempAdjustments as $employeeId => $types) {
-            foreach ($types as $type => $amount) {
-                $this->saveAdjustmentForEmployee($employeeId, $type, (float) $amount);
-            }
-        }*/
-        // All adjustments are already saved individually via wire:model
+        // All adjustments are already saved individually via wire:model.
 
-        // Force recalculation when moving to preview
+        // Trigger recalculation synchronously so the preview step
+        // shows updated payslips immediately. The main job is lightweight
+        // (counts employees, deletes old payslips, dispatches batch jobs).
+        // Heavy per-employee calculation stays queued via ProcessEmployeeBatch.
         $run = PayrollRun::withoutCompanyScope()->find($this->payrollRunId);
         if ($run) {
             $run->update(['calculation_status' => 'pending']);
-            // Delete old payslips to ensure clean slate (the job will recreate them)
-            \App\Modules\Payroll\Models\PayrollPayslip::withoutCompanyScope()->where('payroll_run_id', $this->payrollRunId)->delete();
+            \App\Modules\Payroll\Models\PayrollPayslip::withoutCompanyScope()
+                ->where('payroll_run_id', $this->payrollRunId)
+                ->delete();
+            \App\Modules\Payroll\Jobs\Payrolls\ProcessPayrollRun::dispatchSync($run);
         }
 
         $this->dispatch('adjustmentsComplete');

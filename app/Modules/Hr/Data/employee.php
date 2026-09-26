@@ -46,7 +46,7 @@ return [
       'display' => 'inline',
       'fillable' => true,
       'field_type' => 'string',
-      'label' => 'Work Email',
+      'label' => 'Email',
       'validation' => 'nullable|email|unique:employees,email',
       'searchable' => true,
       'wizard' => [

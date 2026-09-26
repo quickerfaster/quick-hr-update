@@ -75,21 +75,43 @@ class Step3PayrollBanking extends Component
         }
 
         if (class_exists(\App\Modules\Payroll\Models\EmployeePayrollProfile::class)) {
-            $defaultSchedule = \App\Modules\Payroll\Models\PaySchedule::where('is_default', true)->first();
             $companyId = $employee->company_id;
 
-            \App\Modules\Payroll\Models\EmployeePayrollProfile::withoutCompanyScope()->updateOrCreate(
-                ['employee_id' => $employee->id],
-                [
-                    'company_id'          => $companyId,
-                    'pay_schedule_id'     => $defaultSchedule?->id,
-                    'effective_date'      => now(),
-                    'bank_name'           => $this->bank_name ?: null,
-                    'bank_account_number' => $this->account_number ?: null,
-                    'bank_account_name'   => $this->account_name ?: null,
-                    'bank_code'           => $this->bank_code ?: null,
-                ]
-            );
+            // Resolve default pay schedule: prefer the employee's company-specific
+            // default, fall back to any system-wide default. Bypass CompanyScope
+            // because the onboarding user may not have a session company context
+            // matching the pay schedule's company.
+            $defaultSchedule = \App\Modules\Payroll\Models\PaySchedule::withoutCompanyScope()
+                ->where('is_default', true)
+                ->where('company_id', $companyId)
+                ->first()
+                ?? \App\Modules\Payroll\Models\PaySchedule::withoutCompanyScope()
+                    ->where('is_default', true)
+                    ->first();
+
+            if (!$defaultSchedule) {
+                // No pay schedule exists for this company or system-wide.
+                // Log a warning so the admin can assign one later, but don't
+                // crash the onboarding — the payroll profile can be created
+                // later when a schedule is available.
+                \Log::warning('Onboarding: No default pay schedule found, skipping payroll profile creation', [
+                    'employee_id' => $employee->id,
+                    'company_id'  => $companyId,
+                ]);
+            } else {
+                \App\Modules\Payroll\Models\EmployeePayrollProfile::withoutCompanyScope()->updateOrCreate(
+                    ['employee_id' => $employee->id],
+                    [
+                        'company_id'          => $companyId,
+                        'pay_schedule_id'     => $defaultSchedule->id,
+                        'effective_date'      => now(),
+                        'bank_name'           => $this->bank_name ?: null,
+                        'bank_account_number' => $this->account_number ?: null,
+                        'bank_account_name'   => $this->account_name ?: null,
+                        'bank_code'           => $this->bank_code ?: null,
+                    ]
+                );
+            }
         }
 
         $this->dispatch('stepComplete', step: 3);

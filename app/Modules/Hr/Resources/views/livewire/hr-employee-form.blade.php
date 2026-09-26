@@ -135,16 +135,18 @@
                                                     </select>
                                                     <small class="text-muted">Role assigned when the employee accepts the invitation.</small>
                                                 </div>
-                                                <div class="col-md-6">
-                                                    <label class="form-label fw-semibold small">Assign Company</label>
-                                                    <select class="form-select form-select-sm" wire:model="inviteCompanyId">
-                                                        <option value="">— Select Company —</option>
-                                                        @foreach ($companies as $id => $name)
-                                                            <option value="{{ $id }}">{{ $name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                    <small class="text-muted">Company the employee will belong to.</small>
-                                                </div>
+                                                @if ($sessionCompanyId === 0)
+                                                    <div class="col-md-6">
+                                                        <label class="form-label fw-semibold small">Assign Company</label>
+                                                        <select class="form-select form-select-sm" wire:model="inviteCompanyId">
+                                                            <option value="">— Select Company —</option>
+                                                            @foreach ($companies as $id => $name)
+                                                                <option value="{{ $id }}">{{ $name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <small class="text-muted">Company the employee will belong to.</small>
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

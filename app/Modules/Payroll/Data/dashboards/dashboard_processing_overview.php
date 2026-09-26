@@ -90,7 +90,7 @@ return [
                 0 => ['label' => 'Period Start', 'field' => 'period_start', 'format' => 'date'],
                 1 => ['label' => 'Period End', 'field' => 'period_end', 'format' => 'date'],
                 2 => ['label' => 'Status', 'field' => 'status'],
-                3 => ['label' => 'Total Net', 'field' => 'payslips_sum_net_pay', 'aggregate' => 'sum', 'format' => 'currency'],
+                3 => ['label' => 'Total Net', 'field' => 'payslips_sum_net_pay', 'aggregate' => 'sum', 'format' => 'currency', 'currency_code' => 'NGN'],
             ],
             'width' => 6,
             'show_view_all' => true,
@@ -111,7 +111,7 @@ return [
             'columns' => [
                 0 => ['label' => 'Employee', 'field' => 'employee.employee_number'],
                 1 => ['label' => 'Period End', 'field' => 'payrollRun.period_end', 'format' => 'date'],
-                2 => ['label' => 'Net Pay', 'field' => 'net_pay', 'format' => 'currency'],
+                2 => ['label' => 'Net Pay', 'field' => 'net_pay', 'format' => 'currency', 'currency_code' => 'NGN'],
             ],
             'width' => 6,
             'show_view_all' => true,

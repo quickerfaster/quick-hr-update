@@ -112,6 +112,14 @@ Route::middleware(['web', 'auth'])->group(function () {
         return view('hr::hr.invitations');
     })->name('hr.invitations');
 
+    // Employee Onboarding wizard (HR-staff initiated)
+    Route::get('/hr/employee-onboarding', function () {
+        if (!\QuickerFaster\UILibrary\Services\AccessControl\AuthorizationService::canAccessView('view_invitation')) {
+            abort(403, 'This action is unauthorized.');
+        }
+        return view('hr::employee-onboarding');
+    })->name('hr.employee-onboarding');
+
     Route::get('/hr/invitation-analytics', function () {
         return view('hr::hr.invitation-analytics');
     })->name('hr.invitation-analytics');

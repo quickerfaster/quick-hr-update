@@ -69,7 +69,6 @@ class PayrollPayslip extends Model
         'total_deductions' => 0,
         'total_taxes' => 0,
         'total_benefit_deductions' => 0,
-        'currency_code' => 'USD',
         'exchange_rate' => 1,
         'employer_contribution_total' => 0,
         'taxable_earnings' => 0,

@@ -65,6 +65,19 @@ class EmployeeOnboardingWizard extends Component
 
             // Step 1 is pre-completed when employee already exists
             $this->completedSteps['employee_record'] = true;
+
+            // Ensure onboarding_status is set even when no position exists yet.
+            // Pre-linked employees (from invitations) have company_id but no
+            // EmployeePosition — the admin creates that later. Without this,
+            // the employee is invisible on the onboarding dashboard because
+            // onboarding_status stays null and the dashboard filters exclude null.
+            if (! \App\Modules\Hr\Models\EmployeePosition::withoutGlobalScopes()
+                    ->where('employee_id', $employee->id)->exists()) {
+                $hasCompany = (bool) $employee->company_id;
+                \DB::table('employees')->where('id', $employee->id)->update([
+                    'onboarding_status' => $hasCompany ? 'position_pending' : 'company_pending',
+                ]);
+            }
         }
 
         // Step 2: Check if EmployeeProfile exists

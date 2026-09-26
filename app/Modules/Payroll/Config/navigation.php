@@ -34,7 +34,7 @@ return [
                 'key' => 'payroll_run_list',
                 'label' => 'Payroll Runs',
                 'icon' => 'fas fa-file-invoice-dollar',
-                'route' => '/payroll/payroll-runs',
+                'route' => '/payroll-runs',
                 'permission' => 'view_payroll_run',
                 'order' => 2,
                 'page_title' => NULL,

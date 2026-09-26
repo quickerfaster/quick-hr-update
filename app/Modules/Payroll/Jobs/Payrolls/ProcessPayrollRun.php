@@ -118,10 +118,15 @@ class ProcessPayrollRun implements ShouldQueue
                 $q->whereNull('deleted_at');
             });
 
-        // For single-company runs with a pay schedule
+        // For single-company runs with a pay schedule, filter by
+        // employee_payroll_profiles (the canonical link between
+        // employees and pay schedules).
         if (!$run->is_multi_company && $run->pay_schedule_id) {
             $employeeQuery->whereHas('employee', function ($q) use ($run) {
-                $q->where('pay_schedule_id', $run->pay_schedule_id);
+                $q->whereHas('employeePayrollProfile', function ($q2) use ($run) {
+                    $q2->where('pay_schedule_id', $run->pay_schedule_id)
+                       ->where('is_active', 1);
+                });
             });
         }
 

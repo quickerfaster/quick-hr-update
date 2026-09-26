@@ -199,10 +199,15 @@ protected function computeEligibleCompanies(): array
         return [];
     }
 
-    // Query active employee positions on this schedule, grouped by company
+    // Query active employee positions linked to this pay schedule via
+    // employee_payroll_profiles (the canonical link between employee and
+    // pay schedule). employee_positions.pay_schedule_id is often NULL
+    // because the relationship is managed through payroll profiles.
     $results = DB::table('employee_positions')
         ->join('employees', 'employee_positions.employee_id', '=', 'employees.id')
-        ->where('employee_positions.pay_schedule_id', $this->pay_schedule_id)
+        ->join('employee_payroll_profiles', 'employees.id', '=', 'employee_payroll_profiles.employee_id')
+        ->where('employee_payroll_profiles.pay_schedule_id', $this->pay_schedule_id)
+        ->where('employee_payroll_profiles.is_active', 1)
         ->where('employee_positions.employment_status', 'Active')
         ->whereNull('employee_positions.deleted_at')
         ->select('employees.company_id', DB::raw('COUNT(*) as employee_count'))
@@ -315,8 +320,12 @@ public function goToStep2()
             $payScheduleId = $this->pay_schedule_id;
         }
 
+        // Resolve base_currency: pay schedule → company → USD
+        $baseCurrency = $this->resolveBaseCurrency($payScheduleId, $runCompanyId);
+
         if (!$this->payrollRunId) {
             $run = PayrollRun::create([
+                'created_by'        => auth()->id(),
                 'pay_schedule_id'   => $payScheduleId,
                 'period_start'      => $this->period_start,
                 'period_end'        => $this->period_end,
@@ -326,6 +335,7 @@ public function goToStep2()
                 'title'             => $this->title,
                 'company_id'        => $runCompanyId,
                 'is_multi_company'  => $this->isMultiCompany,
+                'base_currency'     => $baseCurrency,
             ]);
             $this->payrollRunId = $run->id;
         } else {
@@ -338,10 +348,12 @@ public function goToStep2()
                     'title'             => $this->title,
                     'company_id'        => $runCompanyId,
                     'is_multi_company'  => $this->isMultiCompany,
+                    'base_currency'     => $baseCurrency,
                 ]);
             } else {
                 // If run missing, create a new one
                 $run = PayrollRun::create([
+                    'created_by'        => auth()->id(),
                     'pay_schedule_id'   => $payScheduleId,
                     'period_start'      => $this->period_start,
                     'period_end'        => $this->period_end,
@@ -351,6 +363,7 @@ public function goToStep2()
                     'title'             => $this->title,
                     'company_id'        => $runCompanyId,
                     'is_multi_company'  => $this->isMultiCompany,
+                    'base_currency'     => $baseCurrency,
                 ]);
                 $this->payrollRunId = $run->id;
             }
@@ -469,6 +482,33 @@ public function finalize()
         });
         session()->forget($this->getWizardId());
         $this->redirect('/payroll/payroll-runs');
+    }
+
+    /**
+     * Resolve the base currency for a new payroll run.
+     *
+     * Priority: pay schedule currency → company currency → USD.
+     */
+    protected function resolveBaseCurrency(?int $payScheduleId, ?int $companyId): string
+    {
+        // 1. Pay schedule currency
+        if ($payScheduleId) {
+            $schedule = PaySchedule::find($payScheduleId);
+            if ($schedule && !empty($schedule->currency_code)) {
+                return $schedule->currency_code;
+            }
+        }
+
+        // 2. Company currency
+        if ($companyId) {
+            $company = Company::find($companyId);
+            if ($company && !empty($company->currency_code)) {
+                return $company->currency_code;
+            }
+        }
+
+        // 3. Fallback
+        return 'USD';
     }
 
     public function render()

@@ -465,8 +465,24 @@ return [
     |
     */
     'module_access' => [
-        // Example: 'system' => ['super_admin'],
-        // Example: 'hr'     => ['admin', 'super_admin'],
+        // Fine-grained HR prefixes — must come BEFORE the broad 'hr' prefix
+        // because the middleware uses first-match-wins (str_starts_with).
+        'hr/my-'       => ['employee', 'manager', 'hr_manager', 'hr_officer', 'admin', 'super_admin', 'company_admin'],
+        'hr/leave-hub' => ['employee', 'manager', 'hr_manager', 'hr_officer', 'admin', 'super_admin', 'company_admin'],
+        'hr/team-'     => ['employee', 'manager', 'hr_manager', 'hr_officer', 'admin', 'super_admin', 'company_admin'],
+
+        'hr'           => ['hr_manager', 'hr_officer', 'admin', 'super_admin', 'company_admin'],
+        'organization' => ['hr_manager', 'hr_officer', 'admin', 'super_admin', 'company_admin'],
+        'admin'        => ['admin', 'super_admin', 'company_admin'],
+
+        // Employees do NOT get direct module access — all self-service
+        // functionality is available through hr/my-* ESS wrapper routes.
+        'leave'        => ['hr_manager', 'hr_officer', 'manager', 'supervisor', 'admin', 'super_admin', 'company_admin'],
+        'holiday'      => ['hr_manager', 'hr_officer', 'admin', 'super_admin', 'company_admin'],
+        'attendance'   => ['hr_manager', 'hr_officer', 'manager', 'supervisor', 'admin', 'super_admin', 'company_admin'],
+
+        'payroll'      => ['payroll_officer', 'hr_manager', 'accountant', 'admin', 'super_admin', 'company_admin'],
+        'system'       => ['admin', 'super_admin', 'company_admin'],
     ],
 
     /*
@@ -575,7 +591,7 @@ return [
         | Roles that can select "All Companies" to see data across all
         | companies.
         */
-        'all_companies_roles' => '*',
+        'all_companies_roles' => ['super_admin', 'admin', 'company_admin'],
 
         /*
         |------------------------------------------------------------------
@@ -630,8 +646,11 @@ return [
         | Use '*' to allow all authenticated users.
         | Use an array of role names (e.g. ['super_admin', 'admin']) to
         | restrict visibility to specific roles.
+        |
+        | Employees are excluded — all self-service functionality is
+        | available through the HR module sidebar, not via module switching.
         */
-        'roles' => '*',
+        'roles' => ['super_admin', 'admin', 'company_admin', 'hr_manager', 'hr_officer', 'payroll_officer', 'manager', 'supervisor', 'recruiter', 'accountant'],
 
         /*
         |------------------------------------------------------------------
@@ -668,6 +687,36 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Role Assignment Hierarchy
+    |--------------------------------------------------------------------------
+    | Controls which roles each role is allowed to assign to other users.
+    | Used by AuthorizationService::getAssignableRoles() to filter role
+    | dropdowns in invitation forms, employee creation, and the access
+    | control manager. Prevents privilege escalation by ensuring users
+    | can only assign roles at or below their own level.
+    |
+    | Each key is a role name. The value is an array of role names that
+    | role can assign. Use ['*'] to allow assigning any role.
+    |
+    | Roles NOT listed in the hierarchy default to 'default_assignable'.
+    */
+    'role_assignment' => [
+        'hierarchy' => [
+            'super_admin'    => ['*'],
+            'admin'          => ['admin', 'company_admin', 'hr_manager', 'hr_officer',
+                                 'payroll_officer', 'accountant', 'manager', 'supervisor',
+                                 'recruiter', 'employee'],
+            'company_admin'  => ['company_admin', 'hr_manager', 'hr_officer', 'payroll_officer',
+                                 'accountant', 'manager', 'supervisor', 'recruiter', 'employee'],
+            'hr_manager'     => ['hr_officer', 'manager', 'supervisor', 'recruiter', 'employee'],
+            'hr_officer'     => ['manager', 'supervisor', 'employee'],
+            'recruiter'      => ['employee'],
+        ],
+        'default_assignable' => ['employee'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Background Jobs Configuration
     |--------------------------------------------------------------------------
     | Controls the background jobs launcher button in the top navigation bar.
@@ -692,6 +741,10 @@ return [
         | top nav. Use '*' to allow all authenticated users.
         | Use an array of role names (e.g. ['super_admin', 'admin']) to
         | restrict visibility to specific roles.
+        |
+        | Available to all authenticated users. Non-admin users only see
+        | their own exports/imports (scoped by user_id). Admins see all
+        | jobs via AuthorizationService::isBypassAllowed().
         */
         'roles' => '*',
 
@@ -769,6 +822,11 @@ return [
     'user_menu' => [
         'enabled' => true,
         'links' => [
+            [
+                'label' => 'My Portal',
+                'url' => '/hr/my-portal',
+                'icon' => 'fas fa-home',
+            ],
             /* This might be needed in a consuming app to give access to user profile
             [
                 'label' => 'My Profile',
