@@ -123,6 +123,15 @@ return [
       'validation' => 'nullable|boolean',
       'filterable' => true,
     ],
+    'tax_year' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'editable' => true,
+      'field_type' => 'number',
+      'label' => 'Tax Year',
+      'validation' => 'nullable|integer|min:2000|max:2100',
+      'filterable' => true,
+    ],
     'effective_date' => [
       'display' => 'inline',
       'fillable' => true,
@@ -323,9 +332,10 @@ return [
       'groupType' => 'payroll',
       'icon' => 'fas fa-calendar-alt',
       'fields' => [
-        '0' => 'effective_date',
-        '1' => 'expiry_date',
-        '2' => 'is_active',
+        '0' => 'tax_year',
+        '1' => 'effective_date',
+        '2' => 'expiry_date',
+        '3' => 'is_active',
       ],
     ],
     'hierarchy' => [

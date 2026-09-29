@@ -15,12 +15,12 @@ use Illuminate\Support\Facades\Log;
 class LeaveAttendanceSync
 {
     private AttendanceAggregator $attendanceAggregator;
-    
+
     public function __construct(AttendanceAggregator $attendanceAggregator)
     {
         $this->attendanceAggregator = $attendanceAggregator;
     }
-    
+
     /**
      * Sync approved leave request to attendance records
      */
@@ -34,7 +34,7 @@ class LeaveAttendanceSync
             ]);
             return false;
         }
-        
+
         // Prevent duplicate syncing
         if ($leaveRequest->attendance_synced) {
             Log::info("Leave request already synced to attendance", [
@@ -42,29 +42,29 @@ class LeaveAttendanceSync
             ]);
             return true;
         }
-        
+
         DB::transaction(function () use ($leaveRequest) {
             $employee = Employee::where('employee_number', $leaveRequest->employee_id)->first();
             if (!$employee) {
                 throw new \Exception("Employee not found for leave request: {$leaveRequest->employee_id}");
             }
-            
+
             $startDate = Carbon::parse($leaveRequest->start_date);
             $endDate = Carbon::parse($leaveRequest->end_date);
             $daysSynced = 0;
             $workdaysCount = 0;
-            
+
             // Calculate workdays (excluding weekends)
             $period = CarbonPeriod::create($startDate, $endDate);
-            
+
             foreach ($period as $date) {
                 $dateString = $date->format('Y-m-d');
-                
+
                 // Skip weekends (configurable per company policy)
                 if ($date->isWeekend()) {
                     continue;
                 }
-                
+
                 // Skip company holidays
                 if (Holiday::whereDate('date', $dateString)->exists()) {
                     Log::info("Skipping holiday during leave sync", [
@@ -73,27 +73,28 @@ class LeaveAttendanceSync
                     ]);
                     continue;
                 }
-                
+
                 $workdaysCount++;
-                
+
                 // Check if attendance record already exists
                 $existingAttendance = Attendance::where('employee_id', $employee->employee_number)
                     ->whereDate('date', $dateString)
                     ->first();
-                
+
                 $standardHours = $this->getStandardWorkHours($employee->employee_number, $date);
-                
+                $effectiveHours = $this->getEffectiveHours($leaveRequest, $standardHours);
+
                 if ($existingAttendance) {
                     // Update existing record
-                    $this->updateExistingAttendanceForLeave($existingAttendance, $leaveRequest, $standardHours);
+                    $this->updateExistingAttendanceForLeave($existingAttendance, $leaveRequest, $effectiveHours);
                 } else {
                     // Create new leave attendance record
-                    $this->createLeaveAttendanceRecord($employee->employee_number, $date, $leaveRequest, $standardHours);
+                    $this->createLeaveAttendanceRecord($employee->employee_number, $date, $leaveRequest, $effectiveHours);
                 }
-                
+
                 $daysSynced++;
             }
-            
+
             // Update leave request with sync status
             $leaveRequest->update([
                 'attendance_synced' => true,
@@ -102,7 +103,7 @@ class LeaveAttendanceSync
                 'last_sync_at' => now(),
                 'overlap_with_holiday' => $this->checkHolidayOverlap($leaveRequest),
             ]);
-            
+
             Log::info("Successfully synced leave to attendance", [
                 'leave_request_id' => $leaveRequest->id,
                 'employee_id' => $employee->employee_number,
@@ -111,10 +112,10 @@ class LeaveAttendanceSync
                 'date_range' => "{$startDate->format('Y-m-d')} to {$endDate->format('Y-m-d')}"
             ]);
         });
-        
+
         return true;
     }
-    
+
     /**
      * Remove leave attendance records when leave is cancelled/denied
      */
@@ -123,13 +124,13 @@ class LeaveAttendanceSync
         if (!$leaveRequest->attendance_synced) {
             return true; // Nothing to remove
         }
-        
+
         DB::transaction(function () use ($leaveRequest) {
             // Find and update attendance records linked to this leave
             $attendanceRecords = Attendance::where('leave_request_id', $leaveRequest->id)
                 ->where('status', 'leave')
                 ->get();
-            
+
             foreach ($attendanceRecords as $attendance) {
                 // Instead of deleting, mark for recalculation
                 $attendance->update([
@@ -139,30 +140,30 @@ class LeaveAttendanceSync
                     'is_approved' => false,
                     'needs_review' => true,
                 ]);
-                
+
                 // Trigger recalculation for this day
                 $this->attendanceAggregator->recalculateForDay(
                     $attendance->employee_id,
                     $attendance->date->format('Y-m-d')
                 );
             }
-            
+
             // Reset sync status on leave request
             $leaveRequest->update([
                 'attendance_synced' => false,
                 'attendance_records_count' => 0,
                 'last_sync_at' => null,
             ]);
-            
+
             Log::info("Removed leave attendance linkage", [
                 'leave_request_id' => $leaveRequest->id,
                 'attendance_records_updated' => $attendanceRecords->count()
             ]);
         });
-        
+
         return true;
     }
-    
+
     /**
      * Sync all pending leave requests (for batch processing)
      */
@@ -174,18 +175,18 @@ class LeaveAttendanceSync
             'failed' => 0,
             'details' => []
         ];
-        
+
         $pendingLeaves = LeaveRequest::where('status', 'Approved')
             ->where('attendance_synced', false)
             ->where('start_date', '<=', now()->addDays(30)) // Only sync leaves starting soon
             ->get();
-        
+
         $results['total'] = $pendingLeaves->count();
-        
+
         foreach ($pendingLeaves as $leave) {
             try {
                 $success = $this->syncLeaveToAttendance($leave);
-                
+
                 if ($success) {
                     $results['synced']++;
                     $results['details'][] = [
@@ -210,7 +211,7 @@ class LeaveAttendanceSync
                     'status' => 'error',
                     'error' => $e->getMessage()
                 ];
-                
+
                 Log::error("Failed to sync leave to attendance", [
                     'leave_request_id' => $leave->id,
                     'error' => $e->getMessage(),
@@ -218,12 +219,12 @@ class LeaveAttendanceSync
                 ]);
             }
         }
-        
+
         Log::info("Batch leave sync completed", $results);
-        
+
         return $results;
     }
-    
+
     /**
      * Check if employee has overlapping approved leaves
      */
@@ -239,14 +240,14 @@ class LeaveAttendanceSync
                          ->where('end_date', '>=', $endDate);
                   });
             });
-        
+
         if ($excludeLeaveId) {
             $query->where('id', '!=', $excludeLeaveId);
         }
-        
+
         return $query->exists();
     }
-    
+
     /**
      * Get employee's standard work hours for a date
      */
@@ -254,39 +255,68 @@ class LeaveAttendanceSync
     {
         // TODO: Implement based on shift schedule
         // For now, return default 8 hours
-        return 8.00;
+        $hours = 8.00;
+
+        // Try to get hours from employee's shift
+        $employee = Employee::where('employee_number', $employeeNumber)->first();
+        if ($employee && $employee->position && $employee->position->shift) {
+            $hours = $employee->position->shift->duration_hours ?? 8.00;
+        }
+
+        return $hours;
     }
-    
+
+    /**
+     * Get effective standard hours accounting for half-day leave.
+     */
+    private function getEffectiveHours(LeaveRequest $leaveRequest, float $standardHours): float
+    {
+        if ($leaveRequest->is_half_day) {
+            return $standardHours / 2;
+        }
+        return $standardHours;
+    }
+
     /**
      * Update existing attendance record for leave
      */
     private function updateExistingAttendanceForLeave(Attendance $attendance, LeaveRequest $leaveRequest, float $standardHours): void
     {
+        $isPaid = $leaveRequest->leaveType->is_paid ?? true;
+
         $attendance->update([
             'status' => 'leave',
             'leave_request_id' => $leaveRequest->id,
-            'net_hours' => $standardHours,
+            'net_hours' => $isPaid ? $standardHours : 0.00,
+            'regular_hours' => $isPaid ? $standardHours : 0.00,
+            'overtime_hours' => 0.00,
+            'double_time_hours' => 0.00,
             'is_approved' => true,
             'notes' => "On Leave: {$leaveRequest->leaveType->name}" . ($attendance->notes ? " | Previous: {$attendance->notes}" : ''),
             'needs_review' => false,
             'is_unplanned' => false,
             'absence_type' => 'planned_leave',
             'hours_deducted' => $leaveRequest->leaveType->deducts_from_balance ? $standardHours : 0,
-            'is_paid_absence' => $leaveRequest->leaveType->is_paid ?? true,
+            'is_paid_absence' => $isPaid,
         ]);
     }
-    
+
     /**
      * Create new attendance record for leave
      */
     private function createLeaveAttendanceRecord(string $employeeNumber, Carbon $date, LeaveRequest $leaveRequest, float $standardHours): void
     {
+        $isPaid = $leaveRequest->leaveType->is_paid ?? true;
+
         Attendance::create([
             'employee_id' => $employeeNumber,
             'date' => $date->format('Y-m-d H:i:s'),
             'status' => 'leave',
             'leave_request_id' => $leaveRequest->id,
-            'net_hours' => $standardHours,
+            'net_hours' => $isPaid ? $standardHours : 0.00,
+            'regular_hours' => $isPaid ? $standardHours : 0.00,
+            'overtime_hours' => 0.00,
+            'double_time_hours' => 0.00,
             'sessions' => null,
             'is_approved' => true,
             'approved_by' => $leaveRequest->approved_by,
@@ -296,10 +326,10 @@ class LeaveAttendanceSync
             'is_unplanned' => false,
             'absence_type' => 'planned_leave',
             'hours_deducted' => $leaveRequest->leaveType->deducts_from_balance ? $standardHours : 0,
-            'is_paid_absence' => $leaveRequest->leaveType->is_paid ?? true,
+            'is_paid_absence' => $isPaid,
         ]);
     }
-    
+
     /**
      * Check if leave overlaps with company holidays
      */
@@ -307,11 +337,12 @@ class LeaveAttendanceSync
     {
         $startDate = Carbon::parse($leaveRequest->start_date);
         $endDate = Carbon::parse($leaveRequest->end_date);
-        
+
         $holidaysInRange = Holiday::whereDate('date', '>=', $startDate)
             ->whereDate('date', '<=', $endDate)
             ->count();
-        
+
         return $holidaysInRange > 0;
     }
 }
+

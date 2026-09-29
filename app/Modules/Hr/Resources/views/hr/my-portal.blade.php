@@ -55,7 +55,7 @@
     @if ($employee)
         <div class="row g-3 mt-3">
             <div class="col-md-6 col-lg-4">
-                <livewire:qf.clock-in-out :employee-id="$employee->id" wire:key="clock-in-out-{{ $employee->id }}" />
+                <livewire:attendance.clock-in-out :employee-id="$employee->id" wire:key="clock-in-out-{{ $employee->id }}" />
             </div>
         </div>
     @endif

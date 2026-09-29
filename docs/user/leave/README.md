@@ -63,8 +63,11 @@ Leave balances determine how many days each employee has available. There are tw
 2. Click the **Apply** tab.
 3. Select the **Leave Type** from the dropdown — available balance is shown in parentheses.
 4. Choose **Start Date** and **End Date**.
-5. Add a **Reason** (optional).
-6. Click **Save Draft** to save without submitting, or **Save & Continue** to submit.
+5. Optionally check **Half Day** and select **AM** or **PM** for half-day leave.
+6. Add a **Reason** (optional).
+7. Click **Save Draft** to save without submitting, or **Save & Continue** to submit.
+
+> **Half-day leave**: When half-day is selected, only half the standard work hours are credited for attendance and payroll purposes. Half-day leave still counts as a full worked day for salaried daily employees.
 
 ### Understanding Your Balance
 
@@ -83,3 +86,19 @@ Leave balances determine how many days each employee has available. There are tw
 - When your leave is **approved**, the days are deducted from your balance
 - If your leave type uses the **accrual model**, you can only request days you've already earned
 - If your leave type uses the **lump-sum model**, your full annual balance is available immediately
+
+### Leave & Your Pay
+
+- **Paid leave** (`is_paid = true`): Your regular hours are credited for the leave day. Hourly employees receive their standard shift hours at their normal rate. Salaried daily employees count the day as worked.
+- **Unpaid leave** (`is_paid = false`): The day counts as worked (no pay deduction for salaried daily), but no hours are credited for hourly employees.
+- **Half-day leave**: Half the standard hours are credited for paid leave types.
+- Leave days **skip weekends and company holidays** — only workdays are counted.
+- Approved leave attendance records are auto-approved (`is_approved = true`) and immediately available for payroll.
+
+### Leave & Your Pay
+
+- **Paid leave** (`is_paid = true`): Your regular hours are credited for the leave day. Hourly employees receive their standard shift hours at their normal rate. Salaried daily employees count the day as worked.
+- **Unpaid leave** (`is_paid = false`): The day counts as worked (no pay deduction for salaried daily), but no hours are credited for hourly employees.
+- **Half-day leave**: Half the standard hours are credited for paid leave types.
+- Leave days **skip weekends and company holidays** — only workdays are counted.
+- Approved leave attendance records are auto-approved (`is_approved = true`) and immediately available for payroll.

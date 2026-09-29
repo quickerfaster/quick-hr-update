@@ -140,7 +140,17 @@ return [
     */
     'settings' => [
         'resolvers' => [
-            'user' => null,
+            // Resolve a setting from the authenticated user's stored preferences
+            // (system_settings table via the HasSettings trait). Returns null when
+            // the user has no stored value, allowing the cascade to fall through
+            // to company/system defaults.
+            'user' => function (string $key) {
+                $user = auth()->user();
+                if ($user && method_exists($user, 'getSetting')) {
+                    return $user->getSetting($key);
+                }
+                return null;
+            },
             'company' => null,
             'system' => null,
         ],

@@ -31,7 +31,7 @@ class LeaveType extends Model
 
 
     protected $fillable = [
-        'company_id', 'name', 'code', 'description', 'deducts_from_balance', 'requires_approval', 'max_days_per_request', 'is_active'
+        'company_id', 'name', 'code', 'description', 'deducts_from_balance', 'requires_approval', 'is_paid', 'max_days_per_request', 'is_active'
     ];
 
     protected $guarded = [
@@ -41,6 +41,7 @@ class LeaveType extends Model
     protected $casts = [
         'deducts_from_balance' => 'boolean',
         'requires_approval' => 'boolean',
+        'is_paid' => 'boolean',
         'max_days_per_request' => 'integer',
         'is_active' => 'boolean'
     ];
@@ -48,6 +49,7 @@ class LeaveType extends Model
     protected $attributes = [
         'deducts_from_balance' => true,
         'requires_approval' => true,
+        'is_paid' => true,
         'is_active' => true
     ];
 

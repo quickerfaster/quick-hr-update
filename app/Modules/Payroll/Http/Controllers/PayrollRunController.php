@@ -5,7 +5,7 @@ namespace App\Modules\Payroll\Http\Controllers;
 use App\Http\Controllers\Controller;
 
 use App\Modules\Payroll\Models\PayrollRun;
-use App\Modules\Payroll\Services\PayrollRunProcessor;
+use App\Modules\Payroll\Services\Payroll\PayrollCalculator;
 
 
 use App\Modules\Payroll\Models\EmployeePayrollProfile;
@@ -176,9 +176,8 @@ class PayrollRunController extends Controller
             return back()->withErrors(['critical_error' => 'Cannot approve: missing pay rates.']);
         }
 
-        // Use your PayrollRunProcessor to generate payslips
-        $processor = app(PayrollRunProcessor::class);
-        $processor->generatePayslips($payrollRun);
+        // Use PayrollCalculator to generate payslips with full policy engine
+        app(PayrollCalculator::class)->calculate($payrollRun);
 
         // Update run status
         $payrollRun->update([

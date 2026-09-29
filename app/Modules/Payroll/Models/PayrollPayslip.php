@@ -33,7 +33,7 @@ class PayrollPayslip extends Model
 
 
     protected $fillable = [
-        'company_id', 'payslip_number', 'payroll_run_id', 'employee_id', 'base_salary', 'gross_pay', 'total_deductions', 'total_taxes', 'total_benefit_deductions', 'net_pay', 'currency_code', 'exchange_rate', 'employer_contribution_total', 'taxable_earnings', 'income_tax', 'social_security_tax', 'medicare_tax', 'pension_employee', 'pension_employer', 'health_insurance_employee', 'health_insurance_employer', 'other_earnings', 'other_deductions', 'net_pay_in_words', 'payslip_pdf_url', 'payment_status', 'paid_at', 'payment_reference', 'bank_account_snapshot', 'notes'
+        'company_id', 'payslip_number', 'payroll_run_id', 'employee_id', 'base_salary', 'gross_pay', 'total_deductions', 'total_taxes', 'total_benefit_deductions', 'net_pay', 'currency_code', 'exchange_rate', 'employer_contribution_total', 'taxable_earnings', 'income_tax', 'social_security_tax', 'medicare_tax', 'pension_employee', 'pension_employer', 'health_insurance_employee', 'health_insurance_employer', 'other_earnings', 'other_deductions', 'net_pay_in_words', 'payslip_pdf_url', 'payment_status', 'paid_at', 'payment_reference', 'bank_account_snapshot', 'notes', 'created_by'
     ];
 
     protected $guarded = [

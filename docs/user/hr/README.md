@@ -262,6 +262,19 @@ Navigate to **People → Employees** (`/hr/employees`) to view the employee dire
 
 Navigate to **People → Current Jobs** (`/hr/employee-positions`) to manage job assignments. Each position links an employee to a job title, department, and compensation.
 
+**Payroll-critical fields** on the position record:
+
+| Field | Purpose | Affects Payroll? |
+|-------|---------|-----------------|
+| `pay_type` | `salaried_full`, `salaried_daily`, or `hourly` — determines how gross pay is calculated | ✅ |
+| `base_salary` | Fixed period salary (all pay types) | ✅ |
+| `hourly_rate` | Hourly rate for `hourly` employees | ✅ |
+| `pay_frequency` | Tax annualisation multiplier (Monthly=12, Weekly=52, etc.) | ✅ (tax only) |
+| `attendance_policy_id` | Which attendance policy applies for overtime/grace rules | ✅ (hourly/daily) |
+| `department_id`, `location_id`, `shift_id` | Which payroll policies and shift rules apply | ✅ |
+
+> **Proration note**: When an employee's `hire_date` falls within a payroll period, their base salary is automatically prorated. Similarly, terminated employees receive a prorated final payslip for their last working period. See the [Payroll Guide](../payroll/README.md) §8.6 for details.
+
 ### 5.3 Employee Profiles
 
 Navigate to **People → Profiles** (`/hr/employee-profiles`) to manage extended personal details and emergency contacts.

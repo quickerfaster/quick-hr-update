@@ -118,12 +118,25 @@ class AttendanceAggregator
         // Delete any existing sessions (shouldn't exist, but clean up)
         AttendanceSession::where('attendance_id', $attendance->id)->forceDelete();
 
+        // Determine holiday pay from Holiday model fields
+        $isPaidHoliday = $holiday->is_paid_holiday ?? true;
+        $affectsPayroll = $holiday->affects_payroll ?? true;
+        $minimumHours = (float) ($holiday->minimum_hours_for_pay ?? 8);
+        $isHalfDay = $holiday->is_half_day ?? false;
+
+        $creditedHours = 0.00;
+        if ($isPaidHoliday && $affectsPayroll) {
+            $creditedHours = $isHalfDay ? ($minimumHours / 2) : $minimumHours;
+        }
+
         $attendance->update([
             'status' => 'holiday',
-            'net_hours' => 0.00,
-            'regular_hours' => 0.00,
+            'net_hours' => $creditedHours,
+            'regular_hours' => $creditedHours,
             'overtime_hours' => 0.00,
+            'double_time_hours' => 0.00,
             'is_approved' => true,
+            'is_paid_absence' => $isPaidHoliday,
             'notes' => $holiday ? "Company Holiday: {$holiday->name}" : "Company Holiday",
             'needs_review' => false,
             'is_unplanned' => false,
@@ -159,27 +172,32 @@ class AttendanceAggregator
         AttendanceSession::where('attendance_id', $attendance->id)->delete();
 
         // Get standard hours from employee's shift if available
-        AttendanceSession::where('attendance_id', $attendance->id)->delete();
-
-        // Get standard hours from employee's shift if available
         $standardHours = 8.00;
         if ($employee->position && $employee->position->shift) {
             $standardHours = $employee->position->shift->duration_hours ?? 8.00;
         }
 
+        // Handle half-day leave
+        if ($leaveRequest->is_half_day) {
+            $standardHours = $standardHours / 2;
+        }
+
+        $isPaid = $leaveRequest->leaveType->is_paid ?? true;
+
         $attendance->update([
             'status' => 'leave',
             'leave_request_id' => $leaveRequest->id,
-            'net_hours' => $standardHours,
-            'regular_hours' => $standardHours,
+            'net_hours' => $isPaid ? $standardHours : 0.00,
+            'regular_hours' => $isPaid ? $standardHours : 0.00,
             'overtime_hours' => 0.00,
+            'double_time_hours' => 0.00,
             'is_approved' => true,
             'notes' => "On Leave: " . ($leaveRequest->leaveType->name ?? 'Approved Leave'),
             'needs_review' => false,
             'is_unplanned' => false,
             'absence_type' => 'planned_leave',
             'hours_deducted' => ($leaveRequest->leaveType->deducts_from_balance ?? true) ? $standardHours : 0,
-            'is_paid_absence' => $leaveRequest->leaveType->is_paid ?? true,
+            'is_paid_absence' => $isPaid,
             'calculation_method' => 'auto',
             'sessions' => null,
         ]);
@@ -244,123 +262,7 @@ class AttendanceAggregator
             ->whereDate('timestamp', $date)
             ->orderBy('timestamp')
             ->get();
-
-        // Original session processing logic (extracted from your old code)
-        // $this->legacyProcessClockEvents($attendance, $events, $date);
     }
-
-    /**
-     * Legacy session processing - kept from original code
-     */
-    /*private function legacyProcessClockEvents(Attendance $attendance, $events, string $date): void
-    {
-        $sessions = [];
-        $totalHours = 0.0;
-        $currentState = 'out';
-        $currentSessionStart = null;
-        $sessionStartEvent = null;
-        $notes = [];
-
-        foreach ($events as $event) {
-            if ($event->event_type === 'clock_in') {
-                if ($currentState === 'out') {
-                    $currentState = 'in';
-                    $currentSessionStart = $event->timestamp;
-                    $sessionStartEvent = $event;
-                } else {
-                    $notes[] = "Duplicate clock-in at {$event->timestamp->format('H:i')}";
-                    Log::warning("Duplicate clock-in detected", [
-                        'employee_id' => $attendance->employee_id,
-                        'event_id' => $event->id,
-                        'timestamp' => $event->timestamp
-                    ]);
-                }
-            } elseif ($event->event_type === 'clock_out') {
-                if ($currentState === 'in' && $currentSessionStart && $sessionStartEvent) {
-                    if ($event->timestamp->greaterThan($currentSessionStart)) {
-                        $duration = $currentSessionStart->diffInMinutes($event->timestamp) / 60.0;
-                        $duration = round($duration, 2);
-                        $totalHours += $duration;
-
-                        // 1. Store in JSON (backward compatibility)
-                        $sessions[] = [
-                            'start' => $currentSessionStart->format('H:i'),
-                            'end' => $event->timestamp->format('H:i'),
-                            'duration' => $duration
-                        ];
-
-                        // 2. Create AttendanceSession record
-                        AttendanceSession::create([
-                            'attendance_id' => $attendance->id,
-                            'clock_in_event_id' => $sessionStartEvent->id,
-                            'clock_out_event_id' => $event->id,
-                            'start_time' => $currentSessionStart,
-                            'end_time' => $event->timestamp,
-                            'duration_hours' => $duration,
-                            'session_type' => 'work',
-                            'is_overnight' => $currentSessionStart->format('Y-m-d') !== $event->timestamp->format('Y-m-d'),
-                        ]);
-
-                        $currentState = 'out';
-                        $currentSessionStart = null;
-                        $sessionStartEvent = null;
-                    } else {
-                        $notes[] = "Invalid clock-out (before clock-in) at {$event->timestamp->format('H:i')}";
-                    }
-                } else {
-                    $notes[] = "Orphaned clock-out at {$event->timestamp->format('H:i')}";
-                }
-            }
-        }
-
-        // Handle orphaned clock-in (session started but not ended)
-        if ($currentState === 'in' && $currentSessionStart && $sessionStartEvent) {
-            $notes[] = "Open session started at {$currentSessionStart->format('H:i')}";
-
-            // Create partial session for tracking
-            AttendanceSession::create([
-                'attendance_id' => $attendance->id,
-                'clock_in_event_id' => $sessionStartEvent->id,
-                'clock_out_event_id' => null,
-                'start_time' => $currentSessionStart,
-                'end_time' => null,
-                'duration_hours' => 0.00,
-                'session_type' => 'work',
-                'is_overnight' => false,
-                'notes' => 'Session not closed',
-            ]);
-        }
-
-        // Determine status based on sessions
-        $status = match (true) {
-            $currentState === 'in' => 'incomplete',
-            $totalHours >= 8.0 => 'complete',
-            $totalHours > 0 && $totalHours < 8.0 => 'half_day',
-            default => 'incomplete'
-        };
-
-        // Check for tardiness against shift schedule
-        $isLate = $this->checkForTardiness($attendance->employee_id, $date, $events);
-        if ($isLate) {
-            $status = 'late';
-            $notes[] = 'Late arrival detected';
-        }
-
-        $finalNote = !empty($notes) ? implode('; ', $notes) : null;
-
-        $attendance->update([
-            'net_hours' => round($totalHours, 2),
-            'sessions' => !empty($sessions) ? json_encode($sessions) : null,
-            'status' => $status,
-            'notes' => $finalNote,
-            'needs_review' => !empty($notes) || $isLate,
-            'is_unplanned' => false,
-            'absence_type' => $status === 'half_day' ? 'half_day' : null,
-        ]);
-    }*/
-
-
-
 
 
 

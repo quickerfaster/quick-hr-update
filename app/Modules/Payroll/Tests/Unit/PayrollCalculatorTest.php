@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace App\Modules\Payroll\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -202,6 +202,7 @@ class PayrollCalculatorTest extends TestCase
             'overtime_hours' => 0,
             'double_time_hours' => 0,
             'is_paid_absence' => false,
+            'is_approved' => true,
         ];
 
         if (empty($dayOverrides)) {
@@ -888,7 +889,7 @@ class PayrollCalculatorTest extends TestCase
         $this->assertEquals($position->employee_id, $payslip->employee_id);
         $this->assertEquals($run->id, $payslip->payroll_run_id);
         $this->assertNotEmpty($payslip->payslip_number);
-        $this->assertStringStartsWith('PS-', $payslip->payslip_number);
+        $this->assertStringStartsWith('PAYSLIP-', $payslip->payslip_number);
     }
 
     #[Test]

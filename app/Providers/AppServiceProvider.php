@@ -60,7 +60,7 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function registerEmployeeOwnershipResolver(): void
     {
-        AuthorizationService::$resolveUserEmployeeId = function (\Illuminate\Contracts\Auth\Authenticatable $user): ?int {
+        AuthorizationService::$resolveUserSubjectId = function (\Illuminate\Contracts\Auth\Authenticatable $user): ?int {
             $employeeId = \App\Modules\Hr\Models\Employee::where('user_id', $user->id)->value('id');
 
             return $employeeId ? (int) $employeeId : null;

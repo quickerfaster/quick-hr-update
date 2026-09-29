@@ -208,7 +208,7 @@ Policies are assigned through a polymorphic `PolicyAssignment` model. The resolu
 
 **API Layer ([`ClockEventController`](../../app/Modules/Attendance/Http/Controllers/ClockEventController.php))** — Accepts clock events in Android format (`check-in`/`check-out` with millisecond timestamps), converts them to internal format, performs idempotency checks, saves raw [`ClockEvent`](../../app/Modules/Attendance/Models/ClockEvent.php) records, and dispatches [`ProcessAttendanceJob`](../../app/Modules/Attendance/Jobs/ProcessAttendanceJob.php) to the queue. Supports both single-event (`store`) and batch (`batchStore`) endpoints.
 
-**Web Layer ([`ClockEventRecorderService`](../../app/Modules/Attendance/Services/ClockEventRecorderService.php))** — Implements the library's `ClockEventRecorder` contract. Handles browser-based clock-in/out from the My Portal dashboard. Features: employee ID resolution, company scoping, geofence validation (via [`GeofenceValidator`](../../app/Modules/Attendance/Services/GeofenceValidator.php)), 10-second idempotency window, overnight shift detection, and automatic `ProcessAttendanceJob` dispatch.
+**Web Layer ([`ClockEventRecorderService`](../../app/Modules/Attendance/Services/ClockEventRecorderService.php))** — Standalone service (formerly implemented the library's `ClockEventRecorder` contract, which was removed in the 2026-09-28 boundary cleanup). Handles browser-based clock-in/out from the My Portal dashboard. Features: employee ID resolution, company scoping, geofence validation (via [`GeofenceValidator`](../../app/Modules/Attendance/Services/GeofenceValidator.php)), 10-second idempotency window, overnight shift detection, timezone-aware "today" boundary resolution (via [`UserTimezone`](../../app/Modules/Attendance/Services/UserTimezone.php)), and automatic `ProcessAttendanceJob` dispatch.
 
 **Geofence Validator ([`GeofenceValidator`](../../app/Modules/Attendance/Services/GeofenceValidator.php))** — Validates clock-in GPS coordinates against work location boundaries using the Haversine formula. Resolution chain: employee's assigned location → company headquarters → any active non-remote location → skip. Remote locations are exempt.
 
@@ -497,14 +497,16 @@ The system prevents duplicate clock events by checking for an existing record wi
 The web clock-in flow uses the My Portal dashboard with browser geolocation:
 
 1. Employee navigates to **My Portal** (`/hr/my-portal`)
-2. The [`ClockInOut`](../../src/Http/Livewire/QuickActions/ClockInOut.php) Livewire component renders with the employee's ID
-3. On page load, [`refreshStatus()`](../../src/Http/Livewire/QuickActions/ClockInOut.php:55) queries the latest today's event via [`ClockEventRecorderService::getLatestToday()`](../../app/Modules/Attendance/Services/ClockEventRecorderService.php:24) to determine initial state
+2. The [`ClockInOut`](../../app/Modules/Attendance/Http/Livewire/ClockInOut.php) Livewire component (moved from library to consuming app in 2026-09-28 boundary cleanup) renders with the employee's ID
+3. On page load, [`refreshStatus()`](../../app/Modules/Attendance/Http/Livewire/ClockInOut.php:59) queries the latest today's event via [`ClockEventRecorderService::getLatestToday()`](../../app/Modules/Attendance/Services/ClockEventRecorderService.php:28) to determine initial state
 4. On button click, Alpine.js captures `navigator.geolocation.getCurrentPosition()` (requires HTTPS)
 5. Coordinates are passed to `toggle(latitude, longitude)`
-6. [`ClockEventRecorderService::record()`](../../app/Modules/Attendance/Services/ClockEventRecorderService.php:82) runs geofence validation, idempotency check, saves the event, and dispatches `ProcessAttendanceJob`
+6. [`ClockEventRecorderService::record()`](../../app/Modules/Attendance/Services/ClockEventRecorderService.php:86) runs geofence validation, idempotency check, saves the event, and dispatches `ProcessAttendanceJob`
 7. The component updates its state and dispatches a success toast
 
-**Overnight shifts**: If no event is found today, `getLatestToday()` checks yesterday for an unclosed clock-in session.
+**Overnight shifts**: If no event is found today, `getLatestToday()` checks yesterday for an unclosed clock-in session. The "today" boundary is computed in the employee's local timezone (via [`UserTimezone`](../../app/Modules/Attendance/Services/UserTimezone.php)) and converted to UTC for the database query, so overnight shifts spanning midnight are correctly assigned to the right calendar day regardless of the app's UTC default.
+
+**Timezone handling**: Timestamps are stored in UTC (best practice for cross-timezone reporting and payroll). The [`ClockInOut`](../../app/Modules/Attendance/Http/Livewire/ClockInOut.php) component converts UTC timestamps to the employee's effective timezone at display time using [`UserTimezone::resolve()`](../../app/Modules/Attendance/Services/UserTimezone.php), which cascades through user preference → company timezone → system default. The resolved timezone is also persisted in the `clock_events.timezone` column for audit.
 
 **Company scoping**: Clock events are created with the employee's `company_id` so they remain visible under the `HasCompanyScope` global scope after page refresh.
 
@@ -590,7 +592,7 @@ Inspect `calculation_metadata.breakdown.overtime_calculation` for the step-by-st
 
 ### "No job position is assigned to your profile" Error
 
-**Cause:** The employee has no `EmployeePosition` record. [`GeofenceValidator`](../../app/Modules/Attendance/Services/GeofenceValidator.php) now returns `passed: false` (was `passed: true` with silent skip) when no position exists, and the error propagates to the user via [`ClockInOut`](../../src/Http/Livewire/QuickActions/ClockInOut.php).
+**Cause:** The employee has no `EmployeePosition` record. [`GeofenceValidator`](../../app/Modules/Attendance/Services/GeofenceValidator.php) now returns `passed: false` (was `passed: true` with silent skip) when no position exists, and the error propagates to the user via [`ClockInOut`](../../app/Modules/Attendance/Http/Livewire/ClockInOut.php).
 
 **Resolution:** Create an Employee Position via **HR → Employee Positions**.
 

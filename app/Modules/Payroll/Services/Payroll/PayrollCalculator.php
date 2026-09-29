@@ -37,6 +37,14 @@ class PayrollCalculator
             return;
         }
 
+        // -------------------------------------------------------------
+        // 0. Finalization guard — do not recalculate finalized runs
+        // -------------------------------------------------------------
+        if ($run->finalized_at !== null) {
+            Log::warning("Payroll run #{$run->id} is already finalized. Skipping recalculation.");
+            return;
+        }
+
         // Get total employee count via employee_payroll_profiles
         $totalEmployees = EmployeePosition::withoutCompanyScope()
             ->join('employee_payroll_profiles', 'employee_positions.employee_id', '=', 'employee_payroll_profiles.employee_id')
@@ -131,6 +139,7 @@ protected function getAttendanceSummary(int $employeeId, Carbon $start, Carbon $
 {
     $attendances = \App\Modules\Attendance\Models\Attendance::withoutCompanyScope()
         ->where('employee_id', $employeeId)
+        ->where('is_approved', true)
         ->whereBetween('date', [$start, $end])
         ->get();
 
@@ -142,8 +151,21 @@ protected function getAttendanceSummary(int $employeeId, Carbon $start, Carbon $
     ];
 
     foreach ($attendances as $day) {
+        // Skip records where affects_payroll is explicitly false (e.g., non-payroll holidays)
+        if (isset($day->affects_payroll) && $day->affects_payroll === false) {
+            continue;
+        }
+
         if ($day->net_hours > 0 || $day->status !== 'absent' || $day->is_paid_absence) {
             $summary['worked_days']++;
+
+            // For unpaid leave/absence records, count the day as worked but do NOT credit hours.
+            // Normal workdays (present, late, etc.) have is_paid_absence=false but SHOULD credit hours.
+            $isLeaveOrAbsence = in_array($day->status, ['leave', 'absent'], true);
+            if ($isLeaveOrAbsence && $day->is_paid_absence === false) {
+                continue;
+            }
+
             $regular = $day->regular_hours ?? 0;
             $overtime = $day->overtime_hours ?? 0;
             $double = $day->double_time_hours ?? 0;
@@ -242,33 +264,24 @@ protected function resolveWorkPatternId(EmployeePosition $position): ?int
 
     /**
      * Get the attendance policy applicable to an employee.
-     * Checks employee position assignment first, then falls back to default policy.
+     *
+     * Delegates to AttendanceCalculator's full 6-tier resolution chain:
+     * Employee → Shift → Department → Location → Company → System Default.
+     *
+     * This ensures overtime multipliers used in payroll match those used
+     * in attendance calculation, regardless of which tier the policy is
+     * assigned at.
      */
     protected function getAttendancePolicyForEmployee(EmployeePosition $position): ?AttendancePolicy
     {
-        // First try the policy directly assigned to the position
-        if ($position->attendance_policy_id) {
-            $policy = AttendancePolicy::withoutCompanyScope()
-                ->where('id', $position->attendance_policy_id)
-                ->where('is_active', true)
-                ->first();
-            if ($policy) {
-                return $policy;
-            }
-        }
+        $calculator = app(\App\Modules\Attendance\Services\AttendanceCalculator::class);
 
-        // Fallback to default attendance policy for the company
-        return AttendancePolicy::withoutCompanyScope()
-            ->where('is_default', true)
-            ->where('is_active', true)
-            ->where('effective_date', '<=', $this->run->period_end)
-            ->where(function ($q) {
-                $q->whereNull('expiration_date')->orWhere('expiration_date', '>=', $this->run->period_start);
-            })
-            ->when($position->employee->company_id, function ($query, $companyId) {
-                return $query->where('company_id', $companyId);
-            })
-            ->first();
+        return $calculator->getApplicablePolicy(
+            $position->employee,
+            $position,
+            $this->run->period_end,
+            $position->shift
+        );
     }
 
     /**
@@ -914,6 +927,41 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
     $items = [];
 
     // -------------------------------------------------------------
+    // 0. Prorate base salary for mid-period hires and terminations
+    // -------------------------------------------------------------
+    $prorationFactor = 1.0;
+    $employee = $position->employee;
+
+    if ($employee) {
+        $hireDate = $employee->hire_date;
+        $terminationDate = $position->employment_status === 'Terminated'
+            ? ($position->deleted_at ? \Carbon\Carbon::parse($position->deleted_at) : null)
+            : null;
+
+        $totalDays = $periodStart->diffInDays($periodEnd) + 1;
+
+        // Mid-period hire: prorate from hire_date
+        if ($hireDate && $hireDate->gt($periodStart)) {
+            $employedDays = $hireDate->diffInDays($periodEnd) + 1;
+            $prorationFactor = min($employedDays / $totalDays, 1.0);
+        }
+
+        // Mid-period termination: prorate to termination_date
+        if ($terminationDate && $terminationDate->lt($periodEnd)) {
+            $employedDays = $periodStart->diffInDays($terminationDate) + 1;
+            $prorationFactor = min($employedDays / $totalDays, 1.0);
+        }
+
+        // If both hire and termination in same period, use intersection
+        if ($hireDate && $hireDate->gt($periodStart) && $terminationDate && $terminationDate->lt($periodEnd)) {
+            $employedDays = $hireDate->diffInDays($terminationDate) + 1;
+            $prorationFactor = max(min($employedDays / $totalDays, 1.0), 0);
+        }
+
+        $baseSalary = round($baseSalary * $prorationFactor, 2);
+    }
+
+    // -------------------------------------------------------------
     // 1. Determine if attendance integration is active
     // -------------------------------------------------------------
     $attendanceEnabled = $this->isAttendanceIntegrationEnabled();
@@ -963,8 +1011,8 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
 
                 // Read overtime multipliers from attendance policy
                 $attendancePolicy = $this->getAttendancePolicyForEmployee($position);
-                $overtimeMultiplier = $attendancePolicy->overtime_multiplier ?? config('quick_hr_payroll.default_overtime_multiplier', 1.5);
-                $doubleTimeMultiplier = $attendancePolicy->double_time_multiplier ?? config('quick_hr_payroll.default_double_time_multiplier', 2.0);
+                $overtimeMultiplier = $attendancePolicy?->overtime_multiplier ?? config('quick_hr_payroll.default_overtime_multiplier', 1.5);
+                $doubleTimeMultiplier = $attendancePolicy?->double_time_multiplier ?? config('quick_hr_payroll.default_double_time_multiplier', 2.0);
 
                 $regularPay = $regularHours * $hourlyRate;
                 $overtimePay = ($overtimeHours * $hourlyRate * $overtimeMultiplier) + ($doubleTimeHours * $hourlyRate * $doubleTimeMultiplier);
@@ -1090,6 +1138,18 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
     // Compute gross pay base (total earnings after adjustments)
     $grossPayBase = collect($items)->where('type', 'earning')->sum('amount');
 
+    // Initialize policy-type summary accumulators for payslip breakdown
+    $summaryIncomeTax = 0.0;
+    $summarySocialSecurityTax = 0.0;
+    $summaryMedicareTax = 0.0;
+    $summaryPensionEmployee = 0.0;
+    $summaryPensionEmployer = 0.0;
+    $summaryHealthInsuranceEmployee = 0.0;
+    $summaryHealthInsuranceEmployer = 0.0;
+    $summaryOtherEarnings = 0.0;
+    $summaryOtherDeductions = 0.0;
+    $summaryEmployerContributions = 0.0;
+
     foreach ($allPolicies as $policy) {
         $effectivePolicy = $this->resolveEffectivePolicy($policy);
 
@@ -1142,6 +1202,39 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
             $suffix = $calcType === 'percentage' ? number_format($val, 2) . '%' : number_format($val, 2);
             $label = $effectivePolicy->name . " (Employer: {$suffix})";
             $items[] = $this->makeItem($policy->id, 'employer_contribution', $label, $amounts['employer'], null, $metadata);
+            // Accumulate by policy type for payslip summary breakdown
+            $policyType = $effectivePolicy->type ?? '';
+            $employeeAmt = $amounts['employee'] ?? 0;
+            $employerAmt = $amounts['employer'] ?? 0;
+            $policyName = strtolower($effectivePolicy->name ?? '');
+
+            if ($policyType === 'tax') {
+                if (str_contains($policyName, 'social security') || str_contains($policyName, 'sss') || str_contains($policyName, 'nsitf')) {
+                    $summarySocialSecurityTax += abs($employeeAmt);
+                } elseif (str_contains($policyName, 'medicare') || str_contains($policyName, 'health insurance') || str_contains($policyName, 'nhis') || str_contains($policyName, 'nhf')) {
+                    $summaryMedicareTax += abs($employeeAmt);
+                } else {
+                    $summaryIncomeTax += abs($employeeAmt);
+                }
+            } elseif ($policyType === 'pension') {
+                $summaryPensionEmployee += abs($employeeAmt);
+                $summaryPensionEmployer += abs($employerAmt);
+            } elseif ($policyType === 'insurance') {
+                $summaryHealthInsuranceEmployee += abs($employeeAmt);
+                $summaryHealthInsuranceEmployer += abs($employerAmt);
+            } elseif ($policyType === 'benefit' || $policyType === 'bonus' || $policyType === 'commission') {
+                if ($effectivePolicy->effect === 'addition') {
+                    $summaryOtherEarnings += abs($employeeAmt);
+                } else {
+                    $summaryOtherDeductions += abs($employeeAmt);
+                }
+            } elseif ($policyType === 'deduction') {
+                $summaryOtherDeductions += abs($employeeAmt);
+            }
+
+            if ($employerAmt != 0) {
+                $summaryEmployerContributions += abs($employerAmt);
+            }
         }
     }
 
@@ -1156,7 +1249,7 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
     $companyId = $position->employee->company_id ?? $this->run->company_id;
 
     // -------------------------------------------------------------
-    // 9. Create payslip
+    // 9. Create payslip with full summary breakdown
     // -------------------------------------------------------------
     $payslip = PayrollPayslip::create([
         'company_id' => $companyId,
@@ -1171,6 +1264,19 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
         'net_pay' => $netPay,
         'payment_status' => 'pending',
         'currency_code' => $this->run->base_currency ?? 'USD',
+        'income_tax' => round($summaryIncomeTax, 2),
+        'social_security_tax' => round($summarySocialSecurityTax, 2),
+        'medicare_tax' => round($summaryMedicareTax, 2),
+        'pension_employee' => round($summaryPensionEmployee, 2),
+        'pension_employer' => round($summaryPensionEmployer, 2),
+        'health_insurance_employee' => round($summaryHealthInsuranceEmployee, 2),
+        'health_insurance_employer' => round($summaryHealthInsuranceEmployer, 2),
+        'other_earnings' => round($summaryOtherEarnings, 2),
+        'other_deductions' => round($summaryOtherDeductions, 2),
+        'employer_contribution_total' => round($summaryEmployerContributions, 2),
+        'taxable_earnings' => round($grossPayTotal, 2),
+        'exchange_rate' => 1.0,
+        'created_by' => auth()->id(),
     ]);
 
     // Create line items

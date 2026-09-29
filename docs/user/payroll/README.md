@@ -63,12 +63,14 @@ Key permissions:
 |------|---------|
 | **Pay Schedule** | Defines the pay frequency (monthly, bi-weekly, weekly, etc.), period dates, and currency for a group of employees. |
 | **Payroll Run** | A single payroll processing instance — covers a specific period for a specific pay schedule. |
-| **Payslip** | An individual employee's pay statement within a payroll run, showing gross pay, deductions, taxes, and net pay. |
-| **Payroll Policy** | A recurring rule (tax, pension, insurance, benefit, bonus, deduction) that applies every pay period. |
+| **Payslip** | An individual employee's pay statement within a payroll run, showing gross pay, deductions (itemized by tax, pension, insurance), employer contributions, and net pay. |
+| **Payroll Policy** | A recurring rule (tax, pension, insurance, benefit, bonus, deduction) that applies every pay period. Policies can be versioned by `tax_year` for correct annual tax application. |
 | **Policy Assignment** | Links a policy to specific companies, departments, locations, or employee groups. |
 | **Payroll Run Adjustment** | A one-time addition or deduction applied to a specific payroll run (bonus, commission, reimbursement, correction, deduction). |
 | **Employee Adjustment Profile** | A recurring, employee-specific override or standalone adjustment. |
 | **Pay Type** | How an employee is paid: `salaried_full` (fixed), `salaried_daily` (per day worked), or `hourly` (per hour worked). |
+| **Proration** | Automatic adjustment of pay when an employee joins or leaves mid-period (based on `hire_date` and termination date). |
+| **Finalization** | Locking a payroll run after calculation — finalized payslips are immutable and cannot be recalculated. Corrections use adjustment records instead. |
 | **Payroll Wizard** | The 3-step guided process for creating and processing a payroll run. |
 
 ---
@@ -106,6 +108,8 @@ Pay schedules define **when** and **how often** employees are paid.
 ### 3.2 Employee Payroll Profiles
 
 Each employee who will be paid through payroll needs a payroll profile linked to a pay schedule.
+
+> **Proration**: Employees hired or terminated mid-period automatically receive prorated pay based on `hire_date` and termination date. See [§8.6 — Hire & Termination Proration](#86-hire--termination-proration).
 
 1. Navigate to **Payroll → Configuration → Employee Profiles** (`/payroll/employee-payroll-profiles`).
 2. Click **New Employee Profile**.
@@ -229,11 +233,21 @@ Each payslip shows:
 |-------|-------------|
 | **Payslip Number** | Auto-generated unique identifier (e.g., `PAYSLIP-2026-09-000042`) |
 | **Employee** | The employee's name and number |
-| **Base Salary** | The period base salary |
+| **Base Salary** | The period base salary (prorated for mid-period hires/terminations) |
 | **Gross Pay** | Total earnings (base + adjustments) |
-| **Total Deductions** | Sum of all deductions (tax, pension, benefits, other) |
-| **Total Taxes** | Income tax, social security, medicare |
-| **Net Pay** | Take-home pay (gross − deductions) |
+| **Income Tax** | Federal/national income tax |
+| **Social Security Tax** | Social security / national insurance contribution |
+| **Medicare Tax** | Medicare / national health insurance |
+| **Pension (Employee)** | Employee pension contribution |
+| **Pension (Employer)** | Employer pension contribution |
+| **Health Insurance (Employee)** | Employee health insurance premium |
+| **Health Insurance (Employer)** | Employer health insurance premium |
+| **Other Earnings** | Benefits, bonuses, commissions |
+| **Other Deductions** | Loan repayments, union dues, etc. |
+| **Employer Contributions** | Total employer share of all policies |
+| **Total Deductions** | Sum of all deductions |
+| **Total Taxes** | Sum of all taxes |
+| **Net Pay** | Take-home pay (gross − deductions − taxes) |
 | **Currency** | The pay currency |
 
 ### 6.2 Downloading & Printing Payslips
@@ -265,13 +279,15 @@ Generate a bank-ready payment file for the approved run at `/payroll/payroll-run
 
 | Type | Purpose | Example |
 |------|---------|---------|
-| **Tax** | Progressive tax based on income brackets | Income Tax, Social Security |
-| **Pension** | Employee and/or employer pension contributions | 8% Employee / 10% Employer |
-| **Insurance** | Health, life, or other insurance premiums | Health Insurance Deduction |
+| **Tax** | Progressive tax based on income brackets. Tax policies are auto-categorized: income tax, social security (SSS/NSITF), or medicare (NHIS/NHF) based on policy name. | Income Tax, Social Security, Medicare |
+| **Pension** | Employee and/or employer pension contributions. Both shares appear separately on payslips. | 8% Employee / 10% Employer |
+| **Insurance** | Health, life, or other insurance premiums. Both employee and employer shares appear separately. | Health Insurance Deduction |
 | **Benefit** | Recurring earnings or deductions | Car Allowance, Meal Vouchers |
 | **Bonus** | Recurring bonus | 3% of Base Salary |
 | **Commission** | Recurring commission | 2% of Base Salary |
 | **Deduction** | Other recurring deductions | Loan Repayment, Union Dues |
+
+> **Tax Year**: Set the `tax_year` field on tax policies to apply the correct annual tax bands for each fiscal year. This ensures payroll always uses the right tax rates even when rates change between years.
 
 ### 7.2 Calculation Methods
 
@@ -350,7 +366,7 @@ Net Pay = Gross Pay − Deductions
 
 **Work patterns** define which days are working days (e.g., Monday–Friday). If no work pattern is assigned, the system defaults to weekdays.
 
-**Jurisdiction note**: For US, UK, and EU jurisdictions, daily deductions are **blocked** — salaried daily employees are treated as salaried full. This is a compliance feature.
+**Atendance filtering**: Only **approved** attendance records (`is_approved = true`) are counted for payroll. Unapproved records, even with hours logged, are excluded. A day counts as "worked" if any of: `net_hours > 0`, `status` is not `'absent'`, or `is_paid_absence` is `true`.
 
 ### 8.3 Hourly
 
@@ -365,6 +381,8 @@ Net Pay = Gross Pay − Deductions
 ```
 
 Overtime multipliers come from the employee's attendance policy (or fall back to config defaults).
+
+**Leave & holiday hours**: Paid leave days credit standard shift hours as `regular_hours`. Unpaid leave days credit 0 hours. Paid holidays credit `minimum_hours_for_pay` (default 8h) as `regular_hours`. Unpaid holidays credit 0 hours. Half-day leave/holidays credit half the standard hours.
 
 ### 8.4 Tax Calculation (Progressive)
 
@@ -384,16 +402,33 @@ Period Tax = Annual Tax ÷ Periods Per Year
 ### 8.5 Attendance Integration
 
 The system can be configured to **use or ignore** attendance data via `PAYROLL_ATTENDANCE_INTEGRATION_ENABLED`:
-- **Enabled (default)**: Attendance records are used for `salaried_daily` and `hourly` pay types.
+- **Enabled (default)**: Attendance records are used for `salaried_daily` and `hourly` pay types. Only records with `is_approved = true` are counted.
 - **Disabled**: All employees are treated as `salaried_full`, regardless of their assigned pay type.
 
-### 8.6 Processing Architecture
+### 8.6 Hire & Termination Proration
+
+For employees who join or leave mid-period, the base salary is automatically prorated:
+
+```
+Proration Factor = days employed ÷ total days in period
+Prorated Base Salary = base_salary × Proration Factor
+```
+
+- **Mid-period hires**: Pay is prorated from the employee's `hire_date` to the period end.
+- **Mid-period terminations**: Pay is prorated from the period start to the termination date (`employment_status = 'Terminated'` and `deleted_at` on the position record).
+- **Same-period hire+termination**: Pay is prorated to only the days between hire and termination dates.
+
+> **Note**: Terminated employees now appear in payroll runs for their final period, ensuring statutory final-pay compliance.
+
+### 8.7 Processing Architecture
 
 Payroll runs are processed in **batches** (default: 100 employees per batch) via queued jobs:
 1. `ProcessPayrollRun` dispatches `ProcessEmployeeBatch` jobs.
 2. Each batch processes up to `batch_size` employees.
 3. Progress is tracked in the `payroll_run_progress` table.
 4. `FinalizePayrollRun` updates run totals after all batches complete.
+
+**Finalization guard**: Once a payroll run is finalized (`finalized_at` is set), the calculator will **not** recalculate it. Payslips from finalized runs are immutable. To correct a finalized run, use payroll run adjustments (corrections).
 
 Configurable in `config/quick_hr_payroll.php`:
 - `batch_size` (default: 100)
@@ -459,8 +494,8 @@ Check:
 
 Check:
 1. `PAYROLL_ATTENDANCE_INTEGRATION_ENABLED` is `true`.
-2. The employee has **approved attendance records** for the pay period.
-3. The employee's jurisdiction is not US/UK/EU (these jurisdictions block daily deductions).
+2. The employee has **approved attendance records** (`is_approved = true`) for the pay period — unapproved records are excluded.
+3. If the employee was hired mid-period, the base salary is automatically prorated — verify the `hire_date` is correct.
 
 ### "Tax calculation seems wrong"
 

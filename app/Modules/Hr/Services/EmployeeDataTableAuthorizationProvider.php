@@ -27,8 +27,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
         // Employee ownership bypass: if the user is linked to an
         // employee record, allow view-level access. The data table's
         // queryFilters already scope results to their employee_id.
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -44,8 +44,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -62,8 +62,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -80,8 +80,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -98,8 +98,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -116,8 +116,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -134,8 +134,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -152,8 +152,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -170,8 +170,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -188,8 +188,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -206,8 +206,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -224,8 +224,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -242,8 +242,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -260,8 +260,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -278,8 +278,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }
@@ -296,8 +296,8 @@ class EmployeeDataTableAuthorizationProvider extends DefaultAuthorizationProvide
             return true;
         }
 
-        if (AuthorizationService::$resolveUserEmployeeId !== null) {
-            $employeeId = call_user_func(AuthorizationService::$resolveUserEmployeeId, $user);
+        if (AuthorizationService::$resolveUserSubjectId !== null) {
+            $employeeId = call_user_func(AuthorizationService::$resolveUserSubjectId, $user);
             if ($employeeId !== null) {
                 return true;
             }

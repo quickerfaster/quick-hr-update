@@ -3,6 +3,7 @@
 namespace App\Modules\Attendance\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AttendanceServiceProvider extends ServiceProvider
 {
@@ -11,15 +12,8 @@ class AttendanceServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // Bind the library's ClockEventRecorder contract to our implementation
-        $this->app->bind(
-            \QuickerFaster\UILibrary\Contracts\Attendance\ClockEventRecorder::class,
-            \App\Modules\Attendance\Services\ClockEventRecorderService::class
-        );
-
-        // Livewire components under app/Modules/Attendance/Http/Livewire/ are
-        // auto-discovered by the library's ModuleServiceProvider. No explicit
-        // Livewire::component() registrations are needed here.
+        // Register the ClockInOut Livewire component (moved from library).
+        Livewire::component('attendance.clock-in-out', \App\Modules\Attendance\Http\Livewire\ClockInOut::class);
     }
 
     /**

@@ -31,7 +31,7 @@ class PayrollPolicy extends Model
 
 
     protected $fillable = [
-        'company_id', 'name', 'type', 'effect', 'description', 'country_code', 'state_code', 'calculation_logic', 'employer_ratio', 'is_statutory', 'effective_date', 'expiry_date', 'is_active', 'parent_policy_id'
+        'company_id', 'name', 'type', 'effect', 'description', 'country_code', 'state_code', 'calculation_logic', 'employer_ratio', 'is_statutory', 'tax_year', 'effective_date', 'expiry_date', 'is_active', 'parent_policy_id'
     ];
 
     protected $guarded = [
@@ -41,6 +41,7 @@ class PayrollPolicy extends Model
     protected $casts = [
         'employer_ratio' => 'decimal:2',
         'is_statutory' => 'boolean',
+        'tax_year' => 'integer',
         'effective_date' => 'date',
         'expiry_date' => 'date',
         'is_active' => 'boolean',

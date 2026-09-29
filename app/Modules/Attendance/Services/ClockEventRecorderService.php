@@ -8,14 +8,9 @@ use App\Modules\Hr\Models\Employee;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
-use QuickerFaster\UILibrary\Contracts\Attendance\ClockEventRecorder;
 
 /**
- * ClockEventRecorderService — consuming-app implementation of the
- * library's ClockEventRecorder contract.
- *
- * Binds the library's domain-independent clock-in/out component to
- * the consuming app's ClockEvent model.
+ * ClockEventRecorderService — handles clock-in/clock-out event recording.
  *
  * Features:
  *   - Idempotency check (10-second window)
@@ -25,7 +20,7 @@ use QuickerFaster\UILibrary\Contracts\Attendance\ClockEventRecorder;
  *   - Browser geolocation capture (lat/lng from $meta)
  *   - Automatic attendance recalculation (ProcessAttendanceJob)
  */
-class ClockEventRecorderService implements ClockEventRecorder
+class ClockEventRecorderService
 {
     /**
      * {@inheritdoc}
@@ -33,20 +28,29 @@ class ClockEventRecorderService implements ClockEventRecorder
     public function getLatestToday(int|string $employeeId): ?array
     {
         $resolvedId = $this->resolveEmployeeId($employeeId);
-        $today = Carbon::today();
+
+        // Resolve the employee's local "today" boundaries and convert to UTC
+        // so the query matches the correct 24-hour window regardless of the
+        // app's default timezone (UTC). Without this, a Lagos employee who
+        // clocks in between 00:00–00:59 local time would be assigned to the
+        // wrong calendar day.
+        $timezone = UserTimezone::resolve($resolvedId);
+        $startOfTodayUtc = Carbon::today($timezone)->setTimezone('UTC');
+        $endOfTodayUtc = Carbon::tomorrow($timezone)->setTimezone('UTC');
 
         $event = ClockEvent::query()
             ->where('employee_id', $resolvedId)
-            ->whereDate('timestamp', $today)
+            ->whereBetween('timestamp', [$startOfTodayUtc, $endOfTodayUtc])
             ->orderBy('timestamp', 'desc')
             ->first();
 
         // If no event today, check for an unclosed session from yesterday
         // (handles overnight shifts where clock-in was before midnight)
         if (!$event) {
+            $yesterdayStartUtc = $startOfTodayUtc->copy()->subDay();
             $yesterdayEvent = ClockEvent::query()
                 ->where('employee_id', $resolvedId)
-                ->whereDate('timestamp', $today->copy()->subDay())
+                ->whereBetween('timestamp', [$yesterdayStartUtc, $startOfTodayUtc])
                 ->orderBy('timestamp', 'desc')
                 ->first();
 
@@ -83,6 +87,7 @@ class ClockEventRecorderService implements ClockEventRecorder
     {
         $resolvedId = $this->resolveEmployeeId($employeeId);
         $now = Carbon::now();
+        $timezone = $meta['timezone'] ?? UserTimezone::resolve($resolvedId);
 
         // Resolve company_id from the employee so the ClockEvent is visible
         // under the HasCompanyScope global scope after page refresh.
@@ -155,7 +160,7 @@ class ClockEventRecorderService implements ClockEventRecorder
             'method'          => $meta['method'] ?? 'web',
             'ip_address'      => $meta['ip_address'] ?? request()->ip(),
             'device_name'     => $meta['device_name'] ?? request()->userAgent(),
-            'timezone'        => $meta['timezone'] ?? config('app.timezone', 'UTC'),
+            'timezone'        => $timezone,
             'sync_status'     => 'synced',
         ]);
 

@@ -109,6 +109,20 @@ Navigate to **Attendance → Attendance Policies**:
 | **Max Daily Overtime** | Cap on daily overtime hours |
 | **Double Time Threshold** | Hours before double-time rates apply |
 
+### Company Holidays & Pay
+
+Holidays are managed at **Organization → Holidays**. Each holiday can be configured with payroll settings:
+
+| Setting | Description |
+|---------|-------------|
+| **Paid Holiday** | If checked, employees receive credited hours for the holiday |
+| **Affects Payroll** | If unchecked, the holiday is excluded from payroll entirely |
+| **Holiday Pay Rate** | Multiplier for employees who work on the holiday (future) |
+| **Minimum Hours for Pay** | Hours credited for paid holidays (default: 8) |
+| **Half Day** | If checked, only half the minimum hours are credited |
+
+> **How holidays affect pay**: Paid holidays credit `minimum_hours_for_pay` as regular hours for hourly employees and count as worked days for salaried daily employees. Unpaid holidays produce zero-hour records. Holidays always take priority over leave and clock events — if a date is a holiday, it's always marked as holiday regardless of other activity.
+
 ### Setting Up Shifts & Work Patterns
 
 - **Shifts**: Define start/end times and duration (e.g., "Day Shift 9:00-17:00")
@@ -130,6 +144,22 @@ Special cases handled automatically:
 - **Approved Leave**: Marked as `leave` with standard hours
 - **Unplanned Absence**: Marked as `absent` with hours deducted
 
+### Attendance Approval & Payroll Impact
+
+Attendance records must be **approved** (`is_approved = true`) before they count toward payroll:
+
+- Unapproved records are excluded from payroll calculations — even if they have hours logged
+- Records flagged with `needs_review = true` (violations, incomplete days) stay unapproved until an HR administrator reviews and approves them
+- Approved leave days marked `is_paid_absence = true` count as worked days for `salaried_daily` employees
+
+**Approval workflow**:
+1. Filter attendance records by `needs_review = true`
+2. Review each record's violations in the detail view
+3. Click **Approve** to set `is_approved = true` — the record now counts for payroll
+4. If corrections are needed, create an adjustment first, then approve
+
+> **Important**: Running payroll before approving attendance records will result in reduced pay for `salaried_daily` and `hourly` employees. Always approve attendance before processing a payroll run covering that period.
+
 ### Recalculating Attendance
 
 If clock events were added/corrected, you can recalculate:
@@ -138,7 +168,7 @@ If clock events were added/corrected, you can recalculate:
 2. Find the record
 3. Click **Recalculate Hours** (requires `hr_admin` or `system_admin` role)
 
-> **Note**: Approved attendance records cannot be recalculated until unapproved.
+> **Note**: Approved attendance records cannot be recalculated until unapproved. Recalculation also resets `is_approved` to `false`, requiring re-approval before the record counts for payroll.
 
 ---
 
