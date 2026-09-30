@@ -518,7 +518,6 @@ class MultiCompanyPayrollTestDataSeeder extends Seeder
                         'hourly_rate'          => $hourlyRate,
                         'salary_currency'      => $currencyCode,
                         'pay_frequency'        => $payFrequency,
-                        'pay_schedule_id'      => $schedule->id,
                         'location_id'          => $locations->random()->id,
                         'shift_id'             => $shifts->random()->id,
                         'attendance_policy_id' => $attendancePolicies->random()->id,
