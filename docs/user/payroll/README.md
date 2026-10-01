@@ -107,7 +107,7 @@ Pay schedules define **when** and **how often** employees are paid.
 
 ### 3.2 Employee Payroll Profiles
 
-Each employee who will be paid through payroll needs a payroll profile linked to a pay schedule.
+Each employee who will be paid through payroll needs a payroll profile linked to a pay schedule. **Without this profile, the employee will not appear in any payroll run** — even if they have an active position with a salary.
 
 > **Proration**: Employees hired or terminated mid-period automatically receive prorated pay based on `hire_date` and termination date. See [§8.6 — Hire & Termination Proration](#86-hire--termination-proration).
 
@@ -115,7 +115,12 @@ Each employee who will be paid through payroll needs a payroll profile linked to
 2. Click **New Employee Profile**.
 3. Select the **employee**, assign a **pay schedule**, and set the profile to **active**.
 
-> **Important**: Only employees with an active payroll profile AND an active employment status are included in payroll runs.
+> **Important**: An employee must meet ALL three conditions to appear in a payroll run:
+> 1. An **active Employee Payroll Profile** linked to the correct pay schedule
+> 2. An **active employment status** (`Active`) on their position record
+> 3. The profile's **pay schedule** must match the payroll run's pay schedule
+>
+> If any of these is missing, the employee will be silently excluded from the run.
 
 ### 3.3 Employee Positions (Pay Data)
 
@@ -485,10 +490,13 @@ Large payroll runs are processed in batches. Check the progress on the run detai
 
 ### "An employee is missing from the payroll run"
 
-Check:
-1. The employee has an **active payroll profile** linked to the correct pay schedule.
-2. The employee's **employment status** is "Active" in their position record.
-3. The employee is assigned to the correct **company** (for single-company runs).
+This is the most common payroll setup issue. An employee needs three things to appear in a run:
+
+1. **An active Employee Payroll Profile** — Go to **Payroll → Configuration → Employee Profiles**. Search for the employee. If they don't have a profile, create one and link it to the correct pay schedule. Make sure `is_active` is checked.
+2. **Active employment status** — Go to **HR → Employee Positions**. Find the employee's position and verify `employment_status` is "Active."
+3. **Matching pay schedule** — The pay schedule on the employee's payroll profile must match the pay schedule selected in the payroll run.
+
+> **Common mistake**: Creating an employee and position is not enough. The Employee Payroll Profile is a separate record that must be created manually. Without it, the employee is invisible to payroll.
 
 ### "Salaried daily employee received full pay instead of prorated"
 

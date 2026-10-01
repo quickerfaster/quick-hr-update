@@ -234,6 +234,7 @@ Go through this checklist before every payroll run:
 
 - [ ] **All attendance records for the period are approved.** Filter by the pay period dates and check for any unapproved records. Unapproved records will not be counted.
 - [ ] **All leave requests for the period are processed.** Check for any pending leave requests that cover dates in the pay period. Approve or reject them.
+- [ ] **All employees have active payroll profiles.** Go to Payroll → Employee Profiles and verify every employee who should be paid has a profile linked to the correct pay schedule. An employee without a payroll profile will not appear in the run — even if they have an active position.
 - [ ] **New hires and terminations are up to date.** Check that any employees who joined or left during the period have correct dates. Their pay will be automatically prorated.
 - [ ] **Employee positions are correct.** Verify that pay types, base salaries, and hourly rates are up to date for all employees.
 - [ ] **Recurring adjustments are active.** Check Employee Adjustment Profiles — make sure any recurring bonuses or deductions are still valid.
@@ -334,7 +335,7 @@ Once processing is complete:
 |-----------|-----------|
 | **The calculation shows an error for an employee** | Check their attendance records and position data. Fix any issues, then recalculate. |
 | **You need to add a bonus after processing** | Go back to Step 2, add the adjustment, and recalculate. |
-| **An employee is missing from the run** | Check that they have an active payroll profile linked to the correct pay schedule, and that their employment status is "Active." |
+| **An employee is missing from the run** | This is almost always a missing Employee Payroll Profile. Go to Payroll → Employee Profiles and check if the employee has a profile linked to the correct pay schedule. Also verify their employment status is "Active." |
 | **The totals seem wrong** | Review the per-employee breakdown to find which employee has unexpected numbers. Check their attendance and position. |
 | **You need to cancel the run** | You can cancel a draft run at any time. Once finalized, you cannot cancel — you'll need to process corrections in the next run. |
 
