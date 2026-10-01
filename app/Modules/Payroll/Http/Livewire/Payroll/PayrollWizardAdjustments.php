@@ -401,7 +401,7 @@ public function render()
             ->where('employee_payroll_profiles.is_active', 1);
     }
 
-    $employeeIds = $baseQuery->pluck('employee_id')->unique();
+    $employeeIds = $baseQuery->pluck('employee_positions.employee_id')->unique();
 
     // Companies with active employees
     $companies = collect();
