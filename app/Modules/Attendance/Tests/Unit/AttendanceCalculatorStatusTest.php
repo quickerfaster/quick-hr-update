@@ -2,7 +2,7 @@
 
 namespace App\Modules\Attendance\Tests\Unit;
 
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use PHPUnit\Framework\Attributes\Test;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Carbon;
@@ -16,7 +16,7 @@ use App\Modules\Attendance\Models\{
 };
 use App\Modules\Attendance\Services\AttendanceCalculator;
 
-class AttendanceCalculatorStatusTest extends TestCase
+class AttendanceCalculatorStatusTest extends BaseTestCase
 {
     use DatabaseTransactions;
 

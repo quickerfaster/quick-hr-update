@@ -3,7 +3,7 @@
 namespace App\Modules\Payroll\Tests\Unit;
 
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Carbon\Carbon;
 use App\Modules\Payroll\Models\PayrollRun;
@@ -27,7 +27,7 @@ use App\Modules\Attendance\Models\WorkPattern;
 use App\Modules\Attendance\Models\Shift;
 use App\Modules\Payroll\Services\Payroll\PayrollCalculator;
 
-class PayrollCalculatorTest extends TestCase
+class PayrollCalculatorTest extends BaseTestCase
 {
     use \Illuminate\Foundation\Testing\DatabaseTransactions;
 
