@@ -172,9 +172,21 @@ class EmployeePosition extends Model
 
 
 
+    /**
+     * Get the pay schedule through the employee's payroll profile.
+     * The direct pay_schedule_id column was dropped — the canonical link
+     * is now via employee_payroll_profiles.
+     */
     public function paySchedule()
     {
-        return $this->belongsTo(\App\Modules\Payroll\Models\PaySchedule::class, 'pay_schedule_id', 'id');
+        return $this->hasOneThrough(
+            \App\Modules\Payroll\Models\PaySchedule::class,
+            \App\Modules\Payroll\Models\EmployeePayrollProfile::class,
+            'employee_id',     // Foreign key on employee_payroll_profiles
+            'id',              // Foreign key on pay_schedules
+            'employee_id',     // Local key on employee_positions
+            'pay_schedule_id'  // Local key on employee_payroll_profiles
+        );
     }
 
 

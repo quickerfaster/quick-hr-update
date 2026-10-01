@@ -392,11 +392,13 @@ public function render()
     // Base query for active employees (without date filters)
     $baseQuery = EmployeePosition::withoutCompanyScope()
         ->where('employment_status', 'Active')
-        ->whereNull('deleted_at');
+        ->whereNull('employee_positions.deleted_at');
 
-    // For single‑company, restrict to the run's pay schedule
+    // For single‑company, restrict to the run's pay schedule via employee_payroll_profiles
     if (!$run->is_multi_company) {
-        $baseQuery->where('pay_schedule_id', $run->pay_schedule_id);
+        $baseQuery->join('employee_payroll_profiles', 'employee_positions.employee_id', '=', 'employee_payroll_profiles.employee_id')
+            ->where('employee_payroll_profiles.pay_schedule_id', $run->pay_schedule_id)
+            ->where('employee_payroll_profiles.is_active', 1);
     }
 
     $employeeIds = $baseQuery->pluck('employee_id')->unique();
