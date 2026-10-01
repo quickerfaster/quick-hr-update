@@ -49,6 +49,10 @@ deployment:
     - /bin/echo "Installing PHP dependencies..." >> $LOGFILE
     - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 "$COMPOSER_BIN" install --no-dev --no-scripts --optimize-autoloader >> "$LOGFILE" 2>&1'
 
+    # Remove test files to prevent PHPUnit dependency errors during artisan commands
+    - /bin/echo "Removing test files..." >> $LOGFILE
+    - /bin/sh -c 'rm -rf "$DEPLOYPATH/app/Modules/"*/Tests "$DEPLOYPATH/tests"' >> $LOGFILE 2>&1
+
     # Run database migrations first (creates cache table needed by CACHE_STORE=database)
     - /bin/echo "Running database migrations..." >> $LOGFILE
     - /bin/sh -c 'ea-php84 "$DEPLOYPATH/artisan" migrate --force >> "$LOGFILE" 2>&1'
