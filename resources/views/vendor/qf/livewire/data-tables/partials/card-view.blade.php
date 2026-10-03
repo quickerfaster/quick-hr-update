@@ -38,14 +38,38 @@
                 {{-- 2. Image / Icon Header Section --}}
                 @php
                     $avatarUrl = $this->getAvatarUrl($record);
-                    $iconClass = !empty($viewConfig['iconField'])
-                        ? $this->getValueFromRecord($record, $viewConfig['iconField'])
-                        : $viewConfig['defaultIconClass'] ?? 'fas fa-cube';
+
+                    // Determine if this record looks like a file (has a filename
+                    // with a recognizable extension). If so, show a file-type icon
+                    // or thumbnail. Otherwise fall back to defaultIconClass.
+                    $fileName = $record->name ?? '';
+                    $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                    $imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+
+                    if ($ext !== '') {
+                        // File-like record: show thumbnail for images, icon for others
+                        $isImage = in_array($ext, $imageExts);
+                        $iconClass = match ($ext) {
+                            'pdf'  => 'fas fa-file-pdf',
+                            'doc', 'docx' => 'fas fa-file-word',
+                            'xls', 'xlsx' => 'fas fa-file-excel',
+                            'ppt', 'pptx' => 'fas fa-file-powerpoint',
+                            'zip', 'rar', '7z' => 'fas fa-file-archive',
+                            'txt', 'csv', 'log' => 'fas fa-file-alt',
+                            default => $isImage ? 'fas fa-file-image' : 'fas fa-file',
+                        };
+                    } else {
+                        // Not a file record: use config-driven icon
+                        $isImage = false;
+                        $iconClass = !empty($viewConfig['iconField'])
+                            ? $this->getValueFromRecord($record, $viewConfig['iconField'])
+                            : ($viewConfig['defaultIconClass'] ?? 'fas fa-cube');
+                    }
                 @endphp
 
                 <div class="position-relative">
-                    @if ($avatarUrl)
-                        <img src="{{ $avatarUrl }}" class="card-img-top" alt="Avatar"
+                    @if ($avatarUrl && $isImage)
+                        <img src="{{ $avatarUrl }}" class="card-img-top" alt="Preview"
                             style="height: 140px; object-fit: cover; object-position: center;">
                     @else
                         <div class="card-img-top d-flex align-items-center justify-content-center bg-gradient-light py-5"

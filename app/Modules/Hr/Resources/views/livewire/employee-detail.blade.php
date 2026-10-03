@@ -731,14 +731,26 @@
 
                     {{-- Documents Tab --}}
                     @if ($activeTab === 'documents')
+                        @php
+                            $docQueryFilters = [['employee_id', '=', $employee->id]];
+                            $docHiddenFields = ['employee_id'];
+                            $docPrefilled = ['employee_id' => $employee->id];
+
+                            if ($isSelfServiceMode) {
+                                // ESS: hide admin_only documents, default new uploads to employee visibility
+                                $docQueryFilters[] = ['visibility', '!=', 'admin_only'];
+                                $docHiddenFields[] = 'visibility';
+                                $docPrefilled['visibility'] = 'employee';
+                            }
+                        @endphp
                         @livewire(
                             'qf.data-table',
                             [
                                 'configKey' => 'hr.document',
-                                'queryFilters' => [['employee_id', '=', $employee->id]],
-                                'hiddenFields' => ['onTable' => ['employee_id']],
-                                'prefilledData' => ['employee_id' => $employee->id],
-                                'simpleActions' => ['show', 'create'],
+                                'queryFilters' => $docQueryFilters,
+                                'hiddenFields' => ['onTable' => $docHiddenFields],
+                                'prefilledData' => $docPrefilled,
+                                'simpleActions' => $isSelfServiceMode ? ['show', 'create'] : ['create', 'show', 'edit', 'delete'],
                                 'moreActions' => [],
                                 'controls' => [
                                     'search' => true,

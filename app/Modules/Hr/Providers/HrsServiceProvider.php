@@ -112,6 +112,12 @@ class HrsServiceProvider extends ServiceProvider
 
         // Register Employee onboarding status observer
         \App\Modules\Hr\Models\Employee::observe(\App\Modules\Hr\Observers\EmployeeOnboardingObserver::class);
+
+        // Register Document observer that bridges library Document's
+        // polymorphic columns to the HR-specific employee_id column.
+        // Ensures documents created via DocumentEngine, HasDocuments trait,
+        // or any other library path are visible in the ESS documents tab.
+        \QuickerFaster\UILibrary\Models\Document::observe(\App\Modules\Hr\Observers\DocumentEmployeeIdObserver::class);
     }
 
     /**

@@ -99,7 +99,18 @@ class EmployeeOnboardingWizard extends Component
             }
         }
 
-        // Step 4: Check if notification preferences are set
+        // Step 4: Check if documents have been uploaded
+        if ($this->employeeId) {
+            $docCount = \App\Modules\Hr\Models\Employee::withoutCompanyScope()
+                ->find($this->employeeId)
+                ?->documents()
+                ->count() ?? 0;
+            if ($docCount > 0) {
+                $this->completedSteps['documents'] = true;
+            }
+        }
+
+        // Step 5: Check if notification preferences are set
         if (method_exists($user, 'getSetting')) {
             $prefs = $user->getSetting('notification_preferences');
             if (!empty($prefs)) {

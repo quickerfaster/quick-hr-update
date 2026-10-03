@@ -39,6 +39,9 @@ class Step4Documents extends Component
     /** @var int Maximum files allowed */
     public int $maxFiles = 10;
 
+    /** @var bool True while a file upload is in progress */
+    public bool $uploading = false;
+
     /** @var int Maximum file size in KB (10240 = 10MB) */
     public int $maxFileSize = 10240;
 
@@ -109,11 +112,14 @@ class Step4Documents extends Component
     /**
      * Upload a single file directly to storage and create a DB record.
      */
-    public function upload(): void
+    public function uploadDocument(): void
     {
+        $this->uploading = true;
+
         $this->validate();
 
         if (!$this->newFile) {
+            $this->uploading = false;
             $this->dispatch('notify', [
                 'type'    => 'warning',
                 'message' => __('Please select a file to upload.'),
@@ -123,6 +129,7 @@ class Step4Documents extends Component
 
         // Enforce file count limit
         if ($this->uploadedDocuments->count() >= $this->maxFiles) {
+            $this->uploading = false;
             $this->dispatch('notify', [
                 'type'    => 'error',
                 'message' => __('You can upload a maximum of :count files.', ['count' => $this->maxFiles]),
@@ -155,12 +162,31 @@ class Step4Documents extends Component
                 'disk'              => $this->disk,
             ]);
 
-            // Set HR domain column
+            // Map onboarding document_type to HR type column labels.
+            // The DataTable stores the display label, not the option key.
+            $hrTypeMap = [
+                'cv'             => 'Resume',
+                'contract'       => 'Contract',
+                'identification' => 'ID Proof',
+                'certificate'    => 'Certificate',
+                'other'          => 'Other',
+            ];
+
+            // Set HR domain columns — employee_id is also handled by
+            // DocumentEmployeeIdObserver, but we set it explicitly here
+            // for clarity and to set the correct visibility default.
+            // company_id is required for the DataTable's HasCompanyScope
+            // to show the document at /hr/documents.
             $document->forceFill([
                 'employee_id' => $this->employee->getKey(),
+                'company_id'  => $this->employee->company_id,
+                'visibility'  => 'employee',
+                'type'        => $hrTypeMap[$this->documentType] ?? '7',
+                'uploaded_at' => now(),
             ])->save();
 
             $this->newFile = null;
+            $this->uploading = false;
         } catch (\Exception $e) {
             // If the file was stored but DB insert failed, clean up
             // the orphaned file
@@ -179,6 +205,7 @@ class Step4Documents extends Component
                 'message' => __('Upload failed: ') . $e->getMessage(),
             ]);
 
+            $this->uploading = false;
             return;
         }
 
@@ -186,6 +213,8 @@ class Step4Documents extends Component
             'type'    => 'success',
             'message' => __(':file uploaded successfully.', ['file' => $filename]),
         ]);
+
+        $this->uploading = false;
 
         // Reload from DB so the list reflects current state
         $this->loadDocuments();
@@ -236,6 +265,10 @@ class Step4Documents extends Component
      * Called by the wizard when user clicks "Save & Continue".
      * Emits stepComplete with step number 4 (wizard uses 1-indexed step numbers).
      */
+    /**
+     * Called by the wizard when user clicks "Save & Continue".
+     * Emits stepComplete with step number 4 (wizard uses 1-indexed step numbers).
+     */
     public function save(): void
     {
         $this->loadDocuments();
@@ -256,14 +289,21 @@ class Step4Documents extends Component
      */
     public function getFileUrl(string $filePath): string
     {
-        return Storage::disk($this->disk)->url($filePath);
+        // Use asset() to generate a URL matching the current request's
+        // scheme and host, avoiding APP_URL mismatches (e.g. APP_URL
+        // set to http://localhost:8000 but served at https://hr-consuming-app.test).
+        return asset('storage/' . $filePath);
     }
 
     /**
      * Determine the icon class for a given MIME type.
      */
-    public function getFileIcon(string $mimeType): string
+    public function getFileIcon(?string $mimeType): string
     {
+        if ($mimeType === null) {
+            return 'fa-file';
+        }
+
         $icons = [
             'application/pdf'                                                                                          => 'fa-file-pdf',
             'application/msword'                                                                                       => 'fa-file-word',

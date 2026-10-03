@@ -48,7 +48,7 @@ class Document extends Model
     protected $fillable = [
         'company_id', 'employee_id', 'name', 'type', 'document', 'file_path', 'file_name',
         'uploaded_at', 'expiry_date', 'description',
-        'documentable_type', 'documentable_id'
+        'documentable_type', 'documentable_id', 'visibility'
     ];
 
     protected $guarded = [
@@ -60,8 +60,12 @@ class Document extends Model
         'expiry_date' => 'date'
     ];
 
-    protected $attributes = [
+    protected $appends = [
+        'file_icon',
+    ];
 
+    protected $attributes = [
+        'visibility' => 'all',
     ];
 
     protected $dispatchesEvents = [
@@ -146,6 +150,34 @@ class Document extends Model
     public function documentable()
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Get the Font Awesome icon class for this document's file type.
+     * Used by DataTable card/list views via iconField => 'file_icon'.
+     */
+    public function getFileIconAttribute(): string
+    {
+        $mime = $this->mime_type;
+
+        if ($mime === null) {
+            return 'fas fa-file';
+        }
+
+        return match (true) {
+            str_starts_with($mime, 'image/')       => 'fas fa-file-image',
+            $mime === 'application/pdf'            => 'fas fa-file-pdf',
+            str_contains($mime, 'word') ||
+            str_contains($mime, 'document')        => 'fas fa-file-word',
+            str_contains($mime, 'spreadsheet') ||
+            str_contains($mime, 'excel')           => 'fas fa-file-excel',
+            str_contains($mime, 'presentation') ||
+            str_contains($mime, 'powerpoint')      => 'fas fa-file-powerpoint',
+            str_contains($mime, 'zip') ||
+            str_contains($mime, 'compress')        => 'fas fa-file-archive',
+            str_contains($mime, 'text/')           => 'fas fa-file-alt',
+            default                                => 'fas fa-file',
+        };
     }
 
     /**

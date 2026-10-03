@@ -20,14 +20,17 @@
             {{ __('PDF, JPG, PNG, DOC, DOCX • Max :size MB', ['size' => intdiv($maxFileSize, 1024)]) }}
         </p>
 
-        {{-- Visible file input — NOT hidden --}}
-        <input
-            type="file"
-            id="file-input"
-            wire:model="newFile"
-            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-            class="form-control"
-        />
+        {{-- File input — wire:ignore prevents Alpine/Livewire from
+             replacing the DOM during re-renders, which would clear
+             the file selection. Upload handled via raw JS API. --}}
+        <div wire:ignore>
+            <input
+                type="file"
+                id="file-input"
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                class="form-control"
+            />
+        </div>
 
         @error('newFile')
             <p class="text-danger text-xs mt-1 mb-0">{{ $message }}</p>
@@ -45,11 +48,13 @@
         </div>
     </div>
 
-    {{-- Upload Spinner --}}
-    <div wire:loading wire:target="newFile" class="text-center py-2 mb-3">
-        <div class="spinner-border spinner-border-sm text-primary me-1" role="status"></div>
-        <span class="text-sm text-muted">{{ __('Preparing file...') }}</span>
-    </div>
+    {{-- Upload feedback — shown while uploadDocument() is processing --}}
+    @if ($uploading)
+        <div class="text-center py-2 mb-3">
+            <div class="spinner-border spinner-border-sm text-primary me-1" role="status"></div>
+            <span class="text-sm text-muted">{{ __('Uploading document...') }}</span>
+        </div>
+    @endif
 
     {{-- Document Type Selector + Upload Button --}}
     <div class="row mb-4">
@@ -74,17 +79,15 @@
             <button
                 type="button"
                 class="btn btn-primary w-100"
-                wire:click="upload"
-                wire:loading.attr="disabled"
-                wire:target="upload"
+                wire:click="uploadDocument"
+                @if ($uploading) disabled @endif
             >
-                <span wire:loading.remove wire:target="upload">
-                    <i class="fas fa-upload me-1"></i> {{ __('Upload Document') }}
-                </span>
-                <span wire:loading wire:target="upload">
+                @if ($uploading)
                     <span class="spinner-border spinner-border-sm me-1"></span>
                     {{ __('Uploading...') }}
-                </span>
+                @else
+                    <i class="fas fa-upload me-1"></i> {{ __('Upload Document') }}
+                @endif
             </button>
         </div>
     </div>
@@ -189,17 +192,36 @@ document.addEventListener('livewire:initialized', function () {
         }
     });
 
-    // Show selected filename
+    // Show selected filename + upload via raw Livewire JS API.
+    // Using Livewire.find().upload() instead of @this.upload()
+    // avoids Alpine expression evaluation errors in nested components.
     input.addEventListener('change', function () {
         if (input.files && input.files[0]) {
-            nameSpan.textContent = input.files[0].name;
+            const file = input.files[0];
+            nameSpan.textContent = file.name;
             info.style.display = 'block';
+
+            // Find the Livewire component instance and call upload()
+            const el = input.closest('[wire\\:id]');
+            if (el) {
+                const component = window.Livewire.find(el.getAttribute('wire:id'));
+                if (component) {
+                    component.upload('newFile', file,
+                        function () { /* success */ },
+                        function (error) {
+                            console.error('Upload failed:', error);
+                            info.style.display = 'none';
+                        }
+                    );
+                }
+            }
         } else {
             info.style.display = 'none';
         }
     });
 
-    // Drag-and-drop via Livewire JS API
+    // Drag-and-drop: transfer file to the file input, then trigger
+    // change event so wire:model picks it up naturally.
     zone.addEventListener('dragover', function (e) {
         e.preventDefault();
         zone.style.borderColor = '#0d6efd';
@@ -218,19 +240,11 @@ document.addEventListener('livewire:initialized', function () {
         zone.style.background = '#fafbfc';
 
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            const file = e.dataTransfer.files[0];
-
-            // Use Livewire's JS API to upload
-            @this.upload('newFile', file,
-                function (success) {
-                    // File uploaded to Livewire, now call upload()
-                    nameSpan.textContent = file.name;
-                    info.style.display = 'block';
-                },
-                function (error) {
-                    console.error('Upload failed:', error);
-                }
-            );
+            // Assign the dropped file to the file input and dispatch change
+            const dt = new DataTransfer();
+            dt.items.add(e.dataTransfer.files[0]);
+            input.files = dt.files;
+            input.dispatchEvent(new Event('change'));
         }
     });
 
@@ -243,6 +257,18 @@ document.addEventListener('livewire:initialized', function () {
     };
 });
 </script>
+
+{{-- Navigation: Save & Continue + Skip (optional step) --}}
+<div class="d-flex justify-content-between mt-4 pt-3 border-top">
+    <button type="button" class="btn btn-link text-decoration-none text-muted fw-bold p-0"
+            wire:click="$dispatch('skipStep')">
+        {{ __('Skip this step') }}
+    </button>
+    <button type="button" class="btn btn-primary px-4"
+            wire:click="save">
+        <i class="fas fa-arrow-right me-1"></i> {{ __('Save & Continue') }}
+    </button>
+</div>
 
 <style>
     .upload-zone {

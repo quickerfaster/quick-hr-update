@@ -105,6 +105,25 @@ return [
       'label' => 'Description',
       'validation' => 'nullable|string',
     ],
+    'mime_type' => [
+      'display' => 'none',
+      'fillable' => false,
+      'field_type' => 'string',
+      'label' => 'MIME Type',
+    ],
+    'visibility' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'field_type' => 'select',
+      'label' => 'Employee Access',
+      'validation' => 'required|string|in:all,admin_only,employee',
+      'options' => [
+        'all' => 'Visible (Read-Only)',
+        'admin_only' => 'Hidden from Employee',
+        'employee' => 'Visible & Deletable',
+      ],
+      'filterable' => true,
+    ],
   ],
   'detailComponent' => '',
   'hiddenFields' => [
@@ -144,8 +163,10 @@ return [
     '1' => 'name',
     '2' => 'employee_id',
     '3' => 'type',
-    '4' => 'uploaded_at',
-    '5' => 'expiry_date',
+    '4' => 'visibility',
+    '5' => 'uploaded_at',
+    '6' => 'expiry_date',
+    '7' => 'mime_type',
   ],
   'addRoutes' => false,
   'dispatchEvents' => false,
@@ -200,7 +221,8 @@ return [
         '0' => 'employee_id',
         '1' => 'name',
         '2' => 'type',
-        '3' => 'description',
+        '3' => 'visibility',
+        '4' => 'description',
       ],
     ],
     'file_information' => [
@@ -250,6 +272,7 @@ return [
       ],
       'badgeField' => 'expiry_date',
       'badgeColors' => [],
+      'defaultIconClass' => 'fas fa-file',
     ],
     'card' => [
       'enabled' => true,
@@ -262,7 +285,8 @@ return [
       'contentFields' => [
         '0' => 'description',
       ],
-      'imageField' => 'document',
+      'avatarField' => 'file_path',
+      'defaultIconClass' => 'fas fa-file',
     ],
   ],
   'relations' => [
