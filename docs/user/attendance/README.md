@@ -24,13 +24,15 @@ The card shows your current state:
 When you click Clock In or Clock Out, your browser may ask for permission to use your location. This is used to:
 
 1. **Verify you're at an approved work location** (geofencing) — clocking in from outside the office radius is blocked
-2. **Record your location for audit** — every clock event stores GPS coordinates for record-keeping
+2. **Record your location for audit** — every clock event stores GPS coordinates and accuracy for record-keeping
 
 | Action | What happens |
 |--------|-------------|
-| You **allow** location | Your GPS coordinates are captured and validated |
+| You **allow** location | Your GPS coordinates are captured with high accuracy and validated |
 | You **deny** location | Clock-in still works (depending on company policy), but no location is recorded |
 | Browser on **HTTP** | Location is blocked by the browser — clock-in works without GPS |
+
+> **Tip**: For best accuracy, use a mobile device with GPS or ensure your desktop browser has WiFi enabled. The system requests high-accuracy mode and waits up to 10 seconds for a precise fix. If you consistently get "outside geofence" errors from the same location, contact your HR administrator — the geofence radius may need adjustment.
 
 > **Note**: If your company requires location verification and you deny permission, you may be unable to clock in. Contact your HR administrator.
 
@@ -195,6 +197,7 @@ The system uses the **Haversine formula** to calculate great-circle distance bet
 
 Every clock event stores:
 - GPS coordinates (when available)
+- **GPS accuracy** in meters (lower = better; helps diagnose geofence rejections)
 - Matched location name (when within geofence)
 - IP address
 - Device name (user agent)

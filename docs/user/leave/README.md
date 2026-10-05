@@ -77,9 +77,21 @@ Leave balances determine how many days each employee has available. There are tw
 
 ### Approval Process
 
-- If the leave type **requires approval**, your request will be sent to your manager
-- You'll receive a notification when your request is approved or rejected
-- You can check the status of your requests under the **My Leaves** tab
+Leave requests follow a configurable multi-step approval workflow:
+
+1. **Submission**: You submit your leave request from the Leave Hub
+2. **Manager Review**: Your direct line manager (from your job info/employee position) reviews and approves or rejects the request
+3. **HR Authorization**: A company admin or HR manager gives final authorization
+
+You'll receive notifications at each stage:
+- When your request is **submitted** — confirmation that it's in the pipeline
+- When a step is **approved** — your request advances to the next stage
+- When your request is **fully approved** — final confirmation
+- If your request is **rejected** — with the reason
+
+You can check the status of your requests under the **My Leaves** tab. The approval panel shows the current step, who needs to act, and the full activity timeline.
+
+> **Note**: If you don't have a manager assigned in your job info, the request goes to HR managers for review instead.
 
 ### How Your Balance Is Affected
 
