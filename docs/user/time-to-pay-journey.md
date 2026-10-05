@@ -194,9 +194,11 @@ The system checks things in this order:
 ### What Happens After You Apply
 
 1. Your leave request is created with a status of **Pending**.
-2. If the leave type requires approval, your manager is notified.
-3. Your manager reviews your request and either **approves** or **rejects** it.
-4. You receive a notification about the decision.
+2. If the leave type requires approval, a multi-step workflow begins:
+   - **Step 1 — Manager Review**: Your direct line manager (from your job info) is notified and reviews your request
+   - **Step 2 — HR Authorization**: A company admin or HR manager gives final authorization
+3. You receive notifications at each stage — when submitted, when a step is approved, and when fully approved or rejected.
+4. You can track the progress on your request — the approval panel shows which step is current and who needs to act.
 
 ### What Happens When Leave Is Approved
 

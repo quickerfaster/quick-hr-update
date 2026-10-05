@@ -106,11 +106,23 @@ If an employee tells you they forgot to clock in or out:
 
 ## 3. Managing Leave Requests
 
-Employees apply for leave through the Leave Hub. Your job is to review and approve or reject their requests.
+Employees apply for leave through the Leave Hub. Their requests go through a configurable multi-step approval workflow before being finalized.
+
+### Understanding the Approval Workflow
+
+Leave requests follow this flow:
+
+1. **Employee submits** the leave request from the Leave Hub
+2. **Manager Review** — the employee's direct line manager reviews and approves or rejects
+3. **HR Authorization** — a company admin or HR manager gives final authorization
+
+You'll receive notifications when requests need your action. The approval panel on each request shows the current step, who needs to act, and the full activity timeline.
+
+> **Note**: If an employee doesn't have a manager assigned in their job info, the manager review step goes to HR managers instead.
 
 ### Step 1 — Check for Pending Leave Requests
 
-Go to **Leave → Leave Hub** and look at the pending requests.
+Go to **Leave → Leave Hub** and look at the pending requests. You can also check your **Notifications** (bell icon) for workflow requests awaiting your action.
 
 You'll see:
 - Who is requesting leave
@@ -118,6 +130,7 @@ You'll see:
 - The dates they want
 - How many days it will use
 - Their remaining balance
+- Which approval step it's at
 
 ### Step 2 — Review Each Request
 
@@ -131,17 +144,21 @@ Before approving, check:
 ### Step 3 — Approve or Reject
 
 **To approve**:
-1. Click **Approve** on the request.
-2. The system automatically:
-   - Reduces the employee's leave balance (if the leave type deducts from balance)
-   - Creates attendance records for each workday in the leave period
-   - Skips weekends and holidays automatically
-   - Marks the attendance records as approved
+1. Open the leave request detail.
+2. Review the approval panel — it shows which step you're acting on.
+3. Click **Approve** and optionally add a comment.
+4. The request advances to the next step, or is fully approved if you're the final authorizer.
+
+When fully approved, the system automatically:
+- Reduces the employee's leave balance (if the leave type deducts from balance)
+- Creates attendance records for each workday in the leave period
+- Skips weekends and holidays automatically
+- Marks the attendance records as approved
 
 **To reject**:
-1. Click **Reject**.
+1. Click **Reject** on the approval panel.
 2. Add a reason so the employee knows why.
-3. The employee can edit and resubmit.
+3. The workflow is terminated and the employee can edit and resubmit.
 
 ### What Happens Behind the Scenes When You Approve Leave
 
