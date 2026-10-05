@@ -284,14 +284,14 @@ return [
       'relationship' => [
         'model' => 'App\Models\User',
         'type' => 'belongsTo',
-        'display_field' => 'full_name',
+        'display_field' => 'name',
         'dynamic_property' => 'approvedByUser',
         'foreign_key' => 'approved_by_user_id',
         'inlineAdd' => false,
       ],
       'options' => [
         'model' => 'App\Models\User',
-        'column' => 'full_name',
+        'column' => 'name',
         'hintField' => '',
       ],
     ],

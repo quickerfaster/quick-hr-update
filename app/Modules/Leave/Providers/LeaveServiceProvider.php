@@ -21,6 +21,10 @@ class LeaveServiceProvider extends ServiceProvider
             \QuickerFaster\UILibrary\Contracts\FieldTypes\CalendarEnhancementProvider::class,
             \App\Modules\Leave\Services\LeaveCalendarEnhancementProvider::class
         );
+
+        // Register workflow entity type so the Workflow Definition Wizard
+        // offers "Leave Request" as a known entity with key "leave_request".
+        $this->mergeConfigFrom(base_path('config/workflow-entities.php'), 'ui-library.workflows.entity_types');
     }
 
     /**

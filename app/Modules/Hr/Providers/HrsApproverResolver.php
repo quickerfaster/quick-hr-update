@@ -35,6 +35,12 @@ class HrsApproverResolver implements ApproverResolver
      *              is supplied, only users who have an Employee record in that
      *              workspace are included.
      *
+     * Special role names:
+     *   - 'employee_manager' → resolved to the submitting employee's specific
+     *     line manager (from employee_positions.manager_id → user_id).
+     *     Requires the WorkflowContext singleton to be set with the workflow
+     *     context (containing the employee_id).
+     *
      * @param array<int|string> $roleIds Mixed user IDs (int) and role names (string).
      * @param string|null $workspaceId Optional workspace (company_id) scope.
      * @return int[] Flat list of resolved user IDs.
@@ -45,6 +51,10 @@ class HrsApproverResolver implements ApproverResolver
             return [];
         }
 
+        // Resolve the special 'employee_manager' role before delegating
+        // to the standard Spatie-based resolution.
+        $roleIds = $this->resolveEmployeeManagerRole($roleIds);
+
         // No workspace scope → delegate to global Spatie resolution
         // (identical behaviour to DefaultApproverResolver).
         if ($workspaceId === null) {
@@ -52,6 +62,86 @@ class HrsApproverResolver implements ApproverResolver
         }
 
         return $this->resolveScoped($roleIds, $workspaceId);
+    }
+
+    /**
+     * Replace the 'employee_manager' virtual role with the actual user ID
+     * of the submitting employee's line manager.
+     *
+     * Reads the employee_id from the WorkflowContext singleton (set by
+     * WorkflowEngine before resolution), looks up the employee's position
+     * to find manager_id, then resolves the manager's user_id.
+     *
+     * Fallback: when the employee has no manager assigned, the virtual role
+     * is replaced with the configured fallback roles (default: ['hr_manager']).
+     * This prevents workflows from getting stuck with zero approvers.
+     *
+     * Configure via: config('ui-library.workflows.employee_manager_fallback', ['hr_manager'])
+     *
+     * @param array<int|string> $roleIds
+     * @return array<int|string>
+     */
+    protected function resolveEmployeeManagerRole(array $roleIds): array
+    {
+        $index = array_search('employee_manager', $roleIds, true);
+
+        if ($index === false) {
+            return $roleIds;
+        }
+
+        // Remove the virtual role from the list
+        unset($roleIds[$index]);
+        $roleIds = array_values($roleIds);
+
+        // Read the employee ID from the workflow context
+        $ctx = app(\QuickerFaster\UILibrary\Services\Workflow\WorkflowContext::class);
+        $employeeId = $ctx->getValue('employee_id');
+
+        if (! $employeeId) {
+            \Log::warning('HrsApproverResolver: employee_manager role used but no employee_id in workflow context');
+            return $this->applyFallbackRoles($roleIds);
+        }
+
+        // Find the employee's position to get their manager
+        $position = \App\Modules\Hr\Models\EmployeePosition::where('employee_id', $employeeId)
+            ->whereNotNull('manager_id')
+            ->first();
+
+        if (! $position || ! $position->manager_id) {
+            \Log::info('HrsApproverResolver: no manager assigned — falling back to configured roles', [
+                'employee_id' => $employeeId,
+            ]);
+            return $this->applyFallbackRoles($roleIds);
+        }
+
+        // Resolve the manager's user ID
+        $manager = \App\Modules\Hr\Models\Employee::find($position->manager_id);
+
+        if (! $manager || ! $manager->user_id) {
+            \Log::warning('HrsApproverResolver: manager employee has no user_id — falling back', [
+                'manager_employee_id' => $position->manager_id,
+            ]);
+            return $this->applyFallbackRoles($roleIds);
+        }
+
+        // Add the manager's user ID as a pre-resolved integer
+        $roleIds[] = (int) $manager->user_id;
+
+        return $roleIds;
+    }
+
+    /**
+     * Apply the configured fallback roles when the employee's manager
+     * cannot be resolved.
+     *
+     * @param array<int|string> $roleIds
+     * @return array<int|string>
+     */
+    protected function applyFallbackRoles(array $roleIds): array
+    {
+        $fallback = config('ui-library.workflows.employee_manager_fallback', ['hr_manager']);
+
+        return array_merge($roleIds, $fallback);
     }
 
     /**
@@ -113,13 +203,11 @@ class HrsApproverResolver implements ApproverResolver
 
         foreach ($roleIds as $id) {
             if (is_int($id) || (is_string($id) && ctype_digit($id))) {
-                // Integer → verify the user has an Employee record in this
-                // workspace before including them.
-                $userId = (int) $id;
-
-                if ($this->userHasEmployeeInWorkspace($userId, $workspaceId)) {
-                    $userIds[] = $userId;
-                }
+                // Integer → pre-resolved user ID. Pass through as-is
+                // without requiring an Employee record. Explicit user
+                // IDs (e.g. authorizers set in the wizard) should always
+                // be included regardless of workspace scoping.
+                $userIds[] = (int) $id;
             } else {
                 // String → role name to resolve within the workspace.
                 $roleNames[] = $id;

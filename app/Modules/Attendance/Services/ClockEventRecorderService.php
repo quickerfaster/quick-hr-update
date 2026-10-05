@@ -80,6 +80,7 @@ class ClockEventRecorderService
      * Accepts optional $meta keys:
      *   - 'latitude'  (float) — browser geolocation
      *   - 'longitude' (float) — browser geolocation
+     *   - 'accuracy'  (float) — browser geolocation accuracy in meters
      *   - 'method'    (string) — 'web', 'device', etc.
      *   - 'ip_address', 'device_name', 'timezone'
      */
@@ -97,6 +98,7 @@ class ClockEventRecorderService
         // Capture GPS coordinates and resolve location name for audit (all event types)
         $latitude = $meta['latitude'] ?? null;
         $longitude = $meta['longitude'] ?? null;
+        $accuracy = $meta['accuracy'] ?? null;
         $locationName = null;
 
         if ($latitude !== null && $longitude !== null) {
@@ -110,6 +112,7 @@ class ClockEventRecorderService
                     'employee_id' => $resolvedId,
                     'latitude'    => $latitude,
                     'longitude'   => $longitude,
+                    'accuracy'    => $accuracy,
                     'geofence'    => $geofenceResult,
                 ]);
 
@@ -130,6 +133,7 @@ class ClockEventRecorderService
                 'employee_id' => $resolvedId,
                 'event_type'  => $eventType,
                 'enforced'    => $eventType === 'clock_in',
+                'accuracy'    => $accuracy,
                 'geofence'    => $geofenceResult,
             ]);
         }
@@ -156,6 +160,7 @@ class ClockEventRecorderService
             'timestamp'       => $now,
             'latitude'        => $latitude,
             'longitude'       => $longitude,
+            'accuracy'        => $accuracy,
             'location_name'   => $locationName,
             'method'          => $meta['method'] ?? 'web',
             'ip_address'      => $meta['ip_address'] ?? request()->ip(),

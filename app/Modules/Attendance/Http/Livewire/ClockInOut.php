@@ -83,8 +83,12 @@ class ClockInOut extends Component
 
     /**
      * Toggle clock in / clock out.
+     *
+     * @param float|null $latitude  Browser geolocation latitude
+     * @param float|null $longitude Browser geolocation longitude
+     * @param float|null $accuracy  Browser geolocation accuracy in meters (lower = better)
      */
-    public function toggle(?float $latitude = null, ?float $longitude = null): void
+    public function toggle(?float $latitude = null, ?float $longitude = null, ?float $accuracy = null): void
     {
         if (!$this->employeeId) {
             $this->error = 'No employee record found.';
@@ -102,6 +106,9 @@ class ClockInOut extends Component
             if ($latitude !== null && $longitude !== null) {
                 $meta['latitude'] = $latitude;
                 $meta['longitude'] = $longitude;
+                if ($accuracy !== null) {
+                    $meta['accuracy'] = $accuracy;
+                }
             }
 
             if ($this->status === 'clocked_out') {

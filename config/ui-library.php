@@ -795,7 +795,7 @@ return [
         //  Nav bell
         // ----------------------------------------------------------------
         'enabled' => true,
-        'roles' => ['super_admin', 'company_admin', 'admin', 'user', 'employee', 'hr_manager'],
+        'roles' => ['super_admin', 'company_admin', 'admin', 'user', 'employee', 'hr_manager', 'manager'],
         'icon' => 'fas fa-bell',
         'title' => 'Notifications',
         'badge_enabled' => false, // Future feature

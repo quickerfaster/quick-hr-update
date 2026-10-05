@@ -11,7 +11,7 @@ return [
                 'name' => 'Manager Review',
                 'step_type' => 'approval',
                 'approval_mode' => 'any',
-                'roles' => ['line_manager', 'hr_manager'],
+                'roles' => ['employee_manager', 'hr_manager'],
             ],
             [
                 'name' => 'HR Authorization',

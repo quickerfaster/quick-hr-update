@@ -56,13 +56,13 @@
                 if ('geolocation' in navigator) {
                     navigator.geolocation.getCurrentPosition(
                         (pos) => {
-                            $wire.toggle(pos.coords.latitude, pos.coords.longitude);
+                            $wire.toggle(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
                         },
                         (err) => {
                             // Geolocation denied or unavailable — proceed without coordinates
                             $wire.toggle();
                         },
-                        { timeout: 5000, maximumAge: 60000 }
+                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                     );
                 } else {
                     $wire.toggle();
