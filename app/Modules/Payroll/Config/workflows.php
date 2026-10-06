@@ -24,9 +24,13 @@ return [
             'enabled' => true,
             'types' => [
                 'submitted' => 'workflow_submitted',
+                'submitted_initiator' => 'workflow_submitted_initiator',
                 'approved' => 'workflow_approved',
                 'rejected' => 'workflow_rejected',
                 'recalled' => 'workflow_recalled',
+                'cancelled' => 'workflow_cancelled',
+                'stage_advanced' => 'workflow_stage_advanced',
+                'workflow_completed' => 'workflow_completed',
             ],
         ],
     ],
