@@ -183,7 +183,7 @@ class EmployeeOnboardingWizard extends Component
     /**
      * Called by child step components via event when a step is saved/skipped.
      */
-    public function onStepComplete(int $step, int $employeeId = null): void
+    public function onStepComplete(int $step, ?int $employeeId = null): void
     {
         if ($employeeId) {
             $this->employeeId = $employeeId;
