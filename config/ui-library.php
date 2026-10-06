@@ -450,7 +450,7 @@ return [
     'approvals' => [
         'approver_resolver' => \QuickerFaster\UILibrary\Services\Approvals\WorkspaceScopedApproverResolver::class,
         'approver_label_resolver' => \QuickerFaster\UILibrary\Services\Approvals\DefaultApproverLabelResolver::class,
-        'bypass_roles' => ['super_admin', 'hr_manager'],
+        'bypass_roles' => ['super_admin'],
         'list_columns' => [
             'workflow' => ['label' => 'Workflow', 'enabled' => true],
             'entity' => ['label' => 'Entity', 'enabled' => true],
