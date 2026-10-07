@@ -131,6 +131,21 @@ class Step1EmployeeRecord extends Component
             $existingEmployee = Employee::withoutCompanyScope()
                 ->where('email', $user->email)
                 ->first();
+
+            // If the employee found by email already belongs to a different
+            // user, don't try to reassign it — create a new record instead.
+            // This prevents UNIQUE constraint violations when an admin
+            // accidentally uses "New Invitation" for an already-registered
+            // employee email.
+            if ($existingEmployee && $existingEmployee->user_id && $existingEmployee->user_id != $user->id) {
+                \Log::warning('[Step1EmployeeRecord] Employee email already linked to different user — creating new record', [
+                    'employee_id' => $existingEmployee->id,
+                    'existing_user_id' => $existingEmployee->user_id,
+                    'new_user_id' => $user->id,
+                    'email' => $user->email,
+                ]);
+                $existingEmployee = null;
+            }
         }
 
         $employeeNumber = $existingEmployee?->employee_number;
