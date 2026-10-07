@@ -133,18 +133,22 @@ class Step1EmployeeRecord extends Component
                 ->first();
 
             // If the employee found by email already belongs to a different
-            // user, don't try to reassign it — create a new record instead.
-            // This prevents UNIQUE constraint violations when an admin
-            // accidentally uses "New Invitation" for an already-registered
-            // employee email.
+            // user, abort — the admin used "New Invitation" instead of
+            // "Invite Employee". The employee should contact HR to resend
+            // the invitation with the correct mode.
             if ($existingEmployee && $existingEmployee->user_id && $existingEmployee->user_id != $user->id) {
-                \Log::warning('[Step1EmployeeRecord] Employee email already linked to different user — creating new record', [
+                \Log::warning('[Step1EmployeeRecord] Employee email already linked to different user — aborting', [
                     'employee_id' => $existingEmployee->id,
                     'existing_user_id' => $existingEmployee->user_id,
                     'new_user_id' => $user->id,
                     'email' => $user->email,
                 ]);
-                $existingEmployee = null;
+
+                throw new \RuntimeException(
+                    'This email is already registered in the system. ' .
+                    'Please contact your HR administrator to resend the invitation using "Invite Employee" mode ' .
+                    'so your existing record can be linked.'
+                );
             }
         }
 
