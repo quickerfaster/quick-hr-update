@@ -74,7 +74,7 @@ return [
       ],
       'filterable' => true,
     ],
-    'document' => [
+    'file_path' => [
       'display' => 'inline',
       'fillable' => true,
       'field_type' => 'file',
@@ -128,12 +128,11 @@ return [
   'detailComponent' => '',
   'hiddenFields' => [
     'onTable' => [
-      '0' => 'document',
-      '1' => 'description',
-      '2' => 'created_at',
-      '3' => 'updated_at',
-      '4' => 'deleted_at',
-      '5' => 'company_id',
+      '0' => 'description',
+      '1' => 'created_at',
+      '2' => 'updated_at',
+      '3' => 'deleted_at',
+      '4' => 'company_id',
     ],
     'onNewForm' => [
       '0' => 'uploaded_at',
@@ -221,8 +220,9 @@ return [
         '0' => 'employee_id',
         '1' => 'name',
         '2' => 'type',
-        '3' => 'visibility',
-        '4' => 'description',
+        '3' => 'file_path',
+        '4' => 'visibility',
+        '5' => 'description',
       ],
     ],
     'file_information' => [
@@ -230,7 +230,7 @@ return [
       'groupType' => 'hr',
       'icon' => 'fas fa-file',
       'fields' => [
-        '0' => 'document',
+        '0' => 'file_path',
         '1' => 'uploaded_at',
         '2' => 'expiry_date',
       ],
@@ -266,6 +266,7 @@ return [
       ],
       'subtitleFields' => [
         '0' => 'type',
+        '1' => 'file_path',
       ],
       'contentFields' => [
         '0' => 'description',
@@ -283,7 +284,8 @@ return [
         '0' => 'type',
       ],
       'contentFields' => [
-        '0' => 'description',
+        '0' => 'file_path',
+        '1' => 'description',
       ],
       'avatarField' => 'file_path',
       'defaultIconClass' => 'fas fa-file',

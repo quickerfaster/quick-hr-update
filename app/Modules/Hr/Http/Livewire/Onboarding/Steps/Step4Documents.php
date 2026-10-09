@@ -94,6 +94,18 @@ class Step4Documents extends Component
     }
 
     /**
+     * Livewire hook: called automatically when a file is uploaded to
+     * $this->newFile via component.upload('newFile', file, ...).
+     * This happens in the SAME request as the file upload, so $this->newFile
+     * is still available. We process the upload immediately — no separate
+     * button click needed.
+     */
+    public function updatedNewFile(): void
+    {
+        $this->uploadDocument();
+    }
+
+    /**
      * Load documents for the current employee from the database.
      */
     protected function loadDocuments(): void
@@ -134,6 +146,21 @@ class Step4Documents extends Component
                 'type'    => 'error',
                 'message' => __('You can upload a maximum of :count files.', ['count' => $this->maxFiles]),
             ]);
+            return;
+        }
+
+        // Detect duplicate: compare file name, size, and MIME type
+        // against ALL existing documents for this employee.
+        $existing = Document::where('documentable_type', Employee::class)
+            ->where('documentable_id', $this->employee->getKey())
+            ->where('file_name', $this->newFile->getClientOriginalName())
+            ->where('size', $this->newFile->getSize())
+            ->where('mime_type', $this->newFile->getMimeType())
+            ->exists();
+
+        if ($existing) {
+            $this->newFile = null;
+            $this->uploading = false;
             return;
         }
 

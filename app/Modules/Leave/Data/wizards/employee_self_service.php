@@ -9,7 +9,7 @@ return array (
   array (
     0 =>
     array (
-      'title' => 'Request Leave',
+      'title' => 'Request Details',
       'model' => 'App\\Modules\\Leave\\Models\\LeaveRequest',
       'formComponent' => 'leave-wizard-form',
       'draftSuccessMessage' => 'Leave request saved as draft. You can resume it later from My Leave.',
@@ -46,6 +46,12 @@ return array (
       ),
     ),
     1 =>
+    array (
+      'title' => 'Supporting Documents',
+      'description' => 'Upload medical certificates or other supporting documents (optional).',
+      'customComponent' => 'leave-document-upload',
+    ),
+    2 =>
     array (
       'title' => 'Review & Submit',
       'preview' =>

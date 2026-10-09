@@ -260,4 +260,108 @@
             });
         });
     </script>
+
+    {{-- Document upload event delegation for Step 4.
+         Attached here (wizard blade, loaded once) rather than in the
+         step component blade because component scripts may not
+         re-execute after wizard navigation. Document-level delegation
+         is immune to DOM replacement. --}}
+    <script>
+    (function () {
+        if (window.__qfOnboardingUploadDelegation) return;
+        window.__qfOnboardingUploadDelegation = true;
+
+        var _changeTimer = null;
+
+        // Delegate change on #file-input with debounce
+        document.addEventListener('change', function (e) {
+            if (!e.target || e.target.id !== 'file-input') return;
+            var input = e.target;
+
+            if (_changeTimer) clearTimeout(_changeTimer);
+            _changeTimer = setTimeout(function () {
+                _changeTimer = null;
+                processOnboardingFile(input);
+            }, 300);
+        });
+
+        function processOnboardingFile(input) {
+            var info = document.getElementById('selected-file-info');
+            var nameEl = document.getElementById('selected-file-name');
+
+            if (input.files && input.files[0]) {
+                var file = input.files[0];
+                if (nameEl) nameEl.textContent = file.name;
+                if (info) info.style.display = 'block';
+
+                var zone = document.getElementById('upload-zone');
+                var wireId = zone ? zone.dataset.wireId : null;
+                var component = wireId ? window.Livewire.find(wireId) : null;
+
+                if (component && typeof component.upload === 'function') {
+                    component.upload('newFile', file,
+                        function () {
+                            input.value = '';
+                            if (info) info.style.display = 'none';
+                        },
+                        function (error) {
+                            console.error('Upload failed:', error);
+                            if (info) info.style.display = 'none';
+                        }
+                    );
+                }
+            } else {
+                if (info) info.style.display = 'none';
+            }
+        }
+
+        // Delegate click on #upload-zone → open file dialog
+        document.addEventListener('click', function (e) {
+            var zone = e.target.closest('#upload-zone');
+            if (!zone) return;
+            var input = document.getElementById('file-input');
+            if (input && e.target !== input) input.click();
+        });
+
+        // Delegate drag-and-drop on #upload-zone
+        document.addEventListener('dragover', function (e) {
+            var zone = e.target.closest('#upload-zone');
+            if (!zone) return;
+            e.preventDefault();
+            zone.style.borderColor = '#0d6efd';
+            zone.style.background = 'rgba(13, 110, 253, 0.05)';
+        });
+
+        document.addEventListener('dragleave', function (e) {
+            var zone = e.target.closest('#upload-zone');
+            if (!zone) return;
+            e.preventDefault();
+            zone.style.borderColor = '#ccc';
+            zone.style.background = '#fafbfc';
+        });
+
+        document.addEventListener('drop', function (e) {
+            var zone = e.target.closest('#upload-zone');
+            if (!zone) return;
+            e.preventDefault();
+            zone.style.borderColor = '#ccc';
+            zone.style.background = '#fafbfc';
+
+            var input = document.getElementById('file-input');
+            if (e.dataTransfer.files && e.dataTransfer.files[0] && input) {
+                var dt = new DataTransfer();
+                dt.items.add(e.dataTransfer.files[0]);
+                input.files = dt.files;
+                input.dispatchEvent(new Event('change'));
+            }
+        });
+
+        window.clearOnboardingFile = function () {
+            var input = document.getElementById('file-input');
+            var info = document.getElementById('selected-file-info');
+            if (input) input.value = '';
+            if (info) info.style.display = 'none';
+        };
+    })();
+    </script>
 </div>

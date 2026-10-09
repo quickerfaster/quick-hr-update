@@ -1,144 +1,197 @@
 <div>
-    <div class="card mb-4">
-        <div class="card-header pb-0">
-            <div class="d-flex align-items-center">
-                <h6 class="mb-0">Supporting Documents</h6>
-                <span class="badge bg-secondary ms-2">{{ count($documents) }}</span>
+    <div class="leave-document-wrapper">
+        {{-- Wizard mode: show upload form --}}
+        @if($stepIndex !== null)
+            {{-- Section Header --}}
+            <div class="mb-4">
+                <h5 class="mb-1">{{ __('Upload Supporting Documents') }}</h5>
+                <p class="text-sm text-muted">
+                    {{ __('Upload medical certificates, supporting letters, or other documents to support this leave request. Supported formats: PDF, JPG, PNG, DOC, DOCX. Max :size MB per file. Max :count files.', ['size' => intdiv($maxFileSize, 1024), 'count' => $maxFiles]) }}
+                </p>
             </div>
-        </div>
-        <div class="card-body">
-            {{-- Flash Message --}}
-            @if (session()->has('message'))
-                <div class="alert alert-success alert-dismissible fade show text-white" role="alert">
-                    <span class="alert-icon"><i class="fas fa-check-circle"></i></span>
-                    <span class="alert-text">{{ session('message') }}</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+            {{-- Upload Area --}}
+            <div
+                id="upload-zone"
+                data-wire-id="{{ $this->getId() }}"
+                class="upload-zone border rounded-3 p-4 mb-3 text-center cursor-pointer transition"
+                style="border: 2px dashed #ccc; background: #fafbfc;"
+            >
+                <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2 d-block"></i>
+                <p class="mb-1 fw-medium">{{ __('Drag & drop files here or click to browse') }}</p>
+                <p class="text-xs text-muted mb-2">
+                    {{ __('PDF, JPG, PNG, DOC, DOCX • Max :size MB', ['size' => intdiv($maxFileSize, 1024)]) }}
+                </p>
+
+                <input
+                    type="file"
+                    id="file-input"
+                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                    class="form-control"
+                    onchange="if(window.__qfProcessLeaveFile) window.__qfProcessLeaveFile(this)"
+                />
+
+                @error('newFile')
+                    <p class="text-danger text-xs mt-1 mb-0">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Selected File Info --}}
+            <div id="selected-file-info" class="mb-3" style="display: none;">
+                <div class="d-flex align-items-center bg-light rounded p-2">
+                    <i class="fas fa-file me-2 text-primary"></i>
+                    <span id="selected-file-name" class="text-sm flex-grow-1"></span>
+                    <button type="button" class="btn btn-sm btn-link text-danger" onclick="window.clearLeaveFile()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            {{-- Upload feedback --}}
+            @if ($uploading)
+                <div class="text-center py-2 mb-3">
+                    <div class="spinner-border spinner-border-sm text-primary me-1" role="status"></div>
+                    <span class="text-sm text-muted">{{ __('Uploading document...') }}</span>
                 </div>
             @endif
 
-            {{-- Upload Form --}}
+            {{-- Document Type Selector --}}
             <div class="mb-4">
-                <label for="document-upload" class="form-label">Upload Supporting Document</label>
-                <div class="input-group">
-                    <input
-                        type="file"
-                        id="document-upload"
-                        class="form-control"
-                        wire:model="newFile"
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                    >
-                    <button
-                        class="btn btn-primary mb-0"
-                        wire:click="upload"
-                        wire:loading.attr="disabled"
-                        wire:target="newFile"
-                    >
-                        <span wire:loading.remove wire:target="upload">
-                            <i class="fas fa-upload me-1"></i> Upload
-                        </span>
-                        <span wire:loading wire:target="upload">
-                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-                            Uploading...
-                        </span>
-                    </button>
-                </div>
-                @error('newFile')
-                    <small class="text-danger">{{ $message }}</small>
+                <label for="documentType" class="form-label">{{ __('Document Type') }}</label>
+                <select
+                    id="documentType"
+                    wire:model.live="documentType"
+                    class="form-select @error('documentType') is-invalid @enderror"
+                >
+                    @foreach ($documentTypeOptions as $value => $label)
+                        <option value="{{ $value }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+                @error('documentType')
+                    <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
-                <div wire:loading wire:target="newFile" class="mt-2">
-                    <div class="progress" style="height: 4px;">
-                        <div class="progress-bar bg-primary" style="width: 100%;"></div>
-                    </div>
-                    <small class="text-muted">Preparing file...</small>
-                </div>
                 <small class="text-muted d-block mt-1">
-                    Accepted: PDF, DOC, DOCX, JPG, PNG (max 10MB)
+                    {{ __('Select a document type, then choose a file to upload automatically.') }}
                 </small>
             </div>
+        @endif
 
-            {{-- Document List --}}
-            @if (count($documents) > 0)
+        {{-- Uploaded Documents List (shown in both modes) --}}
+        <div class="uploaded-documents">
+            <h6 class="mb-3">
+                {{ __('Supporting Documents') }}
+                @if($documents && $documents->count())
+                    <span class="badge bg-primary ms-2">{{ $documents->count() }}</span>
+                @endif
+            </h6>
+
+            @if(!$documents || $documents->isEmpty())
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-folder-open fa-3x mb-3 d-block"></i>
+                    <p>
+                        @if($stepIndex !== null)
+                            {{ __('No documents uploaded yet. Use the upload area above to add files.') }}
+                        @else
+                            {{ __('No supporting documents attached to this leave request.') }}
+                        @endif
+                    </p>
+                </div>
+            @else
                 <div class="table-responsive">
-                    <table class="table table-flush align-items-center">
-                        <thead class="thead-light">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
                             <tr>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">File Name</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Size</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Uploaded</th>
-                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-end">Actions</th>
+                                <th style="width: 50px">#</th>
+                                <th>{{ __('File') }}</th>
+                                <th>{{ __('Type') }}</th>
+                                <th>{{ __('Size') }}</th>
+                                <th>{{ __('Uploaded') }}</th>
+                                @if($stepIndex !== null)
+                                    <th class="text-end">{{ __('Action') }}</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($documents as $document)
+                            @foreach($documents as $index => $doc)
                                 <tr>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="icon icon-shape bg-light rounded-circle shadow text-center me-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
-                                                <i class="fas fa-file text-secondary text-xs"></i>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm font-weight-bold mb-0">{{ $document->file_name }}</p>
-                                                <p class="text-xs text-secondary mb-0">{{ strtoupper(pathinfo($document->file_name, PATHINFO_EXTENSION)) }}</p>
-                                            </div>
-                                        </div>
+                                        @if(in_array($doc->mime_type, ['image/jpeg', 'image/png', 'image/jpg']))
+                                            <img
+                                                src="{{ $this->getFileUrl($doc->file_path) }}"
+                                                alt="{{ $doc->file_name }}"
+                                                class="rounded"
+                                                style="width: 40px; height: 40px; object-fit: cover;"
+                                                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                                            />
+                                            <i class="fas fa-image fa-2x text-muted" style="display: none;"></i>
+                                        @else
+                                            <i class="fas {{ $this->getFileIcon($doc->mime_type) }} fa-2x text-muted"></i>
+                                        @endif
                                     </td>
                                     <td>
-                                        @php
-                                            $size = $document->size;
-                                            if ($size >= 1048576) {
-                                                $displaySize = round($size / 1048576, 2) . ' MB';
-                                            } elseif ($size >= 1024) {
-                                                $displaySize = round($size / 1024, 2) . ' KB';
-                                            } else {
-                                                $displaySize = $size . ' B';
-                                            }
-                                        @endphp
-                                        <span class="text-sm">{{ $displaySize }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="text-sm">{{ $document->created_at->format('M d, Y h:i A') }}</span>
-                                    </td>
-                                    <td class="text-end">
-                                        <button
-                                            class="btn btn-link text-secondary mb-0"
-                                            wire:click="preview({{ $document->id }})"
-                                            title="Preview"
-                                        >
-                                            <i class="fas fa-eye text-sm"></i>
-                                        </button>
                                         <a
-                                            href="{{ $document->getDownloadUrl() }}"
-                                            class="btn btn-link text-secondary mb-0"
-                                            title="Download"
+                                            href="#"
+                                            onclick="Livewire.dispatch('openDocumentPreview', { payload: { fileUrl: '{{ $this->getFileUrl($doc->file_path) }}', fileName: '{{ $doc->file_name }}' } }); return false;"
+                                            class="text-decoration-none fw-medium"
+                                            style="cursor: pointer;"
                                         >
-                                            <i class="fas fa-download text-sm"></i>
+                                            {{ $doc->file_name }}
                                         </a>
-                                        <button
-                                            class="btn btn-link text-danger mb-0"
-                                            wire:click="delete({{ $document->id }})"
-                                            wire:confirm="Are you sure you want to delete this document?"
-                                            title="Delete"
-                                        >
-                                            <i class="fas fa-trash text-sm"></i>
-                                        </button>
                                     </td>
+                                    <td>
+                                        <span class="badge bg-info text-white">
+                                            {{ $documentTypeOptions[$doc->document_type] ?? ucfirst(str_replace('_', ' ', $doc->document_type)) }}
+                                        </span>
+                                    </td>
+                                    <td class="text-nowrap">{{ $this->formatFileSize($doc->size) }}</td>
+                                    <td class="text-nowrap text-muted" style="font-size: 0.85rem;">
+                                        {{ $doc->created_at ? $doc->created_at->diffForHumans() : '—' }}
+                                    </td>
+                                    @if($stepIndex !== null)
+                                        <td class="text-end">
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                wire:click="remove({{ $doc->id }})"
+                                                wire:confirm="{{ __('Are you sure you want to remove :file?', ['file' => $doc->file_name]) }}"
+                                                wire:loading.attr="disabled"
+                                                wire:target="remove({{ $doc->id }})"
+                                            >
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </td>
+                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
-            @else
-                <div class="text-center py-4">
-                    <div class="icon icon-shape bg-light rounded-circle shadow text-center mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
-                        <i class="fas fa-cloud-upload-alt text-secondary text-lg"></i>
-                    </div>
-                    <p class="text-sm text-secondary mb-0">No supporting documents uploaded yet.</p>
-                    <p class="text-xs text-secondary">Upload documents to support this leave request.</p>
-                </div>
             @endif
         </div>
     </div>
 
-    {{-- Document Preview Modal --}}
-    @livewire('qf.document-preview-modal')
+    {{-- JS for file upload is in the parent wizard blade
+         (resources/views/vendor/qf/livewire/wizards/wizard.blade.php)
+         using document-level event delegation. This ensures it runs
+         once when the wizard first loads and survives all child
+         component recreation cycles. --}}
+
+    {{-- Document Preview Modal is global in navigation-layout.blade.php --}}
+
+    <style>
+        .upload-zone {
+            transition: border-color 0.2s, background 0.2s;
+            cursor: pointer;
+        }
+        .upload-zone:hover {
+            background: #f0f4f8;
+        }
+        .leave-document-wrapper .table td,
+        .leave-document-wrapper .table th {
+            vertical-align: middle;
+        }
+        .cursor-pointer {
+            cursor: pointer;
+        }
+    </style>
 </div>

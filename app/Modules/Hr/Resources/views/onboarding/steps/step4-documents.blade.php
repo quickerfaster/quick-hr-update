@@ -11,6 +11,7 @@
     {{-- Upload Area --}}
     <div
         id="upload-zone"
+        data-wire-id="{{ $this->getId() }}"
         class="upload-zone border rounded-3 p-4 mb-3 text-center cursor-pointer transition"
         style="border: 2px dashed #ccc; background: #fafbfc;"
     >
@@ -20,17 +21,15 @@
             {{ __('PDF, JPG, PNG, DOC, DOCX • Max :size MB', ['size' => intdiv($maxFileSize, 1024)]) }}
         </p>
 
-        {{-- File input — wire:ignore prevents Alpine/Livewire from
-             replacing the DOM during re-renders, which would clear
-             the file selection. Upload handled via raw JS API. --}}
-        <div wire:ignore>
-            <input
-                type="file"
-                id="file-input"
-                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                class="form-control"
-            />
-        </div>
+        {{-- File input. Since upload is automatic on selection
+             (updatedNewFile hook), the input is cleared after each
+             upload. No wire:ignore needed. --}}
+        <input
+            type="file"
+            id="file-input"
+            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+            class="form-control"
+        />
 
         @error('newFile')
             <p class="text-danger text-xs mt-1 mb-0">{{ $message }}</p>
@@ -42,7 +41,7 @@
         <div class="d-flex align-items-center bg-light rounded p-2">
             <i class="fas fa-file me-2 text-primary"></i>
             <span id="selected-file-name" class="text-sm flex-grow-1"></span>
-            <button type="button" class="btn btn-sm btn-link text-danger" onclick="window.clearFile()">
+            <button type="button" class="btn btn-sm btn-link text-danger" onclick="window.clearOnboardingFile()">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -56,40 +55,26 @@
         </div>
     @endif
 
-    {{-- Document Type Selector + Upload Button --}}
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <label for="documentType" class="form-label">{{ __('Document Type') }}</label>
-            <select
-                id="documentType"
-                wire:model.live="documentType"
-                class="form-select @error('documentType') is-invalid @enderror"
-            >
-                <option value="identification">{{ __('Identification') }}</option>
-                <option value="certificate">{{ __('Certificate') }}</option>
-                <option value="contract">{{ __('Contract') }}</option>
-                <option value="cv">{{ __('CV / Resumè') }}</option>
-                <option value="other">{{ __('Other') }}</option>
-            </select>
-            @error('documentType')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
-        <div class="col-md-6 d-flex align-items-end">
-            <button
-                type="button"
-                class="btn btn-primary w-100"
-                wire:click="uploadDocument"
-                @if ($uploading) disabled @endif
-            >
-                @if ($uploading)
-                    <span class="spinner-border spinner-border-sm me-1"></span>
-                    {{ __('Uploading...') }}
-                @else
-                    <i class="fas fa-upload me-1"></i> {{ __('Upload Document') }}
-                @endif
-            </button>
-        </div>
+    {{-- Document Type Selector --}}
+    <div class="mb-4">
+        <label for="documentType" class="form-label">{{ __('Document Type') }}</label>
+        <select
+            id="documentType"
+            wire:model.live="documentType"
+            class="form-select @error('documentType') is-invalid @enderror"
+        >
+            <option value="identification">{{ __('Identification') }}</option>
+            <option value="certificate">{{ __('Certificate') }}</option>
+            <option value="contract">{{ __('Contract') }}</option>
+            <option value="cv">{{ __('CV / Resumè') }}</option>
+            <option value="other">{{ __('Other') }}</option>
+        </select>
+        @error('documentType')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+        <small class="text-muted d-block mt-1">
+            {{ __('Select a document type, then choose a file to upload automatically.') }}
+        </small>
     </div>
 
     {{-- Uploaded Documents List --}}
@@ -97,7 +82,7 @@
         <h6 class="mb-3">
             {{ __('Uploaded Documents') }}
             @if($uploadedDocuments && $uploadedDocuments->count())
-                <span class="badge bg-primary ms-2">{{ $uploadedDocuments->count() }}</span>
+                <span class="badge bg-primary ms-2">{{ $uploadedDocuments->count() }} / {{ $maxFiles }}</span>
             @endif
         </h6>
 
@@ -138,9 +123,10 @@
                                 </td>
                                 <td>
                                     <a
-                                        href="{{ $this->getFileUrl($doc->file_path) }}"
-                                        target="_blank"
+                                        href="#"
+                                        onclick="Livewire.dispatch('openDocumentPreview', { payload: { fileUrl: '{{ $this->getFileUrl($doc->file_path) }}', fileName: '{{ $doc->file_name }}' } }); return false;"
                                         class="text-decoration-none fw-medium"
+                                        style="cursor: pointer;"
                                     >
                                         {{ $doc->file_name }}
                                     </a>
@@ -175,88 +161,12 @@
     </div>
 </div>
 
-{{-- Vanilla JS for drag-and-drop and file selection display --}}
-<script>
-document.addEventListener('livewire:initialized', function () {
-    const zone = document.getElementById('upload-zone');
-    const input = document.getElementById('file-input');
-    const info = document.getElementById('selected-file-info');
-    const nameSpan = document.getElementById('selected-file-name');
+{{-- JS for file upload is in the parent onboarding wizard blade
+     (Resources/views/onboarding/wizard.blade.php) using document-level
+     event delegation. This ensures it runs once when the wizard first
+     loads and survives all child component recreation cycles. --}}
 
-    if (!zone || !input) return;
-
-    // Click zone → open file dialog
-    zone.addEventListener('click', function (e) {
-        if (e.target !== input) {
-            input.click();
-        }
-    });
-
-    // Show selected filename + upload via raw Livewire JS API.
-    // Using Livewire.find().upload() instead of @this.upload()
-    // avoids Alpine expression evaluation errors in nested components.
-    input.addEventListener('change', function () {
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
-            nameSpan.textContent = file.name;
-            info.style.display = 'block';
-
-            // Find the Livewire component instance and call upload()
-            const el = input.closest('[wire\\:id]');
-            if (el) {
-                const component = window.Livewire.find(el.getAttribute('wire:id'));
-                if (component) {
-                    component.upload('newFile', file,
-                        function () { /* success */ },
-                        function (error) {
-                            console.error('Upload failed:', error);
-                            info.style.display = 'none';
-                        }
-                    );
-                }
-            }
-        } else {
-            info.style.display = 'none';
-        }
-    });
-
-    // Drag-and-drop: transfer file to the file input, then trigger
-    // change event so wire:model picks it up naturally.
-    zone.addEventListener('dragover', function (e) {
-        e.preventDefault();
-        zone.style.borderColor = '#0d6efd';
-        zone.style.background = 'rgba(13, 110, 253, 0.05)';
-    });
-
-    zone.addEventListener('dragleave', function (e) {
-        e.preventDefault();
-        zone.style.borderColor = '#ccc';
-        zone.style.background = '#fafbfc';
-    });
-
-    zone.addEventListener('drop', function (e) {
-        e.preventDefault();
-        zone.style.borderColor = '#ccc';
-        zone.style.background = '#fafbfc';
-
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            // Assign the dropped file to the file input and dispatch change
-            const dt = new DataTransfer();
-            dt.items.add(e.dataTransfer.files[0]);
-            input.files = dt.files;
-            input.dispatchEvent(new Event('change'));
-        }
-    });
-
-    // Clear file selection (exposed on window for onclick handler)
-    window.clearFile = function () {
-        const input = document.getElementById('file-input');
-        const info = document.getElementById('selected-file-info');
-        if (input) input.value = '';
-        if (info) info.style.display = 'none';
-    };
-});
-</script>
+{{-- Document Preview Modal is global in navigation-layout.blade.php --}}
 
 {{-- Navigation: Save & Continue + Skip (optional step) --}}
 <div class="d-flex justify-content-between mt-4 pt-3 border-top">
