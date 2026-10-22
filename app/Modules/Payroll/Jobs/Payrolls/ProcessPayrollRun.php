@@ -107,6 +107,25 @@ class ProcessPayrollRun implements ShouldQueue
         ]);
 
         // ------------------------------------------------------------
+        // 2b. Sync loan repayments — create PayrollRunAdjustment records
+        //     for due loan installments BEFORE calculation starts.
+        //     The PayrollCalculator reads these adjustments during
+        //     payslip computation, so they must exist now.
+        // ------------------------------------------------------------
+        try {
+            $loanIntegration = app(\App\Modules\Loans\Services\LoanRepaymentPayrollIntegration::class);
+            $loanCount = $loanIntegration->createAdjustmentsForRun($run);
+            if ($loanCount > 0) {
+                Log::info("Created {$loanCount} loan repayment adjustment(s) for run #{$run->id}");
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Failed to sync loan repayments for payroll run', [
+                'payroll_run_id' => $run->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        // ------------------------------------------------------------
         // 3. Determine which employees to process (unscoped)
         // ------------------------------------------------------------
         // Employee query - handles both single and multi-company

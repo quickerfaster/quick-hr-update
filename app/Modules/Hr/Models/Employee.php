@@ -141,6 +141,16 @@ class Employee extends Model implements Documentable, Invitable
         ];
     }
 
+    /**
+     * Full name accessor — concatenates first_name and last_name.
+     * Used by DataTable relationship resolution (display_field: 'full_name')
+     * and anywhere else that references $employee->full_name.
+     */
+    public function getFullNameAttribute(): string
+    {
+        return trim($this->first_name . ' ' . $this->last_name);
+    }
+
     public function employeePosition()
     {
         return $this->hasOne(\App\Modules\Hr\Models\EmployeePosition::class, 'employee_id', 'id');
