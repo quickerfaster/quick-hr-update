@@ -3,6 +3,8 @@
 namespace App\Modules\Holiday\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
+use QuickerFaster\UILibrary\Factories\FieldTypes\FieldFactory;
 
 class HolidayServiceProvider extends ServiceProvider
 {
@@ -32,5 +34,21 @@ class HolidayServiceProvider extends ServiceProvider
         }
 
         $this->loadRoutesFrom(__DIR__ . '/../Routes/web.php');
+
+        // Register console commands
+        $this->commands([
+            \App\Modules\Holiday\Console\Commands\RolloverHolidays::class,
+        ]);
+
+        // Register Livewire components
+        Livewire::component('holiday.recurrence-rule-builder', \App\Modules\Holiday\Http\Livewire\RecurrenceRuleBuilder::class);
+        Livewire::component('holiday.batch-date-selector', \App\Modules\Holiday\Http\Livewire\HolidayBatchDateSelector::class);
+        Livewire::component('holiday.template-selector', \App\Modules\Holiday\Http\Livewire\HolidayTemplateSelector::class);
+        Livewire::component('holiday.batch-preview', \App\Modules\Holiday\Http\Livewire\HolidayBatchPreview::class);
+        Livewire::component('holiday.batch-defaults', \App\Modules\Holiday\Http\Livewire\HolidayBatchDefaults::class);
+        Livewire::component('holiday.batch-step-one', \App\Modules\Holiday\Http\Livewire\HolidayBatchStepOne::class);
+
+        // Register custom field types with the library's FieldFactory
+        FieldFactory::registerType('recurrence_rule_builder', \App\Modules\Holiday\Components\FieldTypes\RecurrenceRuleBuilderField::class);
     }
 }

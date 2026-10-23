@@ -4,128 +4,68 @@ return array (
   'id' => 'holiday_batch_creation',
   'title' => 'Batch Create Holidays',
   'description' => 'Create multiple holidays for a year or import from templates',
-  'returnPath' => '',
-  'steps' => 
+  'returnPath' => '/holiday/holidays',
+  'steps' =>
   array (
-    0 => 
+    0 =>
     array (
       'title' => 'Select Calendar & Year',
-      'model' => 'App\\Modules\\Holiday\\Models\\Holiday',
-      'fields' => 
-      array (
-        0 => 
-        array (
-          'calendar_id' => 
-          array (
-            'type' => 'select',
-            'foreign' => 
-            array (
-              'table' => 'holiday_calendars',
-              'column' => 'id',
-            ),
-            'validation' => 
-            array (
-              0 => 'required',
-            ),
-            'label' => 'Holiday Calendar',
-          ),
-        ),
-        1 => 
-        array (
-          'target_year' => 
-          array (
-            'type' => 'select',
-            'options' => 
-            array (
-              0 => 2024,
-              1 => 2025,
-              2 => 2026,
-              3 => 2027,
-              4 => 2028,
-            ),
-            'validation' => 
-            array (
-              0 => 'required',
-            ),
-            'label' => 'Target Year',
-          ),
-        ),
-        2 => 
-        array (
-          'source_option' => 
-          array (
-            'type' => 'select',
-            'options' => 
-            array (
-              'empty' => 'Start Fresh',
-              'copy_previous' => 'Copy from Previous Year',
-              'template' => 'Use Country Template',
-              'import' => 'Import CSV File',
-            ),
-            'default' => 'copy_previous',
-            'label' => 'Creation Method',
-          ),
-        ),
-      ),
+      'customComponent' => 'holiday.batch-step-one',
+      'description' => 'Choose the target calendar, year, and how you want to populate the holidays.',
     ),
-    1 => 
+    1 =>
+    array (
+      'title' => 'Batch Defaults',
+      'customComponent' => 'holiday.batch-defaults',
+      'description' => 'Optionally set default pay rate, business impact, and eligibility for all holidays in this batch.',
+    ),
+    2 =>
+    array (
+      'title' => 'Select Dates',
+      'customComponent' => 'holiday.batch-date-selector',
+      'description' => 'Optional — pick dates to cross-join with templates. Leave empty to use each template\'s own date.',
+    ),
+    3 =>
     array (
       'title' => 'Select Holidays',
-      'model' => NULL,
-      'dynamic' => true,
-      'fields' => 
-      array (
-        0 => 
-        array (
-          'selected_holidays' => 
-          array (
-            'type' => 'checklist',
-            'source' => 'getAvailableHolidayTemplates',
-            'label' => 'Select Holidays to Create',
-          ),
-        ),
-      ),
+      'customComponent' => 'holiday.template-selector',
+      'description' => 'Choose which holidays to create. Filter by type and select individually or all at once.',
     ),
-    2 => 
+    4 =>
     array (
       'title' => 'Review & Confirm',
-      'description' => 'Review the holidays that will be created',
-      'model' => NULL,
-      'preview' => 
-      array (
-        'showCalendarPreview' => true,
-        'showImpactAnalysis' => true,
-      ),
+      'description' => 'Review the holidays that will be created. Edit or remove entries before confirming.',
+      'customComponent' => 'holiday.batch-preview',
     ),
   ),
-  'completion' => 
+  'completion' =>
   array (
     'title' => 'Holidays Created Successfully!',
-    'message' => '{count} holidays have been added to the calendar for {year}.',
-    'actions' => 
+    'message' => 'The selected holidays have been added to the calendar. You can view them below or create another set.',
+    'actions' =>
     array (
-      0 => 
+      0 =>
       array (
         'label' => 'View Calendar',
-        'url' => '/holiday/holiday-calendars/{calendar_id}',
+        'url' => '/holiday/holiday-calendars',
         'primary' => true,
       ),
-      1 => 
+      1 =>
       array (
         'label' => 'View Holidays',
-        'url' => '/holiday/holidays?calendar_id={calendar_id}&year={year}',
+        'url' => '/holiday/holidays',
       ),
-      2 => 
+      2 =>
       array (
         'label' => 'Create Another Set',
-        'url' => '/holiday/holidays/batch-create',
+        'url' => '/holiday/holiday-batch-creation',
       ),
     ),
   ),
-  'models' => 
+  'models' =>
   array (
     'primary' => 'App\\Modules\\Holiday\\Models\\Holiday',
-    'related' => 
+    'related' =>
     array (
     ),
   ),

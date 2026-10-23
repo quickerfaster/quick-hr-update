@@ -25,10 +25,19 @@ Route::middleware(['web', 'auth'])->group(function () {
     })->name('holiday.holidays');
 
     // Holiday Batch Creation
-    Route::get('/holiday/holiday-batch-creation', function () {
+    Route::get('/holiday/holiday-batch-creation', function (\Illuminate\Http\Request $request) {
         if (!\QuickerFaster\UILibrary\Services\AccessControl\AuthorizationService::canAccessView('create_holiday')) {
             abort(403, 'This action is unauthorized.');
         }
+
+        // Support cross-session draft resume via explicit ?draft={token}
+        // parameter only. We intentionally do NOT auto-restore drafts
+        // to avoid resuming a completed wizard when the user clicks
+        // "Create Another Set".
+        if ($token = $request->query('draft')) {
+            \App\Modules\Holiday\Models\HolidayBatchDraft::restoreDraft($token);
+        }
+
         return view('holiday::holiday-batch-creation');
     })->name('holiday.holiday-batch-creation');
 

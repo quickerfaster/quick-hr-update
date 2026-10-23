@@ -13,6 +13,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('leave:accrue')->monthlyOn(1, '01:00');
+        $schedule->command('policies:send-reminders')->dailyAt('08:00');
+
+        // Roll over recurring holidays to the next year on December 1st
+        $schedule->command('holiday:rollover')->yearlyOn(12, 1, '00:00');
     }
 
     /**

@@ -100,11 +100,40 @@ class Holiday extends Model
     }
 
     /**
+     * Sanitize holiday_pay_rate — ensure it is always a valid numeric value
+     * before the decimal cast runs. Empty strings from batch creation or
+     * wizard forms would otherwise cause a MathException.
+     */
+    public function setHolidayPayRateAttribute($value): void
+    {
+        $this->attributes['holiday_pay_rate'] = is_numeric($value) && $value !== '' ? (float) $value : 1.0;
+    }
+
+    /**
+     * Sanitize minimum_hours_for_pay — ensure it is always a valid numeric
+     * value before the decimal cast runs.
+     */
+    public function setMinimumHoursForPayAttribute($value): void
+    {
+        $this->attributes['minimum_hours_for_pay'] = is_numeric($value) && $value !== '' ? (float) $value : 8.0;
+    }
+
+    /**
      * Validate the model instance.
+     *
+     * Wraps attributesToArray() in a try/catch to handle cases where
+     * decimal casts receive non-numeric values (e.g. empty strings from
+     * batch creation wizards). Falls back to raw attributes on failure.
      */
     public function validate()
     {
-        $validator = Validator::make($this->attributesToArray(), static::$rules, static::$messages);
+        try {
+            $attributes = $this->attributesToArray();
+        } catch (\Illuminate\Support\Exceptions\MathException $e) {
+            $attributes = $this->getAttributes();
+        }
+
+        $validator = Validator::make($attributes, static::$rules, static::$messages);
 
         if ($validator->fails()) {
             throw new ValidationException($validator);

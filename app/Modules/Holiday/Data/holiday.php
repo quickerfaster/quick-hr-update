@@ -103,9 +103,9 @@ return [
     'recurrence_rule' => [
       'display' => 'inline',
       'fillable' => true,
-      'field_type' => 'textarea',
+      'field_type' => 'recurrence_rule_builder',
       'label' => 'Recurrence Rule',
-      'validation' => 'nullable|string|max:255',
+      'validation' => 'nullable|json',
     ],
     'holiday_type' => [
       'display' => 'inline',

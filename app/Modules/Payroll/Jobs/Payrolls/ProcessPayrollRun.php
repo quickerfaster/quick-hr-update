@@ -126,6 +126,25 @@ class ProcessPayrollRun implements ShouldQueue
         }
 
         // ------------------------------------------------------------
+        // 2c. Sync holiday pay premiums — create PayrollRunAdjustment
+        //     records for holiday pay rate multipliers BEFORE
+        //     calculation starts. The PayrollCalculator reads these
+        //     adjustments during payslip computation.
+        // ------------------------------------------------------------
+        try {
+            $holidayIntegration = app(\App\Modules\Holiday\Services\HolidayPayrollIntegration::class);
+            $holidayCount = $holidayIntegration->createAdjustmentsForRun($run);
+            if ($holidayCount > 0) {
+                Log::info("Created {$holidayCount} holiday pay premium adjustment(s) for run #{$run->id}");
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Failed to sync holiday pay premiums for payroll run', [
+                'payroll_run_id' => $run->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        // ------------------------------------------------------------
         // 3. Determine which employees to process (unscoped)
         // ------------------------------------------------------------
         // Employee query - handles both single and multi-company
