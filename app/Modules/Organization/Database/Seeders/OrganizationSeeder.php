@@ -10,8 +10,27 @@ use App\Modules\Organization\Models\Location;
 
 class OrganizationSeeder extends Seeder
 {
+    /**
+     * Determine if the seeder should run.
+     *
+     * Only runs in non-production environments. On production, the initial
+     * company should be created through the app UI or a manual setup process
+     * — never via a seeder that creates a "Demo Company."
+     */
+    protected function shouldRun(): bool
+    {
+        return app()->environment('local', 'staging', 'development');
+    }
+
     public function run(): void
     {
+        if (!$this->shouldRun()) {
+            if ($this->command) {
+                $this->command->warn('Skipping OrganizationSeeder (not in local/staging/development).');
+            }
+            return;
+        }
+
         // Skip if data already exists
         if (Company::count() > 0) {
             return;

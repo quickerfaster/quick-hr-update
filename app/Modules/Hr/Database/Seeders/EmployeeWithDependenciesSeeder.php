@@ -27,8 +27,7 @@ class EmployeeWithDependenciesSeeder extends Seeder
      */
     protected function shouldRun(): bool
     {
-        return app()->environment('local', 'staging', 'development')
-            || ($this->command && $this->command->option('force'));
+        return app()->environment('local', 'staging', 'development');
     }
 
     /**
@@ -37,7 +36,7 @@ class EmployeeWithDependenciesSeeder extends Seeder
     public function run(): void
     {
         if (!$this->shouldRun()) {
-            $this->command->warn('Skipping EmployeeWithDependenciesSeeder (not in local/staging/development and --force not set).');
+            $this->command->warn('Skipping EmployeeWithDependenciesSeeder (not in local/staging/development).');
             return;
         }
 

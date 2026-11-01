@@ -2,7 +2,8 @@
     use App\Modules\Hr\Models\Employee;
     use Illuminate\Support\Facades\Auth;
 
-    $employee = Employee::with(['employeeProfile', 'employeePosition'])
+    $employee = Employee::withoutCompanyScope()
+        ->with(['employeeProfile', 'employeePosition'])
         ->where('user_id', Auth::id())
         ->first();
 

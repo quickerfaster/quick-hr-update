@@ -78,17 +78,25 @@ class EnsureModuleDashboardAccess
                 ->with('warning', 'Access restricted. Redirected to your portal.');
         }
 
-        if ($user->hasRole('payroll_officer')) {
-            return redirect('/payroll/dashboard-processing-overview')
+        // Admins → Admin dashboard
+        if ($user->hasAnyRole(['super_admin', 'admin', 'company_admin'])) {
+            return redirect('/admin/dashboard')
+                ->with('warning', 'Access restricted. Redirected to admin dashboard.');
+        }
+
+        // Payroll officers → Payroll dashboard (full config + processing view)
+        if ($user->hasRole('payroll_officer') && config('ui-library.modules.payroll.enabled', false)) {
+            return redirect('/payroll/dashboard')
                 ->with('warning', 'Access restricted.');
         }
 
         if ($user->hasRole('hr_manager')) {
-            return redirect('/hr/dashboard-people-overview')
+            return redirect('/hr/dashboard')
                 ->with('warning', 'Access restricted.');
         }
 
-        return redirect('/home')
+        // Everyone else → My Portal (universal landing page with full navigation)
+        return redirect('/hr/my-portal')
             ->with('warning', 'Access restricted.');
     }
 }

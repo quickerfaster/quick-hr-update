@@ -53,7 +53,7 @@ class MultiCompanyPayrollTestDataSeeder extends Seeder
     {
         // Guard: only run in safe environments
         if (!$this->shouldRun()) {
-            $this->command->warn('Skipping MultiCompanyPayrollTestDataSeeder (not in local/staging/development and --force not set).');
+            $this->command->warn('Skipping MultiCompanyPayrollTestDataSeeder (not in local/staging/development).');
             return;
         }
 
@@ -104,8 +104,7 @@ class MultiCompanyPayrollTestDataSeeder extends Seeder
      */
     protected function shouldRun(): bool
     {
-        return app()->environment('local', 'staging', 'development')
-            || ($this->command && $this->command->option('force'));
+        return app()->environment('local', 'staging', 'development');
     }
 
     /**

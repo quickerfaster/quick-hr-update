@@ -65,17 +65,22 @@ class FortifyServiceProvider extends ServiceProvider
                         $user->hasRole('employee') && !$user->hasAnyRole(['super_admin', 'admin', 'company_admin'])
                             => redirect()->intended('/hr/my-portal'),
 
-                        // Payroll officers → Payroll dashboard
-                        $user->hasRole('payroll_officer')
-                            => redirect()->intended('/payroll/dashboard-processing-overview'),
+                        // Admins → Admin dashboard (user/role/permission management)
+                        $user->hasAnyRole(['super_admin', 'admin', 'company_admin'])
+                            => redirect()->intended('/admin/dashboard'),
 
-                        // HR managers → People overview
+                        // Payroll officers → Payroll dashboard (full config + processing view)
+                        // Phase 1-3: payroll module is disabled; falls through to default
+                        $user->hasRole('payroll_officer') && config('ui-library.modules.payroll.enabled', false)
+                            => redirect()->intended('/payroll/dashboard'),
+
+                        // HR managers → HR dashboard (cross-module workforce summary)
                         $user->hasRole('hr_manager')
-                            => redirect()->intended('/hr/dashboard-people-overview'),
+                            => redirect()->intended('/hr/dashboard'),
 
-                        // Admins and everyone else → default /home
+                        // Everyone else → My Portal (universal landing page with full navigation)
                         default
-                            => redirect()->intended('/home'),
+                            => redirect()->intended('/hr/my-portal'),
                     };
                 }
             };

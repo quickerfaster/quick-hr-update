@@ -42,6 +42,107 @@ return [
             'user_facing' => false,
             'depends_on' => [],
         ],
+
+        /*
+        |------------------------------------------------------------------
+        | Phase 1 Modules (HR + Admin + Organization)
+        |------------------------------------------------------------------
+        */
+        'hr' => [
+            'enabled' => true,
+            'label' => 'HR',
+            'icon' => 'fa-users',
+            'route' => 'hr.dashboard',
+            'order' => 10,
+            'roles' => ['*'],
+            'core' => false,
+            'user_facing' => true,
+            'depends_on' => [],
+        ],
+        'organization' => [
+            'enabled' => true,
+            'label' => 'Organization',
+            'icon' => 'fa-sitemap',
+            'route' => 'organization.dashboard',
+            'order' => 20,
+            'roles' => ['*'],
+            'core' => false,
+            'user_facing' => true,
+            'depends_on' => [],
+        ],
+
+        /*
+        |------------------------------------------------------------------
+        | Phase 2-5 Modules (disabled for progressive rollout)
+        | Set enabled => true to unlock in subsequent phases.
+        |------------------------------------------------------------------
+        */
+        'attendance' => [
+            'enabled' => false,     // Phase 2
+            'label' => 'Attendance',
+            'icon' => 'fa-clock',
+            'route' => 'attendance.dashboard',
+            'order' => 30,
+            'roles' => ['*'],
+            'core' => false,
+            'user_facing' => true,
+            'depends_on' => [],
+        ],
+        'leave' => [
+            'enabled' => false,     // Phase 3
+            'label' => 'Leave',
+            'icon' => 'fa-calendar-alt',
+            'route' => 'leave.dashboard',
+            'order' => 40,
+            'roles' => ['*'],
+            'core' => false,
+            'user_facing' => true,
+            'depends_on' => [],
+        ],
+        'payroll' => [
+            'enabled' => false,     // Phase 4
+            'label' => 'Payroll',
+            'icon' => 'fa-money-bill-wave',
+            'route' => 'payroll.dashboard',
+            'order' => 50,
+            'roles' => ['*'],
+            'core' => false,
+            'user_facing' => true,
+            'depends_on' => [],
+        ],
+        'loans' => [
+            'enabled' => false,     // Phase 5
+            'label' => 'Loans',
+            'icon' => 'fa-hand-holding-usd',
+            'route' => 'loans.dashboard',
+            'order' => 60,
+            'roles' => ['*'],
+            'core' => false,
+            'user_facing' => true,
+            'depends_on' => [],
+        ],
+        'holiday' => [
+            'enabled' => false,     // Phase 5
+            'label' => 'Holiday',
+            'icon' => 'fa-calendar-check',
+            'route' => 'holiday.dashboard',
+            'order' => 70,
+            'roles' => ['*'],
+            'core' => false,
+            'user_facing' => true,
+            'depends_on' => [],
+        ],
+        'policies' => [
+            'enabled' => false,     // Phase 5
+            'label' => 'Policies',
+            'icon' => 'fa-gavel',
+            'route' => 'policies.dashboard',
+            'order' => 80,
+            'roles' => ['*'],
+            'core' => false,
+            'user_facing' => true,
+            'depends_on' => [],
+        ],
     ],
 
     /*
@@ -97,7 +198,7 @@ return [
     | Default Home Route
     |--------------------------------------------------------------------------
     */
-    'home_route' => env('UI_LIBRARY_HOME_ROUTE', 'admin.dashboard'),
+    'home_route' => env('UI_LIBRARY_HOME_ROUTE', 'hr.dashboard-my-portal-overview'),
 
     /*
     |--------------------------------------------------------------------------
