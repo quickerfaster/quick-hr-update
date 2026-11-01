@@ -2,7 +2,7 @@ deployment:
   tasks:
     # Paths
     - export COMPOSER_BIN=/home/quickerf/composer.phar
-    ### Staging ###
+    #### Staging ####
     # - export REPOPATH=/home/quickerf/laravel_suites_repo/agriwatts-demo
     # - export DEPLOYPATH=/home/quickerf/agriwatts-demo
 
