@@ -5139,12 +5139,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/quickerfaster/ui-library.git",
-                "reference": "5470d1a0cf94cb703503df61cfaffbb51281ce4c"
+                "reference": "d441b7246a43587ae88890de5bcbcb388a68bec0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/quickerfaster/ui-library/zipball/5470d1a0cf94cb703503df61cfaffbb51281ce4c",
-                "reference": "5470d1a0cf94cb703503df61cfaffbb51281ce4c",
+                "url": "https://api.github.com/repos/quickerfaster/ui-library/zipball/d441b7246a43587ae88890de5bcbcb388a68bec0",
+                "reference": "d441b7246a43587ae88890de5bcbcb388a68bec0",
                 "shasum": ""
             },
             "require": {
@@ -5196,7 +5196,7 @@
                 "source": "https://github.com/quickerfaster/ui-library/tree/main",
                 "issues": "https://github.com/quickerfaster/ui-library/issues"
             },
-            "time": "2026-11-01T14:54:01+00:00"
+            "time": "2026-11-01T15:42:43+00:00"
         },
         {
             "name": "ramsey/collection",
