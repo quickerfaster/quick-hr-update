@@ -10,6 +10,8 @@ deployment:
     - export REPOPATH=/home/quickerf/laravel_suites_repo/quick_hr
     - export DEPLOYPATH=/home/quickerf/quick_hr
 
+
+
     - export LOGDIR=/home/quickerf/deploy_logs
     - mkdir -p $LOGDIR
     - export LOGFILE=$LOGDIR/deploy_$(date +"%Y-%m-%d_%H-%M-%S").log
@@ -50,60 +52,15 @@ deployment:
         /bin/echo "Composer installed successfully" >> $LOGFILE;
       fi'
 
-    # Install/update PHP dependencies without running scripts (prevents cache errors)
-    #
-    # Uses 'update' (not 'install') so that quicker-faster/ui-library (*@dev)
-    # always pulls the latest commit from the main branch without requiring a
-    # manual composer.lock update before every deploy.
-    #
-    # ⚠️ WHAT CAN GO WRONG:
-    #   1. A third-party package releases a breaking change → deploy fails.
-    #      FIX: Pin the package in composer.json with a strict constraint
-    #           (e.g. "laravel/framework": "^11.0" instead of "*").
-    #   2. A package is removed from Packagist or GitHub → update fails.
-    #      FIX: Temporarily change 'update' back to 'install' below so the
-    #           deploy uses the last-known-good composer.lock, then resolve
-    #           the missing package offline and push a fix.
-    #   3. Network timeout on cPanel → update hangs.
-    #      FIX: Add --timeout=300 or increase the cPanel script timeout.
-    #   4. Update is slower than install (30-60s extra on first run).
-    #      ACCEPTABLE: cPanel deploys are already ~2 min; the trade-off is
-    #      worth it for automatic library updates.
-    #
-    - /bin/echo "Installing/updating PHP dependencies..." >> $LOGFILE
-    - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 "$COMPOSER_BIN" update --no-dev --no-scripts --optimize-autoloader >> "$LOGFILE" 2>&1'
+    # Install PHP dependencies without running scripts (prevents cache errors)
+    - /bin/echo "Installing PHP dependencies..." >> $LOGFILE
+    - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 "$COMPOSER_BIN" install --no-dev --no-scripts --optimize-autoloader >> "$LOGFILE" 2>&1'
 
     # Remove test files to prevent PHPUnit dependency errors during artisan commands
     - /bin/echo "Removing test files..." >> $LOGFILE
     - /bin/sh -c 'rm -rf "$DEPLOYPATH/app/Modules/"*/Tests "$DEPLOYPATH/tests"' >> $LOGFILE 2>&1
 
-    # Create cache table BEFORE migrations.
-    # The library service providers read from the cache during boot (discovery
-    # caching, listener registry, etc.). If the cache table doesn't exist when
-    # artisan migrate boots the framework, it throws: SQLSTATE[42S02]: Base
-    # table or view not found: 'cache'.
-    #
-    # We create it via raw PDO (bypassing Laravel's boot) so the table exists
-    # before the first framework bootstrap.
-    - /bin/echo "Creating cache tables (pre-migration)..." >> $LOGFILE
-    - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 -r "
-        \$env = parse_ini_file(\".env\");
-        \$dsn = \"mysql:host={\$env[\"DB_HOST\"]};port={\$env[\"DB_PORT\"]};dbname={\$env[\"DB_DATABASE\"]}\";
-        \$pdo = new PDO(\$dsn, \$env[\"DB_USERNAME\"], \$env[\"DB_PASSWORD\"], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-        \$pdo->exec(\"CREATE TABLE IF NOT EXISTS cache (
-            \`key\` VARCHAR(255) NOT NULL PRIMARY KEY,
-            \`value\` MEDIUMTEXT NOT NULL,
-            \`expiration\` INT NOT NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4\");
-        \$pdo->exec(\"CREATE TABLE IF NOT EXISTS cache_locks (
-            \`key\` VARCHAR(255) NOT NULL PRIMARY KEY,
-            \`owner\` VARCHAR(255) NOT NULL,
-            \`expiration\` INT NOT NULL
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4\");
-        echo \"Cache tables ready.\";
-    " >> "$LOGFILE" 2>&1'
-
-    # Run database migrations
+    # Run database migrations first (creates cache table needed by CACHE_STORE=database)
     - /bin/echo "Running database migrations..." >> $LOGFILE
     - /bin/sh -c 'ea-php84 "$DEPLOYPATH/artisan" migrate --force >> "$LOGFILE" 2>&1'
 
