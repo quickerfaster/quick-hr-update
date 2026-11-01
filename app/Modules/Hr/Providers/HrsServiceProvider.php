@@ -66,6 +66,9 @@ class HrsServiceProvider extends ServiceProvider
         Livewire::component('qf.hr-employee-form', \App\Modules\Hr\Http\Livewire\HrEmployeeForm::class);
         Livewire::component('qf.employee-invitation-status', \App\Modules\Hr\Http\Livewire\EmployeeInvitationStatus::class);
 
+        // Attendance adjustment MVP component
+        Livewire::component('hr.adjust-attendance-mvp', \App\Modules\Hr\Http\Livewire\AdjustAttendanceMvp::class);
+
         // Phase 7: Consolidated Onboarding Wizard
         Livewire::component('qf.onboarding.wizard', \App\Modules\Hr\Http\Livewire\Onboarding\EmployeeOnboardingWizard::class);
         Livewire::component('qf.onboarding.step1-employee-record', \App\Modules\Hr\Http\Livewire\Onboarding\Steps\Step1EmployeeRecord::class);

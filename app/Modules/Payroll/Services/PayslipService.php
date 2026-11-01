@@ -79,9 +79,13 @@ class PayslipService
             'payslip' => [
                 'currency_symbol' => $currencySymbol,
                 'number' => $payslip->payslip_number,
+                'base_salary' => $payslip->base_salary,
                 'gross_pay' => $payslip->gross_pay,
                 'total_deductions' => $payslip->total_deductions,
                 'net_pay' => $payslip->net_pay,
+                'worked_days' => $payslip->worked_days,
+                'total_workdays' => $payslip->total_workdays,
+                'daily_rate' => ($payslip->total_workdays > 0) ? round($payslip->base_salary / $payslip->total_workdays, 2) : null,
                 'paid_at' => $payslip->paid_at,
                 'earnings' => $earnings,
                 'deductions' => $deductions,

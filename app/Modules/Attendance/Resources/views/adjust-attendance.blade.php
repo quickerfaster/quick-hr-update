@@ -8,6 +8,6 @@
 
        <livewire:hr.adjust-attendance-mvp :attendanceId="$attendanceId ?? null" />
 
-</x-layouts>
+</x-layout>
 
 

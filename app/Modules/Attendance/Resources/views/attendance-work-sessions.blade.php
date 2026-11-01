@@ -14,7 +14,7 @@
         }
 
         if ($employee) {
-            $subPageTitle = 'For ' . $employee->first_name . ' ' . $employee->last_name . ' (' . $employee->employee_id . ')';
+            $subPageTitle = 'For ' . $employee->first_name . ' ' . $employee->last_name . ' (' . $employee->employee_number . ')';
         } else {
             abort(404, 'Attendance record or associated employee not found.');
         }
@@ -27,40 +27,19 @@
     </a>
 
 
-    <livewire:qf::data-tables.data-table-manager :selectedItemId="$id ?? null" model="App\Modules\Attendance\Models\AttendanceSession"
-        pageTitle="Work Sessions" :subPageTitle=$subPageTitle :pageQueryFilters="[['attendance_id', '=', $attendance_id]]" :hiddenFields="[
-            'onTable' => [
-                '0' => 'attendance_id',
-                '1' => 'clock_in_event_id',
-                '2' => 'clock_out_event_id',
-                '3' => 'is_overnight',
-                '4' => 'adjusted_by',
-                '5' => 'adjusted_at',
-                '6' => 'calculated_duration',
-                '7' => 'validation_status',
-                '8' => 'validation_notes',
-            ],
-            'onNewForm' => [
-                '0' => 'clock_in_event_id',
-                '1' => 'clock_out_event_id',
-                '2' => 'is_overnight',
-                '3' => 'duration_hours',
-                '4' => 'adjusted_by',
-                '5' => 'adjusted_at',
-                '6' => 'calculated_duration',
-                '7' => 'validation_status',
-                '8' => 'validation_notes',
-            ],
-            'onEditForm' => [
-                '0' => 'clock_in_event_id',
-                '1' => 'clock_out_event_id',
-                '2' => 'is_overnight',
-                '3' => 'adjusted_by',
-                '4' => 'adjusted_at',
-                '5' => 'calculated_duration',
-                '6' => 'validation_status',
-                '7' => 'validation_notes',
-            ],
-            'onQuery' => [],
+    <livewire:qf.data-table
+        configKey="attendance.attendance_session"
+        :pageTitle="'Work Sessions — ' . $subPageTitle"
+        :pageQueryFilters="[['attendance_id', '=', $attendance_id]]"
+        :hiddenFields="[
+            'attendance_id',
+            'clock_in_event_id',
+            'clock_out_event_id',
+            'is_overnight',
+            'adjusted_by',
+            'adjusted_at',
+            'calculated_duration',
+            'validation_status',
+            'validation_notes',
         ]" />
-</x-layouts>
+</x-layout>

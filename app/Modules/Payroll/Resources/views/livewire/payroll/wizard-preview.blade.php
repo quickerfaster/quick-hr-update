@@ -94,6 +94,22 @@
             {{ $totalCurrencySymbol }}{{ number_format($previewData['total_cash_required'] ?? 0, 2) }}
         </div>
 
+        {{-- Zero-earnings warning --}}
+        @if ($zeroEarningsCount > 0)
+            <div class="alert alert-warning d-flex align-items-center" role="alert">
+                <i class="fas fa-exclamation-triangle me-3 fs-4"></i>
+                <div>
+                    <strong>{{ $zeroEarningsCount }} employee{{ $zeroEarningsCount > 1 ? 's' : '' }}</strong> {{ $zeroEarningsCount > 1 ? 'have' : 'has' }} ₦0.00 gross pay with a non-zero base salary.
+                    This usually means <strong>attendance records are not approved</strong>.
+                    <br>
+                    <a href="/docs/user/payroll/REAEME.md#88-zero-eanings-diagnostic-checklist"
+                       target="_blank" class="text-decoration-underline small">
+                        <i class="fas fa-book-medical me-1"></i> View diagnostic checklist
+                    </a>
+                </div>
+            </div>
+        @endif
+
         {{-- Filters --}}
         <div class="row mb-3 g-2">
             <div class="col-md-3">
@@ -259,6 +275,23 @@
                             <tr>
                                 <td colspan="5" class="p-0">
                                     <div class="p-3 bg-light">
+                                        {{-- Workday breakdown for salaried_daily employees --}}
+                                        @if ($payslip->worked_days !== null && $payslip->total_workdays !== null)
+                                            <div class="d-flex align-items-center mb-3 p-2 bg-white rounded border">
+                                                <div class="me-4">
+                                                    <span class="text-muted small">Days Worked</span>
+                                                    <div class="fw-bold fs-5">{{ $payslip->worked_days }} <small class="text-muted fs-6">/ {{ $payslip->total_workdays }}</small></div>
+                                                </div>
+                                                <div class="me-4">
+                                                    <span class="text-muted small">Base Salary</span>
+                                                    <div class="fw-bold">{{ $currencySymbol }}{{ number_format($payslip->base_salary, 2) }}</div>
+                                                </div>
+                                                <div>
+                                                    <span class="text-muted small">Daily Rate</span>
+                                                    <div class="fw-bold">{{ $currencySymbol }}{{ number_format($payslip->total_workdays > 0 ? ($payslip->base_salary / $payslip->total_workdays) : 0, 2) }}</div>
+                                                </div>
+                                            </div>
+                                        @endif
                                         @include(
                                             'payroll::livewire.payroll.partials.payroll_payslip_items_table',
                                             [

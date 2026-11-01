@@ -54,6 +54,11 @@ Route::middleware(['web', 'auth'])->group(function () {
         return view('attendance::attendance-work-sessions');
     })->name('attendance.attendance-work-sessions');
 
+    // Clock Events view
+    Route::get('/attendance/clock-events', function () {
+        return view('attendance::clock-events');
+    })->name('attendance.clock-events');
+
     // Routes for AttendancePolicy
     Route::get('attendance-policies/create', function (\Illuminate\Http\Request $request) {
         return view('attendance::attendance-policies.create', [

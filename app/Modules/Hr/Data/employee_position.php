@@ -223,6 +223,7 @@ return [
         'Weekly' => 'Weekly',
         'Daily' => 'Daily',
       ],
+      'hint' => 'Determines how tax is annualised (×12 for Monthly, ×52 for Weekly). Does NOT affect the base salary amount — base_salary is always the per-period rate.',
     ],
     'location_id' => [
       'display' => 'inline',

@@ -51,6 +51,9 @@ class PayrollWizardPreview extends Component
     public bool $processingStartedEventSent = false;
     public bool $isFinalized = false;
 
+    // Zero-earnings detection
+    public int $zeroEarningsCount = 0;
+
     // Sorting properties
     public string $sortField = 'employee_name';
     public string $sortDirection = 'asc';
@@ -261,6 +264,13 @@ protected function loadProgressData(): void
             'period_end' => $run->period_end->format('Y-m-d'),
             'total_cash_required' => $run->total_cash_required,
         ];
+
+        // Detect zero-earnings payslips (gross=0 but base_salary>0)
+        $this->zeroEarningsCount = PayrollPayslip::withoutCompanyScope()
+            ->where('payroll_run_id', $this->payrollRunId)
+            ->where('gross_pay', 0)
+            ->where('base_salary', '>', 0)
+            ->count();
 
         $this->isPolling = false;
         $this->dispatch('refreshPayslips');

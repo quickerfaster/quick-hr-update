@@ -100,6 +100,29 @@
         @endif
     </div>
 
+    {{-- Workday breakdown for salaried_daily employees --}}
+    @if ($payslip['worked_days'] !== null && $payslip['total_workdays'] !== null)
+    <div class="section">
+        <div class="section-title">PAY BREAKDOWN</div>
+        <table>
+            <tr>
+                <td><strong>Base Salary (period rate)</strong></td>
+                <td class="text-right">{{ $payslip['currency_symbol'] }}{{ number_format($payslip['base_salary'], 2) }}</td>
+            </tr>
+            <tr>
+                <td><strong>Days Worked</strong></td>
+                <td class="text-right">{{ $payslip['worked_days'] }} of {{ $payslip['total_workdays'] }} days</td>
+            </tr>
+            @if ($payslip['daily_rate'] !== null)
+            <tr>
+                <td><strong>Daily Rate</strong></td>
+                <td class="text-right">{{ $payslip['currency_symbol'] }}{{ number_format($payslip['daily_rate'], 2) }}</td>
+            </tr>
+            @endif
+        </table>
+    </div>
+    @endif
+
     <!-- Earnings -->
     <div class="section">
         <div class="section-title">EARNINGS</div>

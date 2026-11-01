@@ -46,14 +46,13 @@ class AttendanceEventListener extends DataTableRecordListener
         // Handle "Recalculate Hours" action
         if (in_array("recalculateAttendanceHours", $actions)) {
             // Check authorization - only hr_admin and system_admin can perform this action
-            if (!$this->isAuthorized($requiredRole) || AccessControlPermissionService::checkPermission('edit', 'attendance')) {
+            if (!$this->isAuthorized($requiredRole) && !AccessControlPermissionService::checkPermission('edit', 'attendance')) {
                 Log::warning('Unauthorized attempt to recalculate attendance', [
                     'user_id' => Auth::id(),
                     'attendance_id' => $attendance_id
                 ]);
-                // throw new \Exception('You are not authorized to perform this action.');
                 SweetAlertService::showError($livewireComponent, "Error!", AccessControlPermissionService::MSG_PERMISSION_DENIED);
-
+                return;
             }
 
             $this->handleRecalculation($attendance_id, $livewireComponent);

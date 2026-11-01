@@ -131,6 +131,22 @@ return [
       'label' => 'Net Pay',
       'validation' => 'required|numeric|min:0',
     ],
+    'worked_days' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'editable' => false,
+      'field_type' => 'number',
+      'label' => 'Worked Days',
+      'validation' => 'nullable|integer|min:0',
+    ],
+    'total_workdays' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'editable' => false,
+      'field_type' => 'number',
+      'label' => 'Total Workdays',
+      'validation' => 'nullable|integer|min:0',
+    ],
     'currency_code' => [
       'display' => 'inline',
       'fillable' => true,
@@ -363,7 +379,9 @@ return [
     '2' => 'employee_id',
     '3' => 'payroll_run_id',
     '4' => 'net_pay',
-    '5' => 'payment_status',
+    '5' => 'worked_days',
+    '6' => 'total_workdays',
+    '7' => 'payment_status',
   ],
   'addRoutes' => false,
   'dispatchEvents' => false,
@@ -393,12 +411,13 @@ return [
         '1' => 'xls',
         '2' => 'csv',
       ],
-      'mark_paid' => [
-        'label' => 'Mark as Paid',
-        'icon' => 'fas fa-check-circle',
-        'updateModelField' => 'payment_status',
-        'fieldValue' => 'paid',
-        'confirm' => 'Mark selected payslips as paid?',
+      'updateModelFields' => [
+        'payment_status' => [
+          'label' => 'Mark as Paid',
+          'icon' => 'fas fa-check-circle',
+          'value' => 'paid',
+          'confirm' => 'Mark selected payslips as paid?',
+        ],
       ],
       'resend' => [
         'label' => 'Resend Email',

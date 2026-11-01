@@ -1,8 +1,39 @@
 # Payroll Calculation Parameters — Comprehensive Analysis Report
 
-> **Date**: 2026-09-28
+> **Original Date**: 2026-09-28
+> **Last Updated**: 2026-11-01
 > **Analyst**: Technical analysis of `calculateForEmployee()` and all downstream dependencies
 > **Scope**: How `pay_type` on `employee_positions` and all associated parameters affect payroll calculation output
+
+---
+
+## Resolution Status (2026-11-01 Update)
+
+All critical and moderate findings from the original analysis have been resolved:
+
+| # | Finding | Severity | Status |
+|---|---------|----------|--------|
+| R1 | Jurisdiction blocking documented but not implemented | 🔴 Critical | ✅ Removed from user docs — feature intentionally not implemented |
+| R2 | `is_approved` filtering on attendance records | 🔴 Critical | ✅ Already implemented in code; user docs clarified |
+| R3 | `pay_frequency` documented but scope ambiguous | 🟡 Moderate | ✅ User docs updated with clear tax-only scope |
+| R4 | `salary_currency` never read by calculator | 🟡 Moderate | ✅ Documented as unused field |
+| R5 | `net_hours` fallback undocumented | 🟡 Moderate | ✅ Documented in user guide §8.2 |
+| R6 | `is_paid_absence` role in payroll undocumented | 🟡 Moderate | ✅ Documented in user guide §8.2 |
+| R7 | Attendance statuses that count as worked | 🟡 Moderate | ✅ Documented with full gate-condition table |
+| R8 | `country_code`/`state_code` on policies | 🟢 Low | ✅ Documented in user guide |
+| R9 | `default_proration_basis` defined but unused | 🟢 Low | ✅ Now implemented — supports 'calendar' and 'working_days' |
+| R10 | `calculation_type` on adjustments | 🟢 Low | ✅ Documented |
+| R11 | `effect` field on PayrollPolicy | 🟢 Low | ✅ Documented |
+| R12 | Overtime multiplier null-object risk | 🟢 Low | ✅ Already using `?->` null-safe operator |
+| R13 | **NEW**: Double-penalty bug for mid-period salaried_daily hires | 🔴 Critical | ✅ Fixed — proration restricted to `salaried_full` only |
+| R14 | **NEW**: Daily rate divisor uses full-period workdays for mid-period hires | 🔴 Critical | ✅ Fixed — attendance-driven day count naturally handles partial periods |
+| R15 | **NEW**: `resolveEffectiveBaseSalary()` from EmployeeJobHistory | 🟡 Moderate | ✅ Implemented — effective-dated salary resolution |
+| R16 | **NEW**: `worked_days`/`total_workdays` on payslips | 🟡 Moderate | ✅ Implemented with migration and UI display |
+| R17 | **NEW**: Bulk "Approve for Payroll" button visibility | 🟡 Moderate | ✅ Fixed config format + toolbar rendering |
+| R18 | **NEW**: Zero-earnings warning in payroll preview | 🟡 Moderate | ✅ Implemented |
+| R19 | **NEW**: Nigerian PAYE tax policy seeder | 🟡 Moderate | ✅ Implemented |
+| R20 | **NEW**: Form field hint/tooltip rendering | 🟢 Low | ✅ Implemented |
+| R21 | **NEW**: Payslip PDF workday breakdown | 🟢 Low | ✅ Implemented |
 
 ---
 

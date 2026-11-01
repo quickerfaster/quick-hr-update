@@ -538,17 +538,17 @@ return [
         '1' => 'csv',
         '2' => 'pdf',
       ],
-      'is_approved' => [
-        'label' => 'Approve Selected',
-        'icon' => 'fas fa-check-circle',
-        'updateModelField' => 'is_approved',
-        'fieldValue' => true,
-      ],
-      'needs_review' => [
-        'label' => 'Mark as Needs Review',
-        'icon' => 'fas fa-exclamation-triangle',
-        'updateModelField' => 'needs_review',
-        'fieldValue' => true,
+      'updateModelFields' => [
+        'is_approved' => [
+          'label' => 'Approve Selected',
+          'icon' => 'fas fa-check-circle',
+          'value' => true,
+        ],
+        'needs_review' => [
+          'label' => 'Mark as Needs Review',
+          'icon' => 'fas fa-exclamation-triangle',
+          'value' => true,
+        ],
       ],
       'delete' => true,
       'restore' => true,

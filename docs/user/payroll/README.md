@@ -24,6 +24,14 @@ This guide covers three audiences:
 6. [Payslips & Reports](#6-payslips--reports)
 7. [Policies & Adjustments](#7-policies--adjustments)
 8. [How Payroll Is Calculated](#8-how-payroll-is-calculated)
+    - [8.1 Salaried Full](#81-salaried-full)
+    - [8.2 Salaried Daily](#82-salaried-daily)
+    - [8.3 Hourly](#83-hourly)
+    - [8.4 Tax Calculation](#84-tax-calculation)
+    - [8.5 Attendance Integration](#85-attendance-integration)
+    - [8.6 Hire & Termination Proration](#86-hire--termination-proration)
+    - [8.7 Processing Architecture](#87-processing-architecture)
+    - [8.8 Zero Earnings Diagnostic Checklist](#88-zero-earnings-diagnostic-checklist)
 9. [Multi-Company Payroll](#9-multi-company-payroll)
 10. [Employee Self-Service](#10-employee-self-service)
 11. [Troubleshooting & Error Recovery](#11-troubleshooting--error-recovery)
@@ -128,10 +136,14 @@ The employee's **position** record (managed in the HR module at `/hr/employee-po
 
 | Field | Used For |
 |-------|----------|
-| `base_salary` | The fixed monthly salary (all pay types) |
+| `base_salary` | The fixed period salary (all pay types). Always treated as the per-period amount regardless of `pay_frequency`. |
 | `hourly_rate` | The hourly rate (hourly employees) |
-| `pay_type` | `salaried_full`, `salaried_daily`, or `hourly` |
-| `pay_frequency` | Monthly, Semi-monthly, Bi-weekly, Weekly, Daily |
+| `pay_type` | `salaried_full`, `salaried_daily`, or `hourly` — determines how pay is calculated |
+| `pay_frequency` | Monthly, Semi-monthly, Bi-weekly, Weekly, Daily — used **only** for tax annualisation, not for salary proration |
+
+> ⚠️ **Critical for `salaried_daily` and `hourly` employees**: These pay types require **approved attendance records** (`is_approved = true`) to compute pay. Without approved attendance, gross pay will be **₦0.00**. See [§8.2](#82-salaried-daily), [§8.3](#83-hourly), and the [Attendance Guide](../attendance/README.md) for setup requirements.
+>
+> Also see: [`EmployeePosition`](app/Modules/Hr/Models/EmployeePosition.php) model for all position fields and their payroll impact.
 
 ### 3.4 Payroll Policies
 
@@ -238,7 +250,8 @@ Each payslip shows:
 |-------|-------------|
 | **Payslip Number** | Auto-generated unique identifier (e.g., `PAYSLIP-2026-09-000042`) |
 | **Employee** | The employee's name and number |
-| **Base Salary** | The period base salary (prorated for mid-period hires/terminations) |
+| **Base Salary** | The period base salary. For `salaried_daily`, this is the full monthly/weekly rate (NOT prorated). For `salaried_full` with mid-period hire, this shows the prorated amount. |
+| **Worked Days** | For `salaried_daily` only: approved attendance days counted (e.g., "2 / 27"). Shows how many days the employee attended out of the total workdays in the period. |
 | **Gross Pay** | Total earnings (base + adjustments) |
 | **Income Tax** | Federal/national income tax |
 | **Social Security Tax** | Social security / national insurance contribution |
@@ -369,9 +382,33 @@ Deductions = sum of policy amounts
 Net Pay = Gross Pay − Deductions
 ```
 
-**Work patterns** define which days are working days (e.g., Monday–Friday). If no work pattern is assigned, the system defaults to weekdays.
+**Work patterns** define which days are working days (e.g., Monday–Friday). The resolution chain is:
 
-**Atendance filtering**: Only **approved** attendance records (`is_approved = true`) are counted for payroll. Unapproved records, even with hours logged, are excluded. A day counts as "worked" if any of: `net_hours > 0`, `status` is not `'absent'`, or `is_paid_absence` is `true`.
+1. **Employee-specific** [`EmployeeWorkPattern`](app/Modules/Attendance/Models/EmployeeWorkPattern.php) assignment overlapping the pay period
+2. **Default work pattern** (`is_default = true`, `is_active = true`) scoped to the employee's company
+3. **Fallback**: Weekdays (Monday–Friday) if no work pattern exists
+
+If no work pattern is assigned and no default exists, the system counts weekdays in the period.
+
+**Attendance filtering — critical for correct pay**:
+
+Only attendance records meeting **all** of these conditions are counted:
+
+| Condition | Why It Matters |
+|-----------|---------------|
+| `is_approved = true` | **Hard requirement.** Unapproved records — even with clock-in/out data and hours — are completely excluded. If an employee has attendance records but none are approved, `worked_days = 0` → **₦0.00 gross pay**. |
+| Date within the pay period | Records outside `[period_start, period_end]` are ignored |
+| Not explicitly excluded | Records with `affects_payroll = false` (if the column exists) are skipped |
+
+A day counts as "worked" if **any** of these gate conditions pass:
+
+| Gate | What It Means |
+|------|--------------|
+| `net_hours > 0` | Employee clocked hours that day |
+| `status` is NOT `'absent'` | Includes: `present`, `late`, `half_day`, `incomplete`, `early_departure`, `unscheduled`, `holiday`, `leave` |
+| `is_paid_absence = true` | Paid leave or paid holiday — counts as a worked day even with `net_hours = 0` |
+
+> **⚠️ Common pitfall**: An attendance record with `status = 'unscheduled'` and `needs_review = true` will still count as a worked day if approved — but `is_approved = false` blocks it entirely. See [§11 — Troubleshooting](#11-troubleshooting--error-recovery) for diagnosis steps.
 
 ### 8.3 Hourly
 
@@ -406,24 +443,93 @@ Period Tax = Annual Tax ÷ Periods Per Year
 
 ### 8.5 Attendance Integration
 
-The system can be configured to **use or ignore** attendance data via `PAYROLL_ATTENDANCE_INTEGRATION_ENABLED`:
-- **Enabled (default)**: Attendance records are used for `salaried_daily` and `hourly` pay types. Only records with `is_approved = true` are counted.
-- **Disabled**: All employees are treated as `salaried_full`, regardless of their assigned pay type.
+The system can be configured to **use or ignore** attendance data via `PAYROLL_ATTENDANCE_INTEGRATION_ENABLED` (in [`quick_hr_payroll.php`](app/Modules/Payroll/Config/quick_hr_payroll.php:41)):
+
+| Setting | Behavior | Pay Types Affected |
+|---------|----------|-------------------|
+| **Enabled** (`true`, default) | Attendance records drive pay calculation. Only records with `is_approved = true` are counted. Unapproved records → zero pay for attendance-based employees. | `salaried_daily`, `hourly` |
+| **Disabled** (`false`) | All employees are treated as `salaried_full` — they receive their `base_salary` as-is, regardless of attendance. | All (forced to `salaried_full`) |
+
+**Attendance data used per pay type**:
+
+| Pay Type | Attendance Fields Used | Zero-Pay Risk If Missing |
+|----------|----------------------|--------------------------|
+| `salaried_daily` | `worked_days` (counted from status, net_hours, is_paid_absence) | 🔴 No approved records → `worked_days = 0` → ₦0.00 |
+| `hourly` | `regular_hours`, `overtime_hours`, `double_time_hours` | 🔴 No approved records → all hours = 0 → ₦0.00 |
+| `salaried_full` | None — attendance is irrelevant | 🟢 Not affected |
+
+> **Cross-reference**: The attendance module's [`AttendanceCalculator`](app/Modules/Attendance/Services/AttendanceCalculator.php) computes `regular_hours`, `overtime_hours`, and `double_time_hours`. Overtime multipliers come from the employee's [`AttendancePolicy`](app/Modules/Attendance/Models/AttendancePolicy.php) via a 6-tier resolution chain (Employee → Shift → Department → Location → Company → System Default). See the [Attendance Guide](../attendance/README.md) for policy setup.
 
 ### 8.6 Hire & Termination Proration
 
-For employees who join or leave mid-period, the base salary is automatically prorated:
+Proration behaviour depends on the employee's **pay type**:
+
+#### `salaried_full` — Calendar-Day Proration
+
+For fixed-salary employees who join or leave mid-period, the base salary is automatically prorated based on calendar days:
 
 ```
 Proration Factor = days employed ÷ total days in period
 Prorated Base Salary = base_salary × Proration Factor
 ```
 
-- **Mid-period hires**: Pay is prorated from the employee's `hire_date` to the period end.
-- **Mid-period terminations**: Pay is prorated from the period start to the termination date (`employment_status = 'Terminated'` and `deleted_at` on the position record).
-- **Same-period hire+termination**: Pay is prorated to only the days between hire and termination dates.
+**Example — Salaried full, mid-period hire**:
+- Period: October 1–31 (31 days)
+- Hire date: October 24
+- Days employed: 8 (Oct 24–31)
+- Proration factor: 8 ÷ 31 = 0.258
+- If `base_salary` = ₦1,000 → payslip shows `base_salary` = ₦258.06, gross = ₦258.06
 
-> **Note**: Terminated employees now appear in payroll runs for their final period, ensuring statutory final-pay compliance.
+#### `salaried_daily` and `hourly` — No Calendar-Day Proration
+
+For attendance-based employees, the **worked days** (or **hours**) count already reflects the effective employment period — there are no attendance records before hire or after termination. Applying calendar-day proration on top of attendance would **double-penalise** the employee.
+
+Instead, the full `base_salary` is used to compute the daily rate, and the employee is paid only for approved attendance days:
+
+```
+Daily Rate = base_salary ÷ Total Workdays in Period
+Gross Pay = Daily Rate × Worked Days (attendance)
+```
+
+**Example — Salaried daily, mid-period hire (monthly)**:
+- Period: October 1–31 (31 calendar days, 27 workdays Mon–Sat)
+- Hire date: October 24
+- `base_salary` = ₦1,000 (NOT prorated — this is the monthly rate)
+- Daily rate: ₦1,000 ÷ 27 = ₦37.04
+- Employee works 2 post-hire days → gross pay: 2 × ₦37.04 = ₦74.07
+- Max possible (works all 7 post-hire workdays) → 7 × ₦37.04 = ₦259.26
+
+**Example — Salaried daily, mid-period hire (weekly)**:
+- Period: Monday–Sunday (7 calendar days, 6 workdays Mon–Sat)
+- Hire date: Thursday (day 4 of the week)
+- `base_salary` = ₦250 (NOT prorated — this is the weekly rate)
+- Daily rate: ₦250 ÷ 6 = ₦41.67
+- Works Thu and Fri → gross pay: 2 × ₦41.67 = ₦83.33
+- The employee cannot be paid for Mon–Wed because no attendance records exist before hire
+
+**Example — Salaried daily, mid-period hire (bi-weekly)**:
+- Period: 14 days, ~12 workdays Mon–Sat
+- Hire date: Day 9 of the period
+- `base_salary` = ₦500 (NOT prorated — this is the bi-weekly rate)
+- Daily rate: ₦500 ÷ 12 = ₦41.67
+- Works 3 post-hire days → gross pay: 3 × ₦41.67 = ₦125.00
+
+**Example — Salaried daily, mid-period hire (semi-monthly)**:
+- Period: 15 days, ~13 workdays Mon–Sat
+- Hire date: Day 10 of the period
+- `base_salary` = ₦500 (NOT prorated — this is the semi-monthly rate)
+- Daily rate: ₦500 ÷ 13 = ₦38.46
+- Works 3 post-hire days → gross pay: 3 × ₦38.46 = ₦115.38
+
+> **Key insight**: `base_salary` is always the **per-period** rate set by HR for the employee's pay frequency. A monthly worker has a monthly `base_salary`, a weekly worker has a weekly `base_salary`. The calculator does NOT multiply or divide by frequency — it uses `base_salary` as-is for the payroll run's period.
+>
+> The payslip shows the full `base_salary` (e.g., ₦1,000 monthly or ₦250 weekly) for `salaried_daily` — the effective pay reduction comes from the day count, not a salary proration.
+
+- **Mid-period terminations**: Pay stops at the termination date because no approved attendance records exist after that date.
+- **Salaried full employees**: Calendar-day proration applies as shown above.
+- **Hourly employees**: Same as `salaried_daily` — no proration; pay = hours × rate.
+
+> **Terminated employees** appear in payroll runs for their final period, ensuring statutory final-pay compliance.
 
 ### 8.7 Processing Architecture
 
@@ -439,6 +545,88 @@ Configurable in `config/quick_hr_payroll.php`:
 - `batch_size` (default: 100)
 - `batch_timeout` (default: 60 seconds)
 - `batch_tries` (default: 1)
+
+### 8.8 Zero Earnings Diagnostic Checklist
+
+If an employee's payslip shows **₦0.00 gross pay**, work through this checklist in order:
+
+#### Step 1: Identify the Pay Type
+
+Check the employee's position at **HR → Employee Positions** → `pay_type` field.
+
+| Pay Type | Zero-Pay Causes | Skip To |
+|----------|----------------|---------|
+| `salaried_full` | `base_salary = 0`, proration reduced pay to 0 | Step 5 |
+| `salaried_daily` | No approved attendance → `worked_days = 0` | Step 2 |
+| `hourly` | No approved attendance → all hours = 0 | Step 2 |
+
+#### Step 2: Check Attendance Approval Status
+
+Navigate to **Attendance → Attendance Records**. Filter by the employee and pay period.
+
+| Check | What to Look For | If Missing |
+|-------|-----------------|-----------|
+| **Any records exist?** | At least one record in the pay period | Employee never clocked in — no pay possible |
+| **`is_approved` = true?** | Approved column shows "Yes" or checkbox is checked | 🔴 **This is the #1 cause of ₦0.00.** Unapproved records are completely excluded from payroll. Approve the records. |
+| **`needs_review` = false?** | Review flag is cleared | 🟡 Review-flagged records may indicate clock-in issues (open sessions, violations). Resolve and approve. |
+
+> **Most common cause**: An employee has clock-in data but the attendance record was never approved. The [`getAttendanceSummary()`](app/Modules/Payroll/Services/Payroll/PayrollCalculator.php:138) method requires `is_approved = true`. Without it, `worked_days = 0` and gross pay = ₦0.00.
+
+#### Step 3: Check Attendance Record Quality (if approved)
+
+Even approved records can produce low/zero pay if hours are missing:
+
+| Field | Healthy Value | Problem Value |
+|-------|--------------|---------------|
+| `net_hours` | > 0 (e.g., 8.0) | 0.00 — employee clocked in but no payable hours computed |
+| `status` | `present`, `late`, `half_day` | `absent`, `unscheduled` — may indicate incomplete clock-in/out pairing |
+| `regular_hours` | > 0 for hourly employees | 0.00 — the [`AttendanceCalculator`](app/Modules/Attendance/Services/AttendanceCalculator.php) didn't compute regular hours |
+
+For `salaried_daily`, a day counts as worked if **any** of:
+- `net_hours > 0`
+- `status` is not `'absent'`
+- `is_paid_absence = true`
+
+For `hourly`, the employee needs non-zero `regular_hours`, `overtime_hours`, or `double_time_hours`.
+
+#### Step 4: Verify Work Pattern (salaried_daily only)
+
+The daily rate depends on the work pattern:
+
+```
+Daily Rate = base_salary ÷ Total Workdays in Period
+```
+
+> **Note**: `base_salary` is the **full period salary** — it is NOT prorated for `salaried_daily`. Days before hire or after termination naturally have no attendance records and contribute ₦0.00. Proration only applies to `salaried_full` (see [§8.6](#86-hire--termination-proration)).
+
+- If no [`EmployeeWorkPattern`](app/Modules/Attendance/Models/EmployeeWorkPattern.php) is assigned, the system uses the company's default work pattern
+- If no default exists, it counts weekdays (Mon–Fri)
+- Verify `applicable_days` on the work pattern covers the expected working days
+- For mid-period hires, the daily rate uses the **full period's** workdays as divisor (e.g., 27 for October), not just the post-hire days. The employee's pay is `dailyRate × workedDays` — if they were hired late, they simply have fewer possible `worked_days`
+
+#### Step 5: Check Proration
+
+Proration behaviour depends on pay type:
+
+- **`salaried_full`**: Calendar-day proration applies. A late-month hire gets a prorated `base_salary` on the payslip (e.g., ₦1,000 → ₦258.06 for Oct 24 hire).
+- **`salaried_daily` and `hourly`**: No calendar-day proration. The `base_salary` on the payslip is the full amount (e.g., ₦1,000). The effective pay is the daily rate × worked days — days before hire naturally have no attendance records and contribute ₦0.00.
+
+- Verify the employee's `hire_date` is correct at **HR → Employees**
+- For `salaried_daily`, a late-month hire's pay is lower because they can only work fewer days (e.g., 7 post-hire workdays out of 27 in October), not because the salary value is prorated
+
+#### Step 6: Verify Payroll Profile
+
+The employee must have an active profile linked to the correct pay schedule:
+
+1. Go to **Payroll → Configuration → Employee Profiles**
+2. Confirm the employee has a profile with `is_active = 1`
+3. Confirm the profile's `pay_schedule_id` matches the payroll run's pay schedule
+
+> ⚠️ **Pay schedule mismatch**: If the employee's profile uses Pay Schedule A but the payroll run uses Pay Schedule B, the employee is silently excluded from the run.
+
+#### Step 7: Check Attendance Integration Config
+
+Verify `PAYROLL_ATTENDANCE_INTEGRATION_ENABLED` is `true` in your `.env` file. If set to `false`, all employees are treated as `salaried_full` — but if `base_salary = 0`, pay is still zero.
 
 ---
 
@@ -498,12 +686,38 @@ This is the most common payroll setup issue. An employee needs three things to a
 
 > **Common mistake**: Creating an employee and position is not enough. The Employee Payroll Profile is a separate record that must be created manually. Without it, the employee is invisible to payroll.
 
-### "Salaried daily employee received full pay instead of prorated"
+### "A salaried daily or hourly employee shows ₦0.00 gross pay"
+
+🔴 **This is the most common payroll issue.** Follow the [§8.8 Zero Earnings Diagnostic Checklist](#88-zero-earnings-diagnostic-checklist) above for a step-by-step diagnosis.
+
+**Quick checks (30 seconds)**:
+
+1. **Go to Attendance → Attendance Records.** Filter by the employee and pay period. Is `is_approved` checked? **If no records are approved → ₦0.00.** This is the #1 cause.
+2. **Check the employee's `pay_type`** at HR → Employee Positions. `salaried_daily` and `hourly` require approved attendance. `salaried_full` does not.
+3. **Check `net_hours`** on approved records. If all approved records show `net_hours = 0.00`, the employee clocked in but no payable hours were computed (e.g., unpaired clock-in without clock-out, very short sessions, or `status = 'unscheduled'`). See the [Attendance Guide](../attendance/README.md) for fixing clock-in issues.
+
+**Common root causes summary**:
+
+| Cause | Fix |
+|-------|-----|
+| Attendance records `is_approved = false` | Approve the records in Attendance → Attendance Records |
+| No attendance records exist for the period | Employee must clock in/out or have leave/holiday records |
+| `status = 'unscheduled'` with `needs_review = true` | Resolve the review flag, ensure clock-in/out pairs are complete, then approve |
+| `net_hours = 0` on all approved records | Clock sessions may be too short or unpaired — check clock events |
+| Attendance integration disabled (`PAYROLL_ATTENDANCE_INTEGRATION_ENABLED=false`) | Enable it in `.env` or treat all employees as `salaried_full` |
+| Pay schedule mismatch | Employee's payroll profile uses a different pay schedule than the run |
+
+### "Salaried daily employee received full pay instead of attendance-based pay"
 
 Check:
-1. `PAYROLL_ATTENDANCE_INTEGRATION_ENABLED` is `true`.
+1. `PAYROLL_ATTENDANCE_INTEGRATION_ENABLED` is `true` — if disabled, all employees get full `base_salary` regardless of attendance.
 2. The employee has **approved attendance records** (`is_approved = true`) for the pay period — unapproved records are excluded.
-3. If the employee was hired mid-period, the base salary is automatically prorated — verify the `hire_date` is correct.
+3. The employee's `pay_type` is actually `salaried_daily` (not `salaried_full`).
+4. For mid-period hires: `base_salary` on the payslip shows the full period rate — this is correct. The actual pay is `dailyRate × workedDays`. The employee only gets paid for days with approved attendance. If `worked_days` is unexpectedly low, check that attendance records are approved.
+
+### "Salaried full employee pay seems too low for mid-period hire"
+
+For `salaried_full`, the payslip `base_salary` shows the **prorated** amount. A late-month hire sees a reduced `base_salary`. For example, hired Oct 24 → base_salary = ₦1,000 × (8/31) = ₦258.06. This is correct — the employee worked only 8 of 31 calendar days. Verify the `hire_date` at **HR → Employees**.
 
 ### "Tax calculation seems wrong"
 
@@ -512,7 +726,7 @@ Tax is calculated on the **annualised** gross pay:
 2. Tax bands are applied to the annualised amount.
 3. Annual tax ÷ periods per year = period tax.
 
-Verify the employee's `pay_frequency` is correct — it determines the periods-per-year multiplier.
+Verify the employee's `pay_frequency` is correct — it determines the periods-per-year multiplier. Note: `pay_frequency` only affects tax annualisation; it does NOT affect the base salary amount. A monthly employee and a weekly employee with the same `base_salary` receive the same gross pay in a monthly payroll run.
 
 ### "The approval workflow is stuck"
 
@@ -537,5 +751,8 @@ Click the 🕐 **history icon** in the top navigation bar to retrieve your expor
 | **Payroll Run Adjustment** | A one-time addition or deduction for a specific run. |
 | **Employee Adjustment Profile** | A recurring, employee-specific override. |
 | **Annualised Gross** | Period gross × periods per year — used for progressive tax calculation. |
-| **Work Pattern** | Defines which days are working days (used for salaried daily calculations). |
+| **Work Pattern** | Defines which days are working days (Mon–Fri, Mon–Sat, etc.). Used for `salaried_daily` daily rate calculation. |
+| **Proration** | Automatic pay reduction when an employee joins or leaves mid-period. Uses calendar days: `days employed ÷ total days in period`. |
+| **Attendance Approval** | Attendance records must have `is_approved = true` to count toward payroll. Unapproved records → ₦0.00 for `salaried_daily` and `hourly` employees. |
+| **Worked Day** | A day that counts toward `salaried_daily` pay. Defined as: `net_hours > 0` **or** `status ≠ 'absent'` **or** `is_paid_absence = true`. |
 | **Bank File** | A bank-ready payment file generated from an approved payroll run. |

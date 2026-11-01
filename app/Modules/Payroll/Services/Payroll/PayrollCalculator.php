@@ -6,6 +6,7 @@ use App\Modules\Payroll\Models\PayrollRun;
 use App\Modules\Payroll\Models\PayrollPayslip;
 use App\Modules\Payroll\Models\PayslipItem;
 use App\Modules\Hr\Models\EmployeePosition;
+use App\Modules\Hr\Models\EmployeeJobHistory;
 use App\Modules\Payroll\Models\EmployeeAdjustmentProfile;
 use App\Modules\Payroll\Models\PayrollRunAdjustment;
 use App\Modules\Payroll\Models\PayrollPolicy;
@@ -261,6 +262,61 @@ protected function resolveWorkPatternId(EmployeePosition $position): ?int
 
     return $defaultPattern?->id;
 }
+
+    /**
+     * Resolve the effective base salary for the payroll period from
+     * EmployeeJobHistory records. If the employee had multiple salary
+     * rates during the period (e.g., promotion mid-month), returns
+     * a weighted average by days at each rate. Falls back to the
+     * current EmployeePosition value if no history exists.
+     */
+    protected function resolveEffectiveBaseSalary(EmployeePosition $position, Carbon $periodStart, Carbon $periodEnd): float
+    {
+        $histories = EmployeeJobHistory::withoutCompanyScope()
+            ->where('employee_id', $position->employee_id)
+            ->whereNotNull('base_salary')
+            ->where('effective_date', '<=', $periodEnd)
+            ->where(function ($q) use ($periodStart) {
+                $q->whereNull('end_date')->orWhere('end_date', '>=', $periodStart);
+            })
+            ->orderBy('effective_date')
+            ->get();
+
+        if ($histories->isEmpty()) {
+            return (float) ($position->base_salary ?? 0);
+        }
+
+        $totalDays = $periodStart->diffInDays($periodEnd) + 1;
+        $weightedSum = 0.0;
+        $coveredDays = 0;
+
+        foreach ($histories as $i => $history) {
+            $salaryStart = $history->effective_date->max($periodStart);
+            $salaryEnd   = $history->end_date
+                ? $history->end_date->min($periodEnd)
+                : $periodEnd->copy();
+
+            if ($salaryStart->gt($salaryEnd)) {
+                continue;
+            }
+
+            $daysAtThisRate = $salaryStart->diffInDays($salaryEnd) + 1;
+            $weightedSum += ((float) $history->base_salary) * $daysAtThisRate;
+            $coveredDays += $daysAtThisRate;
+        }
+
+        // Fill any remaining days with current position salary
+        if ($coveredDays < $totalDays) {
+            $remainingDays = $totalDays - $coveredDays;
+            $weightedSum += ((float) ($position->base_salary ?? 0)) * $remainingDays;
+        }
+
+        if ($histories->count() === 1 && $coveredDays >= $totalDays) {
+            return (float) $histories->first()->base_salary;
+        }
+
+        return $totalDays > 0 ? round($weightedSum / $totalDays, 2) : 0;
+    }
 
     /**
      * Get the attendance policy applicable to an employee.
@@ -921,14 +977,22 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
     $employeeId = $position->employee_id;
     $payType = $position->pay_type;
     $hourlyRate = $position->hourly_rate ?? 0;
-    $baseSalary = $position->base_salary ?? 0;
+    $baseSalary = $this->resolveEffectiveBaseSalary($position, $this->run->period_start, $this->run->period_end);
     $periodStart = $this->run->period_start;
     $periodEnd = $this->run->period_end;
     $items = [];
 
     // -------------------------------------------------------------
-    // 0. Prorate base salary for mid-period hires and terminations
+    // 0. Proration for mid-period hires and terminations
     // -------------------------------------------------------------
+    // Proration is applied to the base salary value ONLY for
+    // 'salaried_full'. 'salaried_daily' and 'hourly' use attendance
+    // data which naturally handles partial periods.
+    //
+    // Proration basis is controlled by config key
+    //   quick_hr_payroll.default_proration_basis:
+    //   - 'calendar' (default): days employed ÷ total calendar days
+    //   - 'working_days': workdays employed ÷ total workdays in period
     $prorationFactor = 1.0;
     $employee = $position->employee;
 
@@ -938,27 +1002,49 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
             ? ($position->deleted_at ? \Carbon\Carbon::parse($position->deleted_at) : null)
             : null;
 
-        $totalDays = $periodStart->diffInDays($periodEnd) + 1;
+        // Determine proration basis (configurable per deployment)
+        $prorationBasis = config('quick_hr_payroll.default_proration_basis', 'calendar');
+        $useWorkingDays = ($prorationBasis === 'working_days' && $payType === 'salaried_full');
 
-        // Mid-period hire: prorate from hire_date
-        if ($hireDate && $hireDate->gt($periodStart)) {
-            $employedDays = $hireDate->diffInDays($periodEnd) + 1;
-            $prorationFactor = min($employedDays / $totalDays, 1.0);
+        if ($useWorkingDays) {
+            // Working-day proration: count workdays per the resolved pattern
+            $workPatternId = $this->resolveWorkPatternId($position);
+            $totalUnits = $this->getWorkdaysInPeriod($periodStart, $periodEnd, $workPatternId);
+            $totalUnits = max($totalUnits, 1);
+
+            if ($hireDate && $hireDate->gt($periodStart)) {
+                $employedUnits = $this->getWorkdaysInPeriod($hireDate, $periodEnd, $workPatternId);
+                $prorationFactor = min($employedUnits / $totalUnits, 1.0);
+            }
+            if ($terminationDate && $terminationDate->lt($periodEnd)) {
+                $employedUnits = $this->getWorkdaysInPeriod($periodStart, $terminationDate, $workPatternId);
+                $prorationFactor = min($employedUnits / $totalUnits, 1.0);
+            }
+            if ($hireDate && $hireDate->gt($periodStart) && $terminationDate && $terminationDate->lt($periodEnd)) {
+                $employedUnits = $this->getWorkdaysInPeriod($hireDate, $terminationDate, $workPatternId);
+                $prorationFactor = max(min($employedUnits / $totalUnits, 1.0), 0);
+            }
+        } else {
+            // Calendar-day proration (default)
+            $totalUnits = $periodStart->diffInDays($periodEnd) + 1;
+
+            if ($hireDate && $hireDate->gt($periodStart)) {
+                $employedUnits = $hireDate->diffInDays($periodEnd) + 1;
+                $prorationFactor = min($employedUnits / $totalUnits, 1.0);
+            }
+            if ($terminationDate && $terminationDate->lt($periodEnd)) {
+                $employedUnits = $periodStart->diffInDays($terminationDate) + 1;
+                $prorationFactor = min($employedUnits / $totalUnits, 1.0);
+            }
+            if ($hireDate && $hireDate->gt($periodStart) && $terminationDate && $terminationDate->lt($periodEnd)) {
+                $employedUnits = $hireDate->diffInDays($terminationDate) + 1;
+                $prorationFactor = max(min($employedUnits / $totalUnits, 1.0),0);
+            }
         }
 
-        // Mid-period termination: prorate to termination_date
-        if ($terminationDate && $terminationDate->lt($periodEnd)) {
-            $employedDays = $periodStart->diffInDays($terminationDate) + 1;
-            $prorationFactor = min($employedDays / $totalDays, 1.0);
+        if ($payType === 'salaried_full') {
+            $baseSalary = round($baseSalary * $prorationFactor, 2);
         }
-
-        // If both hire and termination in same period, use intersection
-        if ($hireDate && $hireDate->gt($periodStart) && $terminationDate && $terminationDate->lt($periodEnd)) {
-            $employedDays = $hireDate->diffInDays($terminationDate) + 1;
-            $prorationFactor = max(min($employedDays / $totalDays, 1.0), 0);
-        }
-
-        $baseSalary = round($baseSalary * $prorationFactor, 2);
     }
 
     // -------------------------------------------------------------
@@ -1262,6 +1348,8 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
         'total_taxes' => $totalTaxes,
         'total_benefit_deductions' => $totalDeductions,
         'net_pay' => $netPay,
+        'worked_days' => ($effectivePayType === 'salaried_daily') ? ($attendanceSummary['worked_days'] ?? 0) : null,
+        'total_workdays' => ($effectivePayType === 'salaried_daily') ? ($totalWorkdays ?? null) : null,
         'payment_status' => 'pending',
         'currency_code' => $this->run->base_currency ?? 'USD',
         'income_tax' => round($summaryIncomeTax, 2),

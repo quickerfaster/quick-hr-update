@@ -618,16 +618,69 @@ class PayrollCalculatorTest extends BaseTestCase
         $expectedGross = round($dailyRate * 15, 2);
 
         $this->assertEquals($expectedGross, $payslip->gross_pay);
+        $this->assertEquals(15, $payslip->worked_days);
+        $this->assertEquals(23, $payslip->total_workdays);
     }
 
     #[Test]
     public function it_calculates_salaried_daily_with_work_pattern()
     {
-        $this->markTestSkipped(
-            'Skipped: calculator does not yet integrate resolveWorkPatternId() ' .
-            'into calculateForEmployee for salaried_daily. ' .
-            'The work_pattern_id column also does not exist on employee_positions yet.'
+        $periodStart = Carbon::parse('2026-07-01');
+        $periodEnd = Carbon::parse('2026-07-31');
+        $run = $this->createPayrollRun($periodStart, $periodEnd);
+        $this->calculator->setRun($run);
+
+        $position = $this->createEmployeeWithPosition([
+            'pay_type' => 'salaried_daily',
+            'base_salary' => 2000,
+        ]);
+
+        // Create a default Mon-Sat work pattern for the employee's company
+        $shift = Shift::factory()->create(['company_id' => $this->company->id]);
+        $workPattern = WorkPattern::create([
+            'company_id' => $this->company->id,
+            'name' => 'Mon-Sat',
+            'code' => 'MON-SAT-' . uniqid(),
+            'shift_id' => $shift->id,
+            'applicable_days' => '1,2,3,4,5,6',
+            'effective_date' => '2026-01-01',
+            'is_active' => true,
+            'is_default' => true,
+        ]);
+
+        // Create attendance for 10 weekdays + Saturdays (Mon-Sat pattern)
+        $workedDays = [];
+        $current = $periodStart->copy();
+        $dayCount = 0;
+        while ($current <= $periodEnd && $dayCount < 15) {
+            if (!in_array($current->dayOfWeek, [0])) { // All days except Sunday
+                $workedDays[$current->toDateString()] = [
+                    'status' => 'present',
+                    'net_hours' => 8,
+                    'regular_hours' => 8,
+                ];
+                $dayCount++;
+            }
+            $current->addDay();
+        }
+
+        $this->createAttendanceForEmployee(
+            $position->employee,
+            $periodStart,
+            $periodEnd,
+            $workedDays
         );
+
+        $payslip = $this->calculator->calculateForEmployee($position);
+
+        // Mon-Sat in July 2026 = 27 workdays (31 total days - 4 Sundays)
+        $expectedWorkdays = 27;
+        $dailyRate = 2000 / $expectedWorkdays;
+        $expectedGross = round($dailyRate * 15, 2);
+
+        $this->assertEquals($expectedGross, $payslip->gross_pay);
+        $this->assertEquals(15, $payslip->worked_days);
+        $this->assertEquals(27, $payslip->total_workdays);
     }
 
     #[Test]
@@ -929,6 +982,48 @@ class PayrollCalculatorTest extends BaseTestCase
 
         $this->assertEquals(0, $payslip->gross_pay);
         $this->assertEquals(0, $payslip->net_pay);
+    }
+
+
+    #[Test]
+    public function it_does_not_prorate_salaried_daily_for_mid_period_hire()
+    {
+        $periodStart = Carbon::parse('2026-07-01');
+        $periodEnd = Carbon::parse('2026-07-31');
+        $run = $this->createPayrollRun($periodStart, $periodEnd);
+        $this->calculator->setRun($run);
+
+        $position = $this->createEmployeeWithPosition([
+            'pay_type' => 'salaried_daily',
+            'base_salary' => 3100,
+        ]);
+
+        $position->employee->hire_date = '2026-07-15';
+        $position->employee->save();
+        $position->load('employee');
+
+        $workedDays = [];
+        $current = Carbon::parse('2026-07-15');
+        $dayCount = 0;
+        while ($current <= $periodEnd && $dayCount < 5) {
+            if ($current->isWeekday()) {
+                $workedDays[$current->toDateString()] = [
+                    'status' => 'present', 'net_hours' => 8, 'regular_hours' => 8,
+                ];
+                $dayCount++;
+            }
+            $current->addDay();
+        }
+
+        $this->createAttendanceForEmployee($position->employee, $periodStart, $periodEnd, $workedDays);
+
+        $payslip = $this->calculator->calculateForEmployee($position);
+
+        $this->assertEquals(3100, $payslip->base_salary, 'base_salary should NOT be prorated');
+        $dailyRate = 3100 / 23;
+        $expectedGross = round($dailyRate * 5, 2);
+        $this->assertEquals($expectedGross, $payslip->gross_pay);
+        $this->assertEquals(5, $payslip->worked_days);
     }
 
 
