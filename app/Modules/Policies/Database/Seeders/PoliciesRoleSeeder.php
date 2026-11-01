@@ -45,8 +45,9 @@ class PoliciesRoleSeeder extends Seeder
 
     public function run(): void
     {
-        // Ensure all permissions exist in the system
-        $system = System::firstOrCreate(['name' => 'Default']);
+        // The System model is a singleton (id = 1) created by the systems
+        // table migration. It has no 'name' column — use firstOrCreate on id.
+        $system = System::firstOrCreate(['id' => 1]);
 
         foreach ($this->permissions as $permission) {
             \QuickerFaster\UILibrary\Models\Permission::firstOrCreate(
