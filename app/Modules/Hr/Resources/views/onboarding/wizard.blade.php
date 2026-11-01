@@ -185,6 +185,7 @@
                                     3 => 'qf.onboarding.step3-payroll-banking',
                                     4 => 'qf.onboarding.step4-documents',
                                     5 => 'qf.onboarding.step5-preferences',
+                                    6 => 'qf.onboarding.step6-company-policies',
                                 ];
                                 $componentName = $stepComponents[$currentStep] ?? 'qf.onboarding.step1-employee-record';
 

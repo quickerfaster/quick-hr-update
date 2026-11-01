@@ -68,6 +68,16 @@ return [
                 'required'  => false,
                 'order'     => 5,
             ],
+            [
+                'key'       => 'company_policies',
+                'label'     => 'Company Policies',
+                'description' => 'Review and acknowledge company policies',
+                'model'     => \App\Modules\Policies\Models\CompanyPolicy::class,
+                'condition' => \App\Modules\Policies\Conditions\PoliciesAcknowledged::class,
+                'component' => 'qf.onboarding.step6-company-policies',
+                'required'  => false,
+                'order'     => 6,
+            ],
         ],
     ],
 ];

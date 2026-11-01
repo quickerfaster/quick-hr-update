@@ -1,5 +1,10 @@
 #!/bin/bash
-PROJECT_DIR="/home/quickerf/agriwatts-demo"
+### Staging ###
+# PROJECT_DIR="/home/quickerf/agriwatts-demo"
+
+### Production ###
+PROJECT_DIR="/home/quickerf/quick_hr"
+
 LOCKFILE="$PROJECT_DIR/storage/framework/queue-worker.lock"
 # PHP_BIN: find the correct PHP binary for cPanel cron.
 # .cpanel.yml uses 'ea-php84' as a bare command (works in deployment context),

@@ -68,8 +68,8 @@
                 Skip for Now
             </button>
             <button type="submit" class="btn btn-primary">
-                Save & Finish
-                <i class="fas fa-check ms-2"></i>
+                Save & Continue
+                <i class="fas fa-arrow-right ms-2"></i>
             </button>
         </div>
     </form>

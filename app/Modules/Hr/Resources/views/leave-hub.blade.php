@@ -4,8 +4,6 @@
     :overrides="[
         'top_bar' => ['enabled' => true],
         'breadcrumb' => ['enabled' => false],
-        'title' => ['enabled' => false],
-        'titleRow' => ['enabled' => false],
         'context_menu' => ['enabled' => true],
     ]"
 >

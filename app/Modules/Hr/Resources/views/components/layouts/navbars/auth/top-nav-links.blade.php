@@ -9,15 +9,6 @@
 {{-- Generated Links --}}
 {{-- Generated Links --}}
 <li class="nav-item">
-    <a href="/hr/dashboard-policies-overview"
-        class="nav-link @if(request()->is('hr/dashboard-policies-overview') || request()->is('hr/dashboard-policies-overview/*')) fw-bold text-primary @endif">
-        @if(request()->is('hr/dashboard-policies-overview') || request()->is('hr/dashboard-policies-overview/*'))
-            <i class="fas fas fa-gavel" aria-hidden="true"></i>
-        @endif
-        <span>Policies</span>
-    </a>
-</li>
-<li class="nav-item">
     <a href="/hr/reports"
         class="nav-link @if(request()->is('hr/reports') || request()->is('hr/reports/*')) fw-bold text-primary @endif">
         @if(request()->is('hr/reports') || request()->is('hr/reports/*'))

@@ -1,8 +1,8 @@
 <div>
     {{-- Header --}}
-    <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
+    <!--<div class="d-flex flex-wrap gap-2 align-items-center mb-4">
         <h2>Leave Hub</h2>
-    </div>
+    </div>-->
 
     <ul class="nav nav-tabs mb-3"
         x-data

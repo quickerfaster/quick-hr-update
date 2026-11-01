@@ -2,8 +2,13 @@ deployment:
   tasks:
     # Paths
     - export COMPOSER_BIN=/home/quickerf/composer.phar
-    - export REPOPATH=/home/quickerf/laravel_suites_repo/agriwatts-demo
-    - export DEPLOYPATH=/home/quickerf/agriwatts-demo
+    ### Staging ###
+    # - export REPOPATH=/home/quickerf/laravel_suites_repo/agriwatts-demo
+    # - export DEPLOYPATH=/home/quickerf/agriwatts-demo
+
+    ### Production ###
+    - export REPOPATH=/home/quickerf/laravel_suites_repo/quick_hr
+    - export DEPLOYPATH=/home/quickerf/quick_hr
 
     - export LOGDIR=/home/quickerf/deploy_logs
     - mkdir -p $LOGDIR

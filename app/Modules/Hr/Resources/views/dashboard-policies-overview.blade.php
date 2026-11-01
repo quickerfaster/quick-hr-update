@@ -1,7 +1,7 @@
-<x-qf::navigation-layout 
-    configKey="hr.dashboards.dashboard_policies_overview" 
-    context="policies" 
-    moduleName="hr" 
+<x-qf::navigation-layout
+    configKey="policies.dashboards.dashboard_policies_overview"
+    context="policies"
+    moduleName="hr"
     :overrides="[
         'top_bar' => ['enabled' => true],
         'breadcrumb' => ['enabled' => false],
@@ -10,5 +10,5 @@
         'context_menu' => ['enabled' => true],
     ]"
 >
-    <livewire:qf.dashboard config-key="hr.dashboards.dashboard_policies_overview" />
+    <livewire:qf.dashboard config-key="policies.dashboards.dashboard_policies_overview" />
 </x-qf::navigation-layout>
