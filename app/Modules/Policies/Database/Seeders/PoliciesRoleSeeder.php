@@ -5,6 +5,7 @@ namespace App\Modules\Policies\Database\Seeders;
 use Illuminate\Database\Seeder;
 use QuickerFaster\UILibrary\Models\Role;
 use QuickerFaster\UILibrary\Models\System;
+use Spatie\Permission\Models\Permission;
 
 class PoliciesRoleSeeder extends Seeder
 {
@@ -50,7 +51,7 @@ class PoliciesRoleSeeder extends Seeder
         $system = System::firstOrCreate(['id' => 1]);
 
         foreach ($this->permissions as $permission) {
-            \QuickerFaster\UILibrary\Models\Permission::firstOrCreate(
+            Permission::firstOrCreate(
                 ['name' => $permission],
                 ['system_id' => $system->id, 'guard_name' => 'web']
             );
