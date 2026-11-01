@@ -45,9 +45,28 @@ deployment:
         /bin/echo "Composer installed successfully" >> $LOGFILE;
       fi'
 
-    # Install PHP dependencies without running scripts (prevents cache errors)
-    - /bin/echo "Installing PHP dependencies..." >> $LOGFILE
-    - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 "$COMPOSER_BIN" install --no-dev --no-scripts --optimize-autoloader >> "$LOGFILE" 2>&1'
+    # Install/update PHP dependencies without running scripts (prevents cache errors)
+    #
+    # Uses 'update' (not 'install') so that quicker-faster/ui-library (*@dev)
+    # always pulls the latest commit from the main branch without requiring a
+    # manual composer.lock update before every deploy.
+    #
+    # ⚠️ WHAT CAN GO WRONG:
+    #   1. A third-party package releases a breaking change → deploy fails.
+    #      FIX: Pin the package in composer.json with a strict constraint
+    #           (e.g. "laravel/framework": "^11.0" instead of "*").
+    #   2. A package is removed from Packagist or GitHub → update fails.
+    #      FIX: Temporarily change 'update' back to 'install' below so the
+    #           deploy uses the last-known-good composer.lock, then resolve
+    #           the missing package offline and push a fix.
+    #   3. Network timeout on cPanel → update hangs.
+    #      FIX: Add --timeout=300 or increase the cPanel script timeout.
+    #   4. Update is slower than install (30-60s extra on first run).
+    #      ACCEPTABLE: cPanel deploys are already ~2 min; the trade-off is
+    #      worth it for automatic library updates.
+    #
+    - /bin/echo "Installing/updating PHP dependencies..." >> $LOGFILE
+    - /bin/sh -c 'cd "$DEPLOYPATH" && ea-php84 "$COMPOSER_BIN" update --no-dev --no-scripts --optimize-autoloader >> "$LOGFILE" 2>&1'
 
     # Remove test files to prevent PHPUnit dependency errors during artisan commands
     - /bin/echo "Removing test files..." >> $LOGFILE
