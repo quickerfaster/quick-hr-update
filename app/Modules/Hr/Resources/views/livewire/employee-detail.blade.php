@@ -621,7 +621,7 @@
                             'crudType' => 'drawers',
                             'simpleActions' => ['show'],
                             'moreActions' => [
-                                ['title' => 'View Items', 'icon' => 'fas fa-list', 'route' => 'payroll-payslips.items', 'params' => ['id' => '{id}']]
+                                ['title' => 'View Items', 'icon' => 'fas fa-list', 'route' => 'payroll-payslips.show', 'params' => ['id' => '{id}']]
                             ],
                             'controls' => [
                                 'search' => true,
