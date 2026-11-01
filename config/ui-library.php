@@ -60,7 +60,7 @@ return [
             'depends_on' => [],
         ],
         'organization' => [
-            'enabled' => true,
+            'enabled' => false,
             'label' => 'Organization',
             'icon' => 'fa-sitemap',
             'route' => 'organization.dashboard',
