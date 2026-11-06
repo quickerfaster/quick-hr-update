@@ -312,32 +312,16 @@ return [
     '0' => [
       'title' => 'Assign Company',
       'icon' => 'fas fa-building',
-      'event' => 'openDrawer',
-      'params' => [
-        'component' => 'qf.user-company-assignment',
-        'params' => ['user' => '{{ user_id }}'],
-        'title' => 'Assign Company',
-      ],
+      'route' => 'employees.show',
+      'params' => ['id' => '{id}'],
       'style' => 'danger',
       'condition' => ['onboarding_status' => ['company_pending']],
     ],
     '1' => [
       'title' => 'Add Job Info',
       'icon' => 'fas fa-briefcase',
-      'event' => 'openDrawer',
-      'params' => [
-        'component' => 'qf.data-table-form',
-        'params' => [
-          'configKey' => 'hr.employee_position',
-          'recordId' => '{{ employeePosition.id }}',
-          'prefilledData' => [
-            'employee_id' => '{{ id }}',
-            'company_id' => '{{ company_id }}',
-          ],
-          'inline' => true,
-        ],
-        'title' => 'Add Job Details',
-      ],
+      'route' => 'employees.edit',
+      'params' => ['id' => '{id}'],
       'style' => 'warning',
       'condition' => ['onboarding_status' => ['position_pending']],
     ],
