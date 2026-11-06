@@ -19,7 +19,7 @@ return [
             'model'       => 'App\\Modules\\Hr\\Models\\Employee',
             'icon'        => 'fas fa-clipboard-list',
             'description' => 'Employees needing position or company assignment',
-            'limit'       => 100,
+            'limit'       => 500,
             'sort'        => ['created_at', 'asc'],
             'conditions'  => [
                 ['onboarding_status', '!=', 'complete'],
