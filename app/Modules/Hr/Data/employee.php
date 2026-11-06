@@ -319,7 +319,7 @@ return [
         'title' => 'Assign Company',
       ],
       'style' => 'danger',
-      'condition' => ['onboarding_status' => 'company_pending'],
+      'condition' => ['onboarding_status' => ['company_pending']],
     ],
     '1' => [
       'title' => 'Add Job Info',
@@ -339,7 +339,7 @@ return [
         'title' => 'Add Job Details',
       ],
       'style' => 'warning',
-      'condition' => ['onboarding_status' => 'position_pending'],
+      'condition' => ['onboarding_status' => ['position_pending']],
     ],
     '2' => [
       'title' => 'Restore',
@@ -347,7 +347,7 @@ return [
       'action' => 'restore',
       'confirm' => 'Restore this archived employee?',
       'requiredPermission' => 'restore_employee',
-      'condition' => ['trashed' => true],
+      'condition' => ['trashed' => [true]],
     ],
     '3' => [
       'title' => 'Permanently Delete',
@@ -355,7 +355,7 @@ return [
       'action' => 'forceDelete',
       'confirm' => 'This action cannot be undone. Permanently delete this employee record?',
       'requiredPermission' => 'force_delete_employee',
-      'condition' => ['trashed' => true],
+      'condition' => ['trashed' => [true]],
     ],
   ],
   'switchViews' => [
