@@ -88,7 +88,8 @@ return [
                 ['label' => 'Status', 'field' => 'onboarding_status', 'format' => 'badge'],
             ],
             'width' => 6,
-            'show_view_all' => false,
+            'show_view_all' => true,
+            'view_all_link' => '/hr/employees',
             'id_field' => 'user_id',
             'row_actions' => [
                 [
