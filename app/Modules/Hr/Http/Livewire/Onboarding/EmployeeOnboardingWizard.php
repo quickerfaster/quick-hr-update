@@ -234,10 +234,26 @@ class EmployeeOnboardingWizard extends Component
     }
 
     /**
+     * Whether the user has completed enough onboarding to leave the wizard.
+     *
+     * Only Step 1 (Employee Record) is required. Optional steps (profile,
+     * payroll, documents, preferences, policies) can be completed later
+     * via the My Portal dashboard.
+     */
+    public function getCanFinishProperty(): bool
+    {
+        return isset($this->completedSteps['employee_record']);
+    }
+
+    /**
      * Mark all remaining steps as skipped and redirect to dashboard.
      */
     public function finish(): void
     {
+        if (! $this->canFinish) {
+            return;
+        }
+
         $this->redirect(route(config('ui-library.home_route', 'admin.dashboard')));
     }
 

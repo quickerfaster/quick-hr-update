@@ -103,12 +103,23 @@
                         </div>
                     </div>
 
-                    {{-- Finish button (always at bottom of sidebar) --}}
+                    {{-- Finish button (only when Step 1 is complete) --}}
                     <div class="mt-4">
-                        <button type="button" class="btn btn-outline-secondary btn-sm w-100"
-                                wire:click="finish">
-                            <i class="fas fa-home me-1"></i> Go to Dashboard
-                        </button>
+                        @if ($this->canFinish)
+                            <button type="button" class="btn btn-outline-secondary btn-sm w-100"
+                                    wire:click="finish">
+                                <i class="fas fa-home me-1"></i> Go to Dashboard
+                            </button>
+                            @if ($this->progressPercent >= 100)
+                                <p class="text-success small text-center mt-1 mb-0">
+                                    <i class="fas fa-check-circle me-1"></i> All steps complete!
+                                </p>
+                            @endif
+                        @else
+                            <p class="text-muted small text-center mt-0 mb-0">
+                                <i class="fas fa-lock me-1"></i> Complete Employee Record first
+                            </p>
+                        @endif
                     </div>
                 </div>
             </div>
