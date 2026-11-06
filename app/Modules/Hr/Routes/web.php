@@ -108,6 +108,10 @@ Route::middleware(['web', 'auth'])->group(function () {
         return view('hr::hr.onboarding-overview');
     })->name('hr.onboarding-overview');
 
+    Route::get('/hr/incomplete-onboarding', function () {
+        return view('hr::incomplete-onboarding');
+    })->name('hr.incomplete-onboarding');
+
     Route::get('/hr/invitations', function () {
         return view('hr::hr.invitations');
     })->name('hr.invitations');

@@ -89,7 +89,7 @@ return [
             ],
             'width' => 6,
             'show_view_all' => true,
-            'view_all_link' => '/hr/employees',
+            'view_all_link' => '/hr/incomplete-onboarding',
             'id_field' => 'user_id',
             'row_actions' => [
                 [
