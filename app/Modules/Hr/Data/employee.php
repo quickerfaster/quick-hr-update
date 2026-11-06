@@ -310,20 +310,52 @@ return [
   ],
   'moreActions' => [
     '0' => [
+      'title' => 'Assign Company',
+      'icon' => 'fas fa-building',
+      'event' => 'openDrawer',
+      'params' => [
+        'component' => 'qf.user-company-assignment',
+        'params' => ['user' => '{{ user_id }}'],
+        'title' => 'Assign Company',
+      ],
+      'style' => 'danger',
+      'condition' => ['onboarding_status' => 'company_pending'],
+    ],
+    '1' => [
+      'title' => 'Add Job Info',
+      'icon' => 'fas fa-briefcase',
+      'event' => 'openDrawer',
+      'params' => [
+        'component' => 'qf.data-table-form',
+        'params' => [
+          'configKey' => 'hr.employee_position',
+          'recordId' => '{{ employeePosition.id }}',
+          'prefilledData' => [
+            'employee_id' => '{{ id }}',
+            'company_id' => '{{ company_id }}',
+          ],
+          'inline' => true,
+        ],
+        'title' => 'Add Job Details',
+      ],
+      'style' => 'warning',
+      'condition' => ['onboarding_status' => 'position_pending'],
+    ],
+    '2' => [
       'title' => 'Restore',
       'icon' => 'fas fa-trash-restore',
       'action' => 'restore',
       'confirm' => 'Restore this archived employee?',
       'requiredPermission' => 'restore_employee',
-      'condition' => ['trashed' => [true]],
+      'condition' => ['trashed' => true],
     ],
-    '1' => [
+    '3' => [
       'title' => 'Permanently Delete',
       'icon' => 'fas fa-skull-crossbones',
       'action' => 'forceDelete',
       'confirm' => 'This action cannot be undone. Permanently delete this employee record?',
       'requiredPermission' => 'force_delete_employee',
-      'condition' => ['trashed' => [true]],
+      'condition' => ['trashed' => true],
     ],
   ],
   'switchViews' => [
