@@ -5,10 +5,12 @@ deployment:
     #### Staging ####
     # - export REPOPATH=/home/quickerf/laravel_suites_repo/agriwatts-demo
     # - export DEPLOYPATH=/home/quickerf/agriwatts-demo
+    # - export DOCROOT=/home/quickerf/public_html/agriwatts-demo.quickerfaster.com
 
     ### Production ###
     - export REPOPATH=/home/quickerf/laravel_suites_repo/quick_hr
     - export DEPLOYPATH=/home/quickerf/quick_hr
+    - export DOCROOT=/home/quickerf/public_html/agriwatts.quickerfaster.com
 
 
 
@@ -40,6 +42,18 @@ deployment:
                    $DEPLOYPATH/storage/framework/views \
                    $DEPLOYPATH/bootstrap/cache \
                    $DEPLOYPATH/storage/logs' >> $LOGFILE 2>&1
+
+    # Ensure storage/app/public directories exist for file uploads
+    - /bin/echo "Ensuring storage/app/public folders exist..." >> $LOGFILE
+    - /bin/sh -c '/bin/mkdir -p $DEPLOYPATH/storage/app/public/uploads/hr.document \
+                   $DEPLOYPATH/storage/app/public/uploads/hr.employee_profile \
+                   $DEPLOYPATH/storage/app/public/documents' >> $LOGFILE 2>&1
+
+    # Create storage symlink in the document root (not in Laravel's public/).
+    # The app is served from a separate document root, so asset('storage/...')
+    # resolves against DOCROOT, not DEPLOYPATH/public.
+    - /bin/echo "Creating storage symlink in document root..." >> $LOGFILE
+    - /bin/sh -c '[ -L "$DOCROOT/storage" ] || /bin/ln -s $DEPLOYPATH/storage/app/public $DOCROOT/storage' >> $LOGFILE 2>&1
 
     # Install Composer locally if missing
     - /bin/echo "Checking Composer..." >> $LOGFILE
