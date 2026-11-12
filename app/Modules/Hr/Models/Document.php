@@ -99,12 +99,22 @@ class Document extends Model
                 $document->documentable_id = $document->employee_id;
             }
 
-            // Copy file upload path to the NOT NULL database columns
-            // The form field 'document' stores the upload path, but the
-            // library's base migration requires 'file_path' and 'file_name'.
+            // Legacy bridge: the old 'document' field held the upload path.
             if (empty($document->file_path) && !empty($document->document)) {
                 $document->file_path = $document->document;
-                $document->file_name = pathinfo($document->document, PATHINFO_BASENAME);
+            }
+
+            // The base documents migration requires file_path and file_name.
+            // The DataTable file field only populates file_path, so derive the
+            // remaining NOT NULL/metadata columns from the stored path.
+            if (!empty($document->file_path)) {
+                if (empty($document->file_name)) {
+                    $document->file_name = pathinfo($document->file_path, PATHINFO_BASENAME);
+                }
+
+                if (empty($document->mime_type)) {
+                    $document->mime_type = \Illuminate\Support\Facades\Storage::disk('public')->mimeType($document->file_path) ?: null;
+                }
             }
 
             $document->uploaded_at = $document->uploaded_at ?? now();

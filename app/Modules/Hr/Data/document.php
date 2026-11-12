@@ -220,9 +220,8 @@ return [
         '0' => 'employee_id',
         '1' => 'name',
         '2' => 'type',
-        '3' => 'file_path',
-        '4' => 'visibility',
-        '5' => 'description',
+        '3' => 'visibility',
+        '4' => 'description',
       ],
     ],
     'file_information' => [
@@ -255,7 +254,7 @@ return [
     ],
   ],
   'switchViews' => [
-    'default' => 'table',
+    'default' => 'list',
     'table' => [
       'enabled' => true,
     ],
