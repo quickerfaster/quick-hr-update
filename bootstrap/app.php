@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             'qf.resolve-company-context',
+            'qf.track-page-view',
             \App\Http\Middleware\EnsureModuleDashboardAccess::class,
             \App\Modules\Hr\Http\Middleware\RedirectEssUsersFromAdminViews::class,
         ]);
