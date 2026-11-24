@@ -19,6 +19,9 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Modules\Payroll\Contracts\CountryPayrollCalculator;
+use App\Modules\Payroll\Models\EmployeeSalaryComponent;
+use App\Modules\Payroll\Models\EmployeePayrollProfile;
 
 class PayrollCalculator
 {
@@ -555,7 +558,9 @@ protected function resolveWorkPatternId(EmployeePosition $position): ?int
 
 /**
  * Apply policy logic to calculate amount, with optional proration factor.
- * Now supports 'base' key in calculation_logic: 'base_salary' or 'gross_pay'.
+ *
+ * Supported 'base' keys: 'base_salary', 'gross_pay', and 'pensionable'
+ * (the latter resolved by the country-specific calculator).
  */
 protected function applyPolicyLogic(
     PayrollPolicy $policy,
@@ -571,15 +576,34 @@ protected function applyPolicyLogic(
         return ['employee' => 0, 'employer' => 0];
     }
 
+    $countryCalculator = $this->resolveCountryCalculator($position);
+
     // Determine effective base
     $baseKey = $logic['base'] ?? 'base_salary';
-    $effectiveBase = ($baseKey === 'gross_pay') ? $grossPayBase : $baseSalary;
+    if ($baseKey === 'pensionable') {
+        $effectiveBase = $countryCalculator->resolvePensionableBase(
+            $this->resolveSalaryComponents($position),
+            $baseSalary
+        );
+    } elseif ($baseKey === 'gross_pay') {
+        $effectiveBase = $grossPayBase;
+    } else {
+        $effectiveBase = $baseSalary;
+    }
 
     // --- TAX POLICY ---
     if ($policy->type === 'tax') {
         $frequency = $position?->pay_frequency ?? 'Monthly';
         $annualIncome = $this->annualizeAmount($effectiveBase, $frequency);
 
+        if ($countryCalculator->isIncomeTaxExempt($annualIncome)) {
+            return ['employee' => 0, 'employer' => 0];
+        }
+
+        $annualTaxable = $countryCalculator->applyTaxReliefs(
+            $annualIncome,
+            $this->resolveEmployeeReliefs($position)
+        );
 
         $tax = 0;
         $bands = collect($logic['bands'] ?? [])->sortBy('start')->values()->toArray();
@@ -589,19 +613,18 @@ protected function applyPolicyLogic(
             $end = $band['end'] ?? PHP_FLOAT_MAX;
             $rate = (float) ($band['rate'] ?? 0) / 100;
 
-            if ($annualIncome <= $start) {
+            if ($annualTaxable <= $start) {
                 break;
             }
 
-            $upper = min($annualIncome, $end);
+            $upper = min($annualTaxable, $end);
             $taxable = max(0, $upper - $start);
             $tax += $taxable * $rate;
 
-            if ($annualIncome <= $end) {
+            if ($annualTaxable <= $end) {
                 break;
             }
         }
-
 
         $periodTax = $this->deAnnualizeAmount($tax, $frequency);
         $periodTax *= $prorationFactor;
@@ -628,22 +651,59 @@ protected function applyPolicyLogic(
     return ['employee' => $employeeAmount, 'employer' => $employerAmount];
 }
 
-
-
-
-
-
-protected function annualizeSalary(float $salary, string $frequency): float
+/**
+ * Resolve the country-specific payroll strategy for an employee position.
+ */
+protected function resolveCountryCalculator(?EmployeePosition $position): CountryPayrollCalculator
 {
-    return match ($frequency) {
-        'Monthly'      => $salary * 12,
-        'Semi-monthly' => $salary * 24,
-        'Bi-weekly'    => $salary * 26,
-        'Weekly'       => $salary * 52,
-        'Daily'        => $salary * 365, // or 260 if you use business days
-        default        => $salary * 12,  // fallback
-    };
+    $countryCode = $position?->location?->country_code;
+
+    return app(CountryPayrollCalculatorRegistry::class)->resolve($countryCode);
 }
+
+/**
+ * Resolve keyed salary components (e.g. basic/housing/transport) active
+ * during the run period for the given employee.
+ */
+protected function resolveSalaryComponents(?EmployeePosition $position): array
+{
+    if (!$position?->employee_id) {
+        return [];
+    }
+
+    return EmployeeSalaryComponent::withoutCompanyScope()
+        ->where('employee_id', $position->employee_id)
+        ->where('effective_date', '<=', $this->run->period_end)
+        ->where(function ($q) {
+            $q->whereNull('expiry_date')->orWhere('expiry_date', '>=', $this->run->period_start);
+        })
+        ->pluck('amount', 'component_key')
+        ->toArray();
+}
+
+/**
+ * Resolve employee-level tax relief inputs (e.g. annual rent).
+ */
+protected function resolveEmployeeReliefs(?EmployeePosition $position): array
+{
+    if (!$position?->employee_id) {
+        return [];
+    }
+
+    $profile = EmployeePayrollProfile::withoutCompanyScope()
+        ->where('employee_id', $position->employee_id)
+        ->where('is_active', true)
+        ->first();
+
+    return [
+        'annual_rent' => (float) ($profile?->annual_rent ?? 0),
+    ];
+}
+
+
+
+
+
 
     /**
      * Generate a unique, sequential payslip number using the atomic

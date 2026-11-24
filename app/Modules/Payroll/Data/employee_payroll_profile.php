@@ -198,6 +198,14 @@ return [
       'label' => 'Extra Withholding ($ per pay period)',
       'validation' => 'nullable|numeric|min:0',
     ],
+    'annual_rent' => [
+      'display' => 'inline',
+      'fillable' => true,
+      'editable' => true,
+      'field_type' => 'number',
+      'label' => 'Annual Rent (₦, for Nigerian rent relief)',
+      'validation' => 'nullable|numeric|min:0',
+    ],
     'is_exempt_from_federal_tax' => [
       'display' => 'inline',
       'fillable' => true,
@@ -292,6 +300,13 @@ return [
       'field_type' => 'number',
       'label' => 'Updated By',
       'validation' => 'nullable|integer',
+    ],
+    'salary_components' => [
+      'display' => 'inline',
+      'fillable' => false,
+      'editable' => true,
+      'field_type' => 'salary_components',
+      'label' => 'Salary Components',
     ],
   ],
   'detailComponent' => '',
@@ -414,6 +429,15 @@ return [
       'fields' => [
         '0' => 'employee_id',
         '1' => 'pay_schedule_id',
+      ],
+    ],
+    'salary' => [
+      'title' => 'Salary Structure',
+      'groupType' => 'payroll',
+      'icon' => 'fas fa-money-bill-wave',
+      'fields' => [
+        '0' => 'salary_components',
+        '1' => 'annual_rent',
       ],
     ],
     'bank_details' => [

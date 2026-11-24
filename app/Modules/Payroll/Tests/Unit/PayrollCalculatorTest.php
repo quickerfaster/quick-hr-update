@@ -544,12 +544,42 @@ class PayrollCalculatorTest extends BaseTestCase
     // =================================================================
 
     #[Test]
-    public function it_calculates_tax_correctly_using_bands()
+    public function it_annualizes_banded_tax_for_weekly_employees()
     {
-        $this->markTestSkipped(
-            'Skipped because band limits need to be clarified (annual vs monthly). ' .
-            'Flat tax test already validates the tax calculation path.'
-        );
+        // Annual bands: 0–300k @ 0%, 300k–600k @ 10%, 600k+ @ 20%.
+        $policy = PayrollPolicy::create([
+            'name'              => 'Test Annual Tax Bands ' . uniqid(),
+            'type'              => 'tax',
+            'effect'            => 'subtraction',
+            'country_code'      => 'US',
+            'state_code'        => 'CA',
+            'calculation_logic' => json_encode([
+                'calculation_type' => 'tax_bands',
+                'base'             => 'base_salary',
+                'bands'            => [
+                    ['start' => 0,      'end' => 300000, 'rate' => 0],
+                    ['start' => 300000, 'end' => 600000, 'rate' => 10],
+                    ['start' => 600000, 'end' => null,   'rate' => 20],
+                ],
+            ]),
+            'effective_date'    => '2026-01-01',
+            'is_active'         => true,
+        ]);
+
+        // Weekly base = 25,000 → annual = 25,000 × 52 = 1,300,000.
+        // Reuse the setUp position (hire_date 2026-01-01) to avoid proration.
+        $this->position->base_salary   = 25000;
+        $this->position->pay_frequency = 'Weekly';
+        $this->position->save();
+
+        $payslip = $this->calculateForEmployee($this->position);
+        $tax = PayslipItem::where('payslip_id', $payslip->id)
+            ->where('policy_id', $policy->id)
+            ->value('amount');
+
+        // Annual tax = (300k × 10%) + (700k × 20%) = 30,000 + 140,000 = 170,000.
+        // Weekly tax = 170,000 / 52 = 3,269.23.
+        $this->assertEqualsWithDelta(3269.23, (float) $tax, 0.01);
     }
 
     // =================================================================
@@ -1038,6 +1068,26 @@ class PayrollCalculatorTest extends BaseTestCase
         $this->assertEquals(26, $periods['Bi-weekly']);
         $this->assertEquals(52, $periods['Weekly']);
         $this->assertEquals(260, $periods['Daily']);
+        $this->assertEquals(4, $periods['Quarterly']);
+        $this->assertEquals(1, $periods['Yearly']);
+    }
+
+    #[Test]
+    public function it_normalizes_pay_frequency_values()
+    {
+        $reflection = new \ReflectionClass($this->calculator);
+        $method = $reflection->getMethod('getPeriodsPerYear');
+        $method->setAccessible(true);
+
+        $this->assertEquals(52, $method->invoke($this->calculator, 'weekly'));
+        $this->assertEquals(52, $method->invoke($this->calculator, 'Weekly'));
+        $this->assertEquals(26, $method->invoke($this->calculator, 'biweekly'));
+        $this->assertEquals(26, $method->invoke($this->calculator, 'Bi-weekly'));
+        $this->assertEquals(24, $method->invoke($this->calculator, 'semi_monthly'));
+        $this->assertEquals(24, $method->invoke($this->calculator, 'Semi-monthly'));
+        $this->assertEquals(12, $method->invoke($this->calculator, 'monthly'));
+        $this->assertEquals(4, $method->invoke($this->calculator, 'quarterly'));
+        $this->assertEquals(1, $method->invoke($this->calculator, 'yearly'));
     }
 
     #[Test]

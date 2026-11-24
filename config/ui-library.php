@@ -100,7 +100,7 @@ return [
             'depends_on' => [],
         ],
         'payroll' => [
-            'enabled' => false,     // Phase 4
+            'enabled' => true,     // Phase 4
             'label' => 'Payroll',
             'icon' => 'fa-money-bill-wave',
             'route' => 'payroll.dashboard',

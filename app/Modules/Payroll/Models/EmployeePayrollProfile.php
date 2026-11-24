@@ -32,7 +32,7 @@ class EmployeePayrollProfile extends Model
 
 
     protected $fillable = [
-        'company_id', 'employee_id', 'pay_schedule_id', 'bank_name', 'account_type', 'bank_sort_code', 'bank_code', 'bank_account_name', 'bank_account_number', 'bank_routing_number', 'bank_iban', 'bank_swift', 'payment_method', 'tax_filing_status', 'allowances', 'extra_withholding', 'is_exempt_from_federal_tax', 'override_country_code', 'override_state_code', 'currency_code', 'effective_date', 'expiry_date', 'is_active'
+        'company_id', 'employee_id', 'pay_schedule_id', 'bank_name', 'account_type', 'bank_sort_code', 'bank_code', 'bank_account_name', 'bank_account_number', 'bank_routing_number', 'bank_iban', 'bank_swift', 'payment_method', 'tax_filing_status', 'allowances', 'extra_withholding', 'annual_rent', 'is_exempt_from_federal_tax', 'override_country_code', 'override_state_code', 'currency_code', 'effective_date', 'expiry_date', 'is_active'
     ];
 
     protected $guarded = [
@@ -49,6 +49,7 @@ class EmployeePayrollProfile extends Model
         'bank_swift' => 'encrypted',
         'allowances' => 'integer',
         'extra_withholding' => 'decimal:2',
+        'annual_rent' => 'decimal:2',
         'is_exempt_from_federal_tax' => 'boolean',
         'effective_date' => 'date',
         'expiry_date' => 'date',

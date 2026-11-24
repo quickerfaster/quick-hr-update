@@ -8,60 +8,68 @@ use App\Modules\Payroll\Models\PayrollPolicy;
 /**
  * Seeds the default Nigerian PAYE (Pay As You Earn) progressive tax policy.
  *
- * Uses the current Nigerian Finance Act tax bands (annual income):
- *   - First ₦300,000  →  0%
- *   - Next  ₦300,000  →  7%
- *   - Next  ₦500,000  → 11%
- *   - Next  ₦500,000  → 15%
- *   - Next  ₦1,600,000 → 19%
- *   - Above ₦3,200,000 → 21%
+ * Uses the Nigeria Tax Act 2025 bands effective 1 January 2026 (annual
+ * taxable income — after pension, NHF and other reliefs):
+ *   - First ₦800,000                 →  0%
+ *   - Next ₦2,200,000 (≤ ₦3,000,000)  → 15%
+ *   - Next ₦9,000,000 (≤ ₦12,000,000) → 18%
+ *   - Next ₦13,000,000 (≤ ₦25,000,000) → 21%
+ *   - Next ₦25,000,000 (≤ ₦50,000,000) → 23%
+ *   - Above ₦50,000,000               → 25%
  *
- * The policy is global (no company scope) with country_code = 'NG'
- * so it automatically applies to all Nigerian companies that don't
- * have a company-specific tax policy override.
+ * The 2026 rules remove the old Consolidated Relief Allowance (CRA); the
+ * ₦800,000 0% band takes its place. Rent relief (20% of annual rent, capped
+ * at ₦500,000) still applies but is not yet implemented in this seeder.
+ * Employees earning ≤ ₦70,000/month (national minimum wage) are exempt.
+ *
+ * The policy is global (no company scope) with country_code = 'NG' so it
+ * automatically applies to all Nigerian companies without a company-specific
+ * override. Existing rows are updated in place so re-seeding applies new bands.
  */
 class NigerianPayeTaxPolicySeeder extends Seeder
 {
     public function run(): void
     {
-        $exists = PayrollPolicy::withoutCompanyScope()
-            ->where('type', 'tax')
-            ->where('country_code', 'NG')
-            ->where('name', 'Nigerian PAYE (Income Tax)')
-            ->exists();
-
-        if ($exists) {
-            $this->command?->info('Nigerian PAYE tax policy already exists. Skipping.');
-            return;
-        }
-
-        PayrollPolicy::create([
+        $attributes = [
             'name'              => 'Nigerian PAYE (Income Tax)',
             'type'              => 'tax',
             'effect'            => 'subtraction',
-            'description'       => 'Default Nigerian PAYE progressive income tax. Applies to all Nigerian employees unless overridden by a company-specific tax policy.',
+            'description'       => 'Default Nigerian PAYE progressive income tax under the Nigeria Tax Act 2025 (effective 1 January 2026). ₦800,000 annual 0% band, then 15%–25%.',
             'country_code'      => 'NG',
             'state_code'        => null,
             'calculation_logic' => json_encode([
                 'calculation_type' => 'tax_bands',
                 'base'             => 'gross_pay',
                 'bands'            => [
-                    ['start' => 0,         'end' => 300000,   'rate' => 0],
-                    ['start' => 300000,    'end' => 600000,   'rate' => 7],
-                    ['start' => 600000,    'end' => 1100000,  'rate' => 11],
-                    ['start' => 1100000,   'end' => 1600000,  'rate' => 15],
-                    ['start' => 1600000,   'end' => 3200000,  'rate' => 19],
-                    ['start' => 3200000,   'end' => 999999999, 'rate' => 21],
+                    ['start' => 0,        'end' => 800000,    'rate' => 0],
+                    ['start' => 800000,   'end' => 3000000,   'rate' => 15],
+                    ['start' => 3000000,  'end' => 12000000,  'rate' => 18],
+                    ['start' => 12000000, 'end' => 25000000,  'rate' => 21],
+                    ['start' => 25000000, 'end' => 50000000,  'rate' => 23],
+                    ['start' => 50000000, 'end' => 999999999, 'rate' => 25],
                 ],
             ]),
             'is_statutory'      => true,
             'tax_year'          => (int) date('Y'),
-            'effective_date'    => '2020-01-01',
+            'effective_date'    => '2026-01-01',
             'expiry_date'       => null,
             'is_active'         => true,
             'parent_policy_id'  => null,
-        ]);
+        ];
 
-        $this->command?->info('Nigerian PAYE tax policy created successfully.');
+        $policy = PayrollPolicy::withoutCompanyScope()
+            ->where('type', 'tax')
+            ->where('country_code', 'NG')
+            ->where('name', 'Nigerian PAYE (Income Tax)')
+            ->first();
+
+        if ($policy) {
+            $policy->update($attributes);
+            $this->command?->info('Nigerian PAYE tax policy updated to 2026 NTA bands.');
+            return;
+        }
+
+        PayrollPolicy::create($attributes);
+        $this->command?->info('Nigerian PAYE tax policy created with 2026 NTA bands.');
     }
 }

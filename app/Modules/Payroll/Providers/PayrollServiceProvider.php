@@ -9,6 +9,9 @@ use QuickerFaster\UILibrary\Events\Workflows\WorkflowApproved;
 use QuickerFaster\UILibrary\Events\Workflows\WorkflowRejected;
 use QuickerFaster\UILibrary\Events\Workflows\WorkflowRecalled;
 use Illuminate\Support\Facades\Event;
+use QuickerFaster\UILibrary\Factories\FieldTypes\FieldFactory;
+use App\Modules\Payroll\Components\FieldTypes\SalaryComponentsField;
+use App\Modules\Payroll\Http\Livewire\Payroll\SalaryComponentsEditor;
 
 class PayrollServiceProvider extends ServiceProvider
 {
@@ -20,6 +23,10 @@ class PayrollServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__ . '/../Config/quick_hr_payroll.php',
             'quick_hr_payroll'
+        );
+
+        $this->app->singleton(
+            \App\Modules\Payroll\Services\Payroll\CountryPayrollCalculatorRegistry::class
         );
     }
 
@@ -49,6 +56,8 @@ class PayrollServiceProvider extends ServiceProvider
         Livewire::component('qf.payroll-wizard-preview', \App\Modules\Payroll\Http\Livewire\Payroll\PayrollWizardPreview::class);
         Livewire::component('qf.payslip-items', \App\Modules\Payroll\Http\Livewire\Payroll\PayslipItems::class);
         Livewire::component('qf.policy-calculation-builder', \App\Modules\Payroll\Http\Livewire\Payroll\PolicyCalculationBuilder::class);
+        Livewire::component('payroll.salary-components-editor', SalaryComponentsEditor::class);
+        FieldFactory::registerType('salary_components', SalaryComponentsField::class);
         Livewire::component('payroll.executive-summary', \App\Modules\Payroll\Http\Livewire\Payroll\PayrollExecutiveSummary::class);
         Livewire::component('qf.payslip-detail', \App\Modules\Payroll\Http\Livewire\Payroll\PayslipDetail::class);
 
