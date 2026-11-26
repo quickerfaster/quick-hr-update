@@ -187,3 +187,68 @@ Before saving a tax policy, confirm:
 - [ ] Any tax policy's `Effective Date` is on or before the `Period Start` (to avoid unexpected proration).
 
 If you follow these rules, the engine will deliver mathematically flawless tax deductions for every employee, every time.
+
+---
+
+## 8. Nigerian PAYE — 2026 Tax Bands & Reliefs
+
+> **Effective**: 1 January 2026 (Nigeria Tax Act 2025)
+> **Related**: [`NigerianPayeTaxPolicySeeder`](app/Modules/Payroll/Database/Seeders/NigerianPayeTaxPolicySeeder.php), [`NigeriaPayrollCalculator`](app/Modules/Payroll/Services/Payroll/Countries/NigeriaPayrollCalculator.php)
+
+### 8.1 2026 PAYE Bands
+
+The Nigeria Tax Act 2025 replaced the old Consolidated Relief Allowance (CRA) with a simpler ₦800,000 0% band:
+
+| Band | Annual Taxable Income | Rate | Max Tax in Band |
+|------|----------------------|------|-----------------|
+| 1 | First ₦800,000 | 0% | ₦0 |
+| 2 | Next ₦2,200,000 (≤ ₦3,000,000) | 15% | ₦330,000 |
+| 3 | Next ₦9,000,000 (≤ ₦12,000,000) | 18% | ₦1,620,000 |
+| 4 | Next ₦13,000,000 (≤ ₦25,000,000) | 21% | ₦2,730,000 |
+| 5 | Next ₦25,000,000 (≤ ₦50,000,000) | 23% | ₦5,750,000 |
+| 6 | Above ₦50,000,000 | 25% | — |
+
+### 8.2 Tax Reliefs (Applied Before Bands)
+
+For Nigerian employees, the following are deducted from annual gross income **before** applying the tax bands:
+
+1. **Minimum-wage exemption**: Employees earning ≤ ₦70,000/month (₦840,000/year) pay **zero** PAYE.
+2. **Employee pension contribution**: 8% of BHT (Basic + Housing + Transport) is tax-exempt under the Pension Reform Act 2014.
+3. **Employee NHF contribution**: 2.5% of basic salary is tax-exempt under the National Housing Fund Act.
+4. **Rent relief**: 20% of annual rent paid, capped at ₦500,000/year.
+
+### 8.3 Worked Example — Monthly, ₦300,000 Gross, Full BHT
+
+**Employee profile**:
+- Monthly base salary: ₦300,000
+- BHT components: Basic ₦500,000 | Housing ₦200,000 | Transport ₦100,000
+- Pensionable base (BHT): ₦800,000
+- No annual rent
+
+| Step | Calculation | Amount |
+|------|------------|--------|
+| Monthly gross | | ₦300,000 |
+| Annual gross | ₦300,000 × 12 | ₦3,600,000 |
+| Less: Annual pension (8% × ₦800k × 12) | | −₦768,000 |
+| Less: Annual NHF (2.5% × ₦300k × 12) | | −₦90,000 |
+| **Annual taxable** | | **₦2,742,000** |
+| Band 1 (0–800k @ 0%) | ₦800,000 × 0% | ₦0 |
+| Band 2 (800k–2.742M @ 15%) | ₦1,942,000 × 15% | ₦291,300 |
+| **Annual PAYE** | | **₦291,300** |
+| **Monthly PAYE** | ₦291,300 ÷ 12 | **₦24,275** |
+
+> **Without pension/NHF relief**: Monthly PAYE would be ₦36,500. The employee saves **₦12,225/month** through tax-exempt contributions.
+
+### 8.4 Country-Specific Calculation
+
+The payroll engine uses a **strategy pattern** to handle jurisdiction-specific rules. For Nigeria, the [`NigeriaPayrollCalculator`](app/Modules/Payroll/Services/Payroll/Countries/NigeriaPayrollCalculator.php) handles:
+
+| Method | What It Does |
+|--------|-------------|
+| `resolvePensionableBase()` | Sums Basic + Housing + Transport; falls back to `base_salary` |
+| `isIncomeTaxExempt()` | Returns `true` if annual gross ≤ ₦840,000 |
+| `applyTaxReliefs()` | Applies rent relief, pension relief, and NHF relief |
+
+Non-Nigerian companies use the [`DefaultCountryPayrollCalculator`](app/Modules/Payroll/Services/Payroll/Countries/DefaultCountryPayrollCalculator.php) which applies no exemptions or reliefs.
+
+> **See also**: [§13 — Nigerian Statutory Compliance](../user/payroll/README.md#13-nigerian-statutory-compliance) in the Payroll User Guide for the complete reference.

@@ -1,16 +1,23 @@
 deployment:
   tasks:
-    # Paths
-    - export COMPOSER_BIN=/home/quickerf/composer.phar
-    #### Staging ####
-    # - export REPOPATH=/home/quickerf/laravel_suites_repo/agriwatts-demo
-    # - export DEPLOYPATH=/home/quickerf/agriwatts-demo
-    # - export DOCROOT=/home/quickerf/public_html/agriwatts-demo.quickerfaster.com
+    # ── Environment ──────────────────────────────────────────────
+    # Set to "staging" or "production" — all paths resolve from this.
+    - export DEPLOY_ENV=staging
+    # ──────────────────────────────────────────────────────────────
 
-    ### Production ###
-    - export REPOPATH=/home/quickerf/laravel_suites_repo/quick_hr
-    - export DEPLOYPATH=/home/quickerf/quick_hr
-    - export DOCROOT=/home/quickerf/public_html/agriwatts.quickerfaster.com
+    - export COMPOSER_BIN=/home/quickerf/composer.phar
+
+    # Resolve paths based on DEPLOY_ENV
+    - |
+      if [ "$DEPLOY_ENV" = "staging" ]; then
+        export REPOPATH=/home/quickerf/laravel_suites_repo/agriwatts-demo
+        export DEPLOYPATH=/home/quickerf/agriwatts-demo
+        export DOCROOT=/home/quickerf/public_html/agriwatts-demo.quickerfaster.com
+      else
+        export REPOPATH=/home/quickerf/laravel_suites_repo/quick_hr
+        export DEPLOYPATH=/home/quickerf/quick_hr
+        export DOCROOT=/home/quickerf/public_html/agriwatts.quickerfaster.com
+      fi
 
 
 

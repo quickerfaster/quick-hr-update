@@ -19,6 +19,7 @@ This guide covers three audiences:
 1. [Roles & Permissions](#1-roles--permissions)
 2. [Key Concepts](#2-key-concepts)
 3. [Setting Up Payroll](#3-setting-up-payroll)
+    - [3.2a Salary Components (BHT Breakdown)](#32a-salary-components-bht-breakdown-)
 4. [Running Payroll — The Payroll Wizard](#4-running-payroll--the-payroll-wizard)
 5. [Payroll Approval Workflow](#5-payroll-approval-workflow)
 6. [Payslips & Reports](#6-payslips--reports)
@@ -27,7 +28,7 @@ This guide covers three audiences:
     - [8.1 Salaried Full](#81-salaried-full)
     - [8.2 Salaried Daily](#82-salaried-daily)
     - [8.3 Hourly](#83-hourly)
-    - [8.4 Tax Calculation](#84-tax-calculation)
+    - [8.4 Tax Calculation (PAYE)](#84-tax-calculation-paye)
     - [8.5 Attendance Integration](#85-attendance-integration)
     - [8.6 Hire & Termination Proration](#86-hire--termination-proration)
     - [8.7 Processing Architecture](#87-processing-architecture)
@@ -36,6 +37,20 @@ This guide covers three audiences:
 10. [Employee Self-Service](#10-employee-self-service)
 11. [Troubleshooting & Error Recovery](#11-troubleshooting--error-recovery)
 12. [Glossary](#12-glossary)
+13. [Nigerian Statutory Compliance](#13-nigerian-statutory-compliance)
+    - [13.1 Overview](#131-overview)
+    - [13.2 PAYE Income Tax (2026 Bands)](#132-paye-income-tax-2026-bands)
+    - [13.3 Pension (Contributory Pension Scheme)](#133-pension-contributory-pension-scheme)
+    - [13.4 National Housing Fund (NHF)](#134-national-housing-fund-nhf)
+    - [13.5 NSITF (Employees' Compensation)](#135-nsitf-employees-compensation)
+    - [13.6 ITF (Industrial Training Fund)](#136-itf-industrial-training-fund)
+    - [13.7 NHIS (National Health Insurance)](#137-nhis-national-health-insurance)
+    - [13.8 Group Life Assurance](#138-group-life-assurance)
+    - [13.9 Lagos State Development Levy](#139-lagos-state-development-levy)
+    - [13.10 Remittance Deadlines & Penalties](#1310-remittance-deadlines--penalties)
+    - [13.11 Year-to-Date (YTD) Tracking](#1311-year-to-date-ytd-tracking)
+    - [13.12 Statutory Identifiers on Payslips](#1312-statutory-identifiers-on-payslips)
+    - [13.13 Country-Specific Calculation Engine](#1313-country-specific-calculation-engine)
 
 ---
 
@@ -123,12 +138,75 @@ Each employee who will be paid through payroll needs a payroll profile linked to
 2. Click **New Employee Profile**.
 3. Select the **employee**, assign a **pay schedule**, and set the profile to **active**.
 
+**Key fields on the payroll profile**:
+
+| Field | Purpose | Required for Nigeria? |
+|-------|---------|:---:|
+| **Pay Schedule** | Links employee to a pay frequency and period | ✅ |
+| **Bank Details** | Account name, number, bank code, sort code | ✅ (for payment) |
+| **Payment Method** | `bank_transfer` (default), `cash`, `cheque` | ✅ |
+| **Annual Rent** 🇳🇬 | Employee's total annual rent paid — used for PAYE rent relief (20% of rent, capped at ₦500,000). Leave at 0 if not claiming. | Optional |
+| **Tax Identification Number (TIN)** 🇳🇬 | FIRS-issued Tax Identification Number | Recommended |
+| **Pension RSA Number** 🇳🇬 | Retirement Savings Account PIN with the employee's PFA | Recommended |
+| **NHF Number** 🇳🇬 | National Housing Fund registration number (FMBN) | If enrolled |
+| **NHIS Number** 🇳🇬 | NHIS/HMO enrollee number | If enrolled |
+| **Tax Filing Status** | e.g., `single`, `married`, `head_of_household` | Optional |
+| **Extra Withholding** | Additional flat tax withholding per period | Optional |
+| **Is Active** | Must be checked for employee to appear in payroll runs | ✅ |
+
+> 🇳🇬 **Statutory identifiers** (TIN, RSA PIN, NHF Number, NHIS Number) are snapshotted onto each payslip at calculation time. This ensures historical payslips retain the correct values even if the profile is later updated. See [§13.12](#1312-statutory-identifiers-on-payslips).
+
 > **Important**: An employee must meet ALL three conditions to appear in a payroll run:
 > 1. An **active Employee Payroll Profile** linked to the correct pay schedule
 > 2. An **active employment status** (`Active`) on their position record
 > 3. The profile's **pay schedule** must match the payroll run's pay schedule
 >
 > If any of these is missing, the employee will be silently excluded from the run.
+
+#### 3.2a Salary Components (BHT Breakdown) 🇳🇬
+
+For Nigerian employees, the pensionable base is calculated from three salary components collectively called **BHT** — **Basic**, **Housing**, and **Transport**. These are configured per employee via the **Salary Components** editor on the employee payroll profile.
+
+**Why this matters**: Under the Pension Reform Act 2014, employee (8%) and employer (10%) pension contributions are calculated on the BHT total, not just the base salary. If no components are configured, the system falls back to `base_salary`.
+
+**Available component types** (Nigeria):
+
+| Component Key | Label | Part of BHT? |
+|--------------|-------|:---:|
+| `basic` | Basic Salary | ✅ |
+| `housing` | Housing Allowance | ✅ |
+| `transport` | Transport Allowance | ✅ |
+| `other_allowance` | Other Allowance | ❌ |
+
+**How to configure**:
+
+1. Navigate to **Payroll → Configuration → Employee Profiles** (`/payroll/employee-payroll-profiles`).
+2. Edit an employee's profile.
+3. Locate the **Salary Components** section (embedded [`SalaryComponentsEditor`](app/Modules/Payroll/Http/Livewire/Payroll/SalaryComponentsEditor.php) Livewire component).
+4. Add rows for Basic, Housing, Transport, and any other allowances.
+5. Enter the **monthly amount** for each component.
+6. Click **Save**.
+
+The editor shows live totals:
+- **Total Gross**: Sum of all component amounts
+- **Pensionable BHT**: Sum of Basic + Housing + Transport only
+
+**Example**:
+
+| Component | Monthly Amount |
+|-----------|---------------|
+| Basic Salary | ₦500,000 |
+| Housing Allowance | ₦200,000 |
+| Transport Allowance | ₦100,000 |
+| Other Allowance | ₦50,000 |
+| **Total Gross** | **₦850,000** |
+| **Pensionable BHT** | **₦800,000** |
+
+> **Pension calculation**: 8% × ₦800,000 = ₦64,000 (employee) and 10% × ₦800,000 = ₦80,000 (employer). The Other Allowance (₦50,000) is included in gross pay but excluded from the pensionable base.
+
+> **Fallback**: If no salary components are configured, the system uses `base_salary` from the employee's position as the pensionable base. This ensures pension is always calculated even before components are set up.
+
+> **Country-agnostic**: The component keys (`basic`, `housing`, `transport`) are generic. The grouping into "pensionable" is defined per country in [`config/quick_hr_payroll.php → component_groups`](app/Modules/Payroll/Config/quick_hr_payroll.php:87). For Nigeria, the pensionable group is `['basic', 'housing', 'transport']`.
 
 ### 3.3 Employee Positions (Pay Data)
 
@@ -148,6 +226,19 @@ The employee's **position** record (managed in the HR module at `/hr/employee-po
 ### 3.4 Payroll Policies
 
 Policies are recurring rules that apply every pay period. See [§7 — Policies & Adjustments](#7-policies--adjustments) for the complete guide.
+
+> **🇳🇬 Nigerian companies**: The system ships with pre-configured statutory policies for Nigeria (PAYE tax, Pension, NHF, NSITF, ITF, NHIS, Group Life). These are seeded automatically and apply to all Nigerian companies. See [§13 — Nigerian Statutory Compliance](#13-nigerian-statutory-compliance) for the complete reference.
+
+### 3.5 Country-Specific Calculation
+
+The payroll engine uses a **country strategy pattern** to handle jurisdiction-specific rules:
+
+| Country | Calculator | Key Differences |
+|---------|-----------|----------------|
+| **Nigeria (NG)** | [`NigeriaPayrollCalculator`](app/Modules/Payroll/Services/Payroll/Countries/NigeriaPayrollCalculator.php) | BHT pensionable base, minimum-wage exemption (₦70k/month), rent relief, pension/NHF tax relief |
+| **Default** | [`DefaultCountryPayrollCalculator`](app/Modules/Payroll/Services/Payroll/Countries/DefaultCountryPayrollCalculator.php) | Base salary only, no exemptions, no reliefs |
+
+The country is resolved from the employee's **location → country_code**. See [§13.13](#1313-country-specific-calculation-engine) for details.
 
 ---
 
@@ -253,20 +344,34 @@ Each payslip shows:
 | **Base Salary** | The period base salary. For `salaried_daily`, this is the full monthly/weekly rate (NOT prorated). For `salaried_full` with mid-period hire, this shows the prorated amount. |
 | **Worked Days** | For `salaried_daily` only: approved attendance days counted (e.g., "2 / 27"). Shows how many days the employee attended out of the total workdays in the period. |
 | **Gross Pay** | Total earnings (base + adjustments) |
-| **Income Tax** | Federal/national income tax |
+| **Gross Pay YTD** | 🇳🇬 Cumulative gross pay for the tax year (Jan 1 – Dec 31) |
+| **Income Tax (PAYE)** | Federal/national income tax |
+| **Income Tax YTD** | 🇳🇬 Cumulative PAYE for the tax year |
 | **Social Security Tax** | Social security / national insurance contribution |
 | **Medicare Tax** | Medicare / national health insurance |
 | **Pension (Employee)** | Employee pension contribution |
+| **Pension (Employee) YTD** | 🇳🇬 Cumulative employee pension for the tax year |
 | **Pension (Employer)** | Employer pension contribution |
+| **Pension (Employer) YTD** | 🇳🇬 Cumulative employer pension for the tax year |
+| **NHF YTD** | 🇳🇬 Cumulative National Housing Fund contribution for the tax year |
 | **Health Insurance (Employee)** | Employee health insurance premium |
+| **NHIS (Employee) YTD** | 🇳🇬 Cumulative employee NHIS for the tax year |
 | **Health Insurance (Employer)** | Employer health insurance premium |
+| **NHIS (Employer) YTD** | 🇳🇬 Cumulative employer NHIS for the tax year |
 | **Other Earnings** | Benefits, bonuses, commissions |
 | **Other Deductions** | Loan repayments, union dues, etc. |
 | **Employer Contributions** | Total employer share of all policies |
 | **Total Deductions** | Sum of all deductions |
 | **Total Taxes** | Sum of all taxes |
 | **Net Pay** | Take-home pay (gross − deductions − taxes) |
+| **Net Pay YTD** | 🇳🇬 Cumulative net pay for the tax year |
 | **Currency** | The pay currency |
+| **TIN** | 🇳🇬 Tax Identification Number (snapshot from employee profile) |
+| **RSA PIN** | 🇳🇬 Retirement Savings Account number with PFA (snapshot) |
+| **NHF Number** | 🇳🇬 National Housing Fund registration number (snapshot) |
+| **NHIS Number** | 🇳🇬 National Health Insurance Scheme enrollee number (snapshot) |
+
+> 🇳🇬 **Nigerian payslips**: Year-to-date (YTD) totals and statutory identifiers are automatically included for Nigerian employees. YTD values are computed by summing all previous payslips in the current tax year (January 1 – December 31). Statutory identifiers are snapshotted from the employee's payroll profile at the time of calculation. See [§13 — Nigerian Statutory Compliance](#13-nigerian-statutory-compliance).
 
 ### 6.2 Downloading & Printing Payslips
 
@@ -306,6 +411,49 @@ Generate a bank-ready payment file for the approved run at `/payroll/payroll-run
 | **Deduction** | Other recurring deductions | Loan Repayment, Union Dues |
 
 > **Tax Year**: Set the `tax_year` field on tax policies to apply the correct annual tax bands for each fiscal year. This ensures payroll always uses the right tax rates even when rates change between years.
+
+### 7.1a Nigerian Statutory Policies (Pre-Seeded)
+
+Nigerian companies automatically receive these statutory policies. They are **global** (`country_code = 'NG'`) and apply to all Nigerian employees unless overridden by a company-specific policy.
+
+| Policy | Type | Employee | Employer | Base | Notes |
+|--------|------|----------|----------|------|-------|
+| **Nigerian PAYE (Income Tax)** | tax | banded | — | gross_pay | 2026 NTA bands: 0%–25%. ₦800k 0% band replaces old CRA. |
+| **Pension (CPS)** | pension | 8% | 10% | pensionable (BHT) | Basic + Housing + Transport. Falls back to base_salary if no components. |
+| **National Housing Fund (NHF)** | deduction | 2.5% | 0% | base_salary | Optional for private sector. `is_statutory = false`. |
+| **NSITF (Employees' Compensation)** | deduction | 0% | 1% | gross_pay | Employer-only. Annual contribution. |
+| **ITF (Industrial Training Fund)** | deduction | 0% | 1% | gross_pay | Employer-only. **Eligibility**: ≥5 employees OR ≥₦50m turnover. |
+| **NHIS (National Health Insurance)** | insurance | 5% | 10% | base_salary | Under NHIA Act 2022. |
+| **Group Life Assurance** | insurance | 0% | configurable (default 1.5%) | gross_pay | Employer-funded. Rate from `PAYROLL_GROUP_LIFE_EMPLOYER_RATE`. |
+
+> **🇳🇬 ITF Eligibility**: The ITF policy is automatically skipped for companies with fewer than 5 employees AND less than ₦50 million annual revenue. See [§13.6](#136-itf-industrial-training-fund).
+
+### 7.1b Lagos State Development Levy
+
+A state-specific levy for employees whose **location** has `state_code = 'NG-LA'`:
+
+| Monthly Gross | Annual Levy | Per Period (Monthly) |
+|---|---|---|
+| ≤ ₦50,000 | ₦100 | ₦8.33 |
+| > ₦50,000 | ₦200 | ₦16.67 |
+
+The levy is seeded via [`LagosStateDevelopmentLevySeeder`](app/Modules/Payroll/Database/Seeders/LagosStateDevelopmentLevySeeder.php) and applies automatically to Lagos-based employees. It is collected by the employer and remitted to the Lagos State Internal Revenue Service (LIRS).
+
+### 7.1c Remittance Deadlines & Penalties
+
+Each statutory policy carries remittance compliance metadata:
+
+| Policy | Remittance Due | Late Penalty |
+|--------|---------------|--------------|
+| **PAYE** | 10th of following month | 10% penalty + CBN MPR interest |
+| **Pension** | Within 7 working days of salary | 2% monthly interest (PRA 2014 §11(6)) |
+| **NHF** | Within 30 days | Regulatory sanctions under NHF Act |
+| **NSITF** | Annual (1st January) | Penalties under ECA 2010 |
+| **ITF** | Annual | 5% penalty under ITF Act |
+| **NHIS** | Within 30 days | Regulatory sanctions under NHIA Act 2022 |
+| **Group Life** | Per insurer agreement | Policy lapse risk |
+
+These fields (`remittance_due_days`, `late_penalty_rate`, `late_penalty_description`) are stored on each policy record and can be viewed in the policy detail screen. They are informational — the system does not currently auto-calculate penalties.
 
 ### 7.2 Calculation Methods
 
@@ -426,20 +574,59 @@ Overtime multipliers come from the employee's attendance policy (or fall back to
 
 **Leave & holiday hours**: Paid leave days credit standard shift hours as `regular_hours`. Unpaid leave days credit 0 hours. Paid holidays credit `minimum_hours_for_pay` (default 8h) as `regular_hours`. Unpaid holidays credit 0 hours. Half-day leave/holidays credit half the standard hours.
 
-### 8.4 Tax Calculation (Progressive)
+### 8.4 Tax Calculation (PAYE — Progressive)
+
+Tax is calculated on **annualised** gross pay using progressive bands, then de-annualised back to the pay period.
 
 ```
 Period Gross = the base amount (base_salary or gross_pay, per policy)
 Periods Per Year = based on pay_frequency (12, 24, 26, 52, or 260)
 Annualised Gross = Period Gross × Periods Per Year
 
+🇳🇬 Nigeria-specific steps (applied before bands):
+1. Minimum-wage check: if annual gross ≤ ₦840,000 (₦70,000 × 12) → tax = 0
+2. Tax reliefs applied to annual gross:
+   a. Employee pension (8% of BHT) — tax-exempt under PRA 2014
+   b. Employee NHF (2.5% of basic) — tax-exempt under NHF Act
+   c. Rent relief (20% of annual rent, capped at ₦500,000)
+   → Annual Taxable = Annual Gross − Pension − NHF − Rent Relief
+
 Tax = sum over bands:
-    if Annualised Gross > band_start:
-        taxable = min(Annualised Gross, band_end) − band_start
+    if Annual Taxable > band_start:
+        taxable = min(Annual Taxable, band_end) − band_start
         tax += taxable × band_rate
 
 Period Tax = Annual Tax ÷ Periods Per Year
 ```
+
+**🇳🇬 Nigeria 2026 PAYE Bands** (Nigeria Tax Act 2025, effective 1 January 2026):
+
+| Band | Annual Income Range | Rate | Max Tax in Band |
+|------|-------------------|------|-----------------|
+| 1 | First ₦800,000 | 0% | ₦0 |
+| 2 | Next ₦2,200,000 (≤ ₦3,000,000) | 15% | ₦330,000 |
+| 3 | Next ₦9,000,000 (≤ ₦12,000,000) | 18% | ₦1,620,000 |
+| 4 | Next ₦13,000,000 (≤ ₦25,000,000) | 21% | ₦2,730,000 |
+| 5 | Next ₦25,000,000 (≤ ₦50,000,000) | 23% | ₦5,750,000 |
+| 6 | Above ₦50,000,000 | 25% | — |
+
+> **Note**: The 2026 NTA removed the old Consolidated Relief Allowance (CRA). The ₦800,000 0% band replaces it. Rent relief (20% of annual rent, capped at ₦500,000) still applies.
+
+**Worked Example — Monthly, ₦300,000 gross, full BHT, no rent**:
+
+| Step | Calculation | Amount |
+|------|------------|--------|
+| Monthly gross | | ₦300,000 |
+| Annual gross | ₦300,000 × 12 | ₦3,600,000 |
+| Less: Employee pension | 8% × ₦800,000 BHT × 12 | −₦768,000 |
+| Less: Employee NHF | 2.5% × ₦300,000 × 12 | −₦90,000 |
+| Annual taxable | | ₦2,742,000 |
+| Band 1 (0–800k @ 0%) | ₦800,000 × 0% | ₦0 |
+| Band 2 (800k–2.742M @ 15%) | ₦1,942,000 × 15% | ₦291,300 |
+| Annual tax | | ₦291,300 |
+| **Monthly PAYE** | ₦291,300 ÷ 12 | **₦24,275** |
+
+> Without pension/NHF relief, the monthly PAYE would be ₦36,500 — a difference of ₦12,225/month. The system automatically applies these reliefs for Nigerian employees.
 
 ### 8.5 Attendance Integration
 
@@ -756,3 +943,375 @@ Click the 🕐 **history icon** in the top navigation bar to retrieve your expor
 | **Attendance Approval** | Attendance records must have `is_approved = true` to count toward payroll. Unapproved records → ₦0.00 for `salaried_daily` and `hourly` employees. |
 | **Worked Day** | A day that counts toward `salaried_daily` pay. Defined as: `net_hours > 0` **or** `status ≠ 'absent'` **or** `is_paid_absence = true`. |
 | **Bank File** | A bank-ready payment file generated from an approved payroll run. |
+| **BHT** | 🇳🇬 Basic + Housing + Transport — the three salary components that form the pensionable base under Nigerian law. |
+| **PAYE** | 🇳🇬 Pay As You Earn — Nigeria's progressive income tax on employment income. |
+| **TIN** | 🇳🇬 Tax Identification Number — unique identifier issued by the Federal Inland Revenue Service (FIRS). |
+| **RSA** | 🇳🇬 Retirement Savings Account — individual pension account managed by a PFA (Pension Fund Administrator). |
+| **NHF** | 🇳🇬 National Housing Fund — 2.5% employee contribution to the Federal Mortgage Bank of Nigeria (optional for private sector). |
+| **NHIS** | 🇳🇬 National Health Insurance Scheme — contributory health insurance under the NHIA Act 2022. |
+| **NSITF** | 🇳🇬 Nigeria Social Insurance Trust Fund — employer-only 1% contribution under the Employees' Compensation Act 2010. |
+| **ITF** | 🇳🇬 Industrial Training Fund — employer-only 1% contribution (applies to employers with ≥5 employees or ≥₦50m turnover). |
+| **YTD** | Year-to-Date — cumulative totals from January 1 to the current pay period within the tax year. |
+| **CRA** | 🇳🇬 Consolidated Relief Allowance — the old tax relief mechanism replaced by the ₦800,000 0% band under the Nigeria Tax Act 2025. |
+| **Country Calculator** | A strategy class that implements jurisdiction-specific payroll rules (pensionable base, tax exemptions, reliefs). |
+| **Form A** | 🇳🇬 Annual Tax Return filed with FIRS showing each employee's total emoluments and PAYE deducted. Deferred to Reports module. |
+
+---
+
+## 13. Nigerian Statutory Compliance
+
+### 13.1 Overview
+
+The payroll module includes comprehensive support for Nigerian statutory deductions and contributions, compliant with:
+
+- **Nigeria Tax Act 2025** (effective 1 January 2026) — PAYE income tax
+- **Pension Reform Act 2014** — Contributory Pension Scheme (CPS)
+- **National Housing Fund Act** — NHF contributions
+- **Employees' Compensation Act 2010** — NSITF
+- **Industrial Training Fund Act** — ITF
+- **NHIA Act 2022** — National Health Insurance Scheme
+
+All statutory policies are pre-seeded via [`NigerianStatutoryPolicySeeder`](app/Modules/Payroll/Database/Seeders/NigerianStatutoryPolicySeeder.php) and [`NigerianPayeTaxPolicySeeder`](app/Modules/Payroll/Database/Seeders/NigerianPayeTaxPolicySeeder.php). They are **global** (`country_code = 'NG'`) and apply automatically to all Nigerian companies. Re-running the seeders updates existing policies in place (idempotent upsert).
+
+### 13.2 PAYE Income Tax (2026 Bands)
+
+**Legal basis**: Nigeria Tax Act 2025, effective 1 January 2026.
+
+The 2026 NTA replaced the old Consolidated Relief Allowance (CRA) with a simpler ₦800,000 0% band. The tax bands are:
+
+| Band | Annual Taxable Income | Rate |
+|------|----------------------|------|
+| 1 | First ₦800,000 | 0% |
+| 2 | Next ₦2,200,000 (≤ ₦3,000,000) | 15% |
+| 3 | Next ₦9,000,000 (≤ ₦12,000,000) | 18% |
+| 4 | Next ₦13,000,000 (≤ ₦25,000,000) | 21% |
+| 5 | Next ₦25,000,000 (≤ ₦50,000,000) | 23% |
+| 6 | Above ₦50,000,000 | 25% |
+
+**Tax reliefs applied before bands** (in order):
+1. **Minimum-wage exemption**: Employees earning ≤ ₦70,000/month (₦840,000/year) pay zero PAYE.
+2. **Employee pension contribution**: 8% of BHT is tax-exempt (PRA 2014).
+3. **Employee NHF contribution**: 2.5% of basic salary is tax-exempt (NHF Act).
+4. **Rent relief**: 20% of annual rent, capped at ₦500,000/year.
+
+**Annualisation**: Tax is calculated on annualised income then de-annualised to the pay period. The periods-per-year multiplier depends on `pay_frequency`:
+
+| Frequency | Periods/Year |
+|-----------|-------------|
+| Monthly | 12 |
+| Semi-monthly | 24 |
+| Bi-weekly | 26 |
+| Weekly | 52 |
+
+**Example**: See the worked example in [§8.4](#84-tax-calculation-paye--progressive).
+
+> **📋 Form A (Annual Tax Return)**: Nigerian employers must file an annual return (Form A) with the FIRS showing each employee's total emoluments and tax deducted for the year. This report is **deferred** to the Reports module. All required data (annual gross, PAYE, pension, NHF, NHIS per employee) is already collected in the YTD columns on each payslip. See [Appendix B of the Gap Analysis](../../technical/payroll-gap-analysis-competitor-compliance.md#appendix-b-deferred-for-reports-module) for the complete deferred reports register.
+
+### 13.3 Pension (Contributory Pension Scheme)
+
+**Legal basis**: Pension Reform Act 2014.
+
+| Item | Rate | Base |
+|------|------|------|
+| Employee contribution | 8% | Pensionable (BHT) |
+| Employer contribution | 10% | Pensionable (BHT) |
+
+**Pensionable base (BHT)**: The sum of three salary components — **Basic**, **Housing**, and **Transport**. These are configured per employee via [`EmployeeSalaryComponent`](app/Modules/Payroll/Models/EmployeeSalaryComponent.php) records. If no components exist, the system falls back to the employee's `base_salary`.
+
+**Worked Example** — Employee with BHT components:
+
+| Component | Monthly Amount |
+|-----------|---------------|
+| Basic Salary | ₦500,000 |
+| Housing Allowance | ₦200,000 |
+| Transport Allowance | ₦100,000 |
+| **Pensionable Base (BHT)** | **₦800,000** |
+
+| Deduction | Calculation | Monthly Amount |
+|-----------|------------|----------------|
+| Employee Pension (8%) | ₦800,000 × 8% | **₦64,000** |
+| Employer Pension (10%) | ₦800,000 × 10% | **₦80,000** |
+
+**Fallback example** — Employee without salary components:
+
+| Scenario | Pensionable Base | Employee (8%) | Employer (10%) |
+|----------|-----------------|---------------|----------------|
+| No components, base_salary = ₦750,000 | ₦750,000 (fallback) | ₦60,000 | ₦75,000 |
+
+**Remittance**: Employer must remit both shares to the employee's PFA within **7 working days** of salary payment. Late remittance attracts **2% monthly interest** (PRA 2014 §11(6)).
+
+### 13.4 National Housing Fund (NHF)
+
+**Legal basis**: National Housing Fund Act.
+
+| Item | Rate | Base |
+|------|------|------|
+| Employee contribution | 2.5% | Basic salary |
+| Employer contribution | 0% | — |
+
+**Worked Example** — Employee with ₦300,000 monthly basic salary:
+
+| Deduction | Calculation | Monthly Amount |
+|-----------|------------|----------------|
+| NHF (2.5%) | ₦300,000 × 2.5% | **₦7,500** |
+
+**Important**: NHF is **mandatory for public-sector employees** but **optional for private-sector employees** (requires written consent). The seeded policy has `is_statutory = false` to reflect this. Companies can deactivate the NHF policy if they do not participate.
+
+### 13.5 NSITF (Employees' Compensation)
+
+**Legal basis**: Employees' Compensation Act 2010.
+
+| Item | Rate | Base |
+|------|------|------|
+| Employee contribution | 0% | — |
+| Employer contribution | 1% | Gross pay |
+
+**Worked Example** — Employee with ₦300,000 monthly gross pay:
+
+| Contribution | Calculation | Monthly Amount | Deducted from Employee? |
+|-------------|------------|----------------|------------------------|
+| NSITF (1%) | ₦300,000 × 1% | **₦3,000** | ❌ No — employer-only |
+
+NSITF is an **employer-only** contribution. It appears on payslips as an informational employer contribution line item — it does **not** reduce the employee's net pay. The contribution is assessed on total monthly payroll and remitted annually.
+
+### 13.6 ITF (Industrial Training Fund)
+
+**Legal basis**: Industrial Training Fund Act.
+
+| Item | Rate | Base |
+|------|------|------|
+| Employee contribution | 0% | — |
+| Employer contribution | 1% | Gross pay |
+
+**Eligibility threshold**: ITF applies only to employers meeting **either** of these criteria:
+- **5 or more employees**, OR
+- **₦50 million or more annual turnover**
+
+**Worked Example** — Eligible employer (10 active employees), employee with ₦300,000 monthly gross:
+
+| Contribution | Calculation | Monthly Amount | Deducted from Employee? |
+|-------------|------------|----------------|------------------------|
+| ITF (1%) | ₦300,000 × 1% | **₦3,000** | ❌ No — employer-only |
+
+**Eligibility scenarios**:
+
+| Company Profile | ITF Applied? |
+|----------------|-------------|
+| 10 employees, any turnover | ✅ Yes (meets employee threshold) |
+| 3 employees, ₦60m turnover | ✅ Yes (meets turnover threshold) |
+| 3 employees, ₦30m turnover | ❌ No (below both thresholds) |
+
+The system automatically checks eligibility by counting active employees in the company. If the `companies` table has an `annual_revenue` column, it also checks turnover. Companies below both thresholds are excluded from ITF — the policy is silently skipped during payroll calculation.
+
+### 13.7 NHIS (National Health Insurance)
+
+**Legal basis**: NHIA Act 2022.
+
+| Item | Rate | Base |
+|------|------|------|
+| Employee contribution | 5% | Basic salary |
+| Employer contribution | 10% | Basic salary |
+
+**Worked Example** — Employee with ₦300,000 monthly basic salary:
+
+| Contribution | Calculation | Monthly Amount |
+|-------------|------------|----------------|
+| Employee NHIS (5%) | ₦300,000 × 5% | **₦15,000** |
+| Employer NHIS (10%) | ₦300,000 × 10% | **₦30,000** |
+
+Both shares appear on the payslip. The employer share is informational and does not reduce net pay.
+
+### 13.8 Group Life Assurance
+
+**Legal basis**: Pension Reform Act 2014 §4(5).
+
+| Item | Rate | Base |
+|------|------|------|
+| Employee contribution | 0% | — |
+| Employer contribution | Configurable (default 1.5%) | Gross pay |
+
+**Worked Example** — Employee with ₦300,000 monthly gross, default 1.5% rate:
+
+| Contribution | Calculation | Monthly Amount | Deducted from Employee? |
+|-------------|------------|----------------|------------------------|
+| Group Life (1.5%) | ₦300,000 × 1.5% | **₦4,500** | ❌ No — employer-only |
+
+The premium rate is insurer-specific. The default rate is set via the `PAYROLL_GROUP_LIFE_EMPLOYER_RATE` environment variable (default: `1.5`). Companies can override this with a company-specific policy.
+
+### 13.9 Lagos State Development Levy
+
+**Legal basis**: Lagos State Local Government Administration Law.
+
+A state-specific levy for employees whose **location** has `state_code = 'NG-LA'`:
+
+| Monthly Gross Income | Annual Levy | Monthly Equivalent |
+|---------------------|------------|-------------------|
+| ≤ ₦50,000 | ₦100 | ₦8.33 |
+| > ₦50,000 | ₦200 | ₦16.67 |
+
+**Worked Examples**:
+
+| Employee | Monthly Gross | Annual Levy | Monthly Deduction |
+|----------|-------------|------------|-------------------|
+| Junior staff | ₦45,000 | ₦100 | **₦8.33** |
+| Senior staff | ₦300,000 | ₦200 | **₦16.67** |
+
+The levy is seeded via [`LagosStateDevelopmentLevySeeder`](app/Modules/Payroll/Database/Seeders/LagosStateDevelopmentLevySeeder.php). It is collected by the employer and remitted to the Lagos State Internal Revenue Service (LIRS) alongside monthly PAYE.
+
+> **Other states**: The policy framework supports additional state-level levies. To add a levy for another state, create a policy with the appropriate `state_code` and seed it following the Lagos pattern.
+
+### 13.10 Remittance Deadlines & Penalties
+
+Each statutory policy carries compliance metadata to help payroll officers track remittance obligations:
+
+| Obligation | Remittance Due | Late Penalty |
+|-----------|---------------|--------------|
+| **PAYE** | 10th of following month | 10% of tax due + interest at CBN Monetary Policy Rate |
+| **Pension** | Within 7 working days of salary payment | 2% monthly interest on unpaid contributions |
+| **NHF** | Within 30 days of deduction | Regulatory sanctions under NHF Act |
+| **NSITF** | Annual (by 1st January) | Penalties under Employees' Compensation Act 2010 |
+| **ITF** | Annual | 5% penalty on unpaid assessment |
+| **NHIS** | Within 30 days of deduction | Regulatory sanctions under NHIA Act 2022 |
+| **Group Life** | Per insurer agreement | Policy lapse risk; PRA 2014 compliance required |
+
+These fields (`remittance_due_days`, `late_penalty_rate`, `late_penalty_description`) are stored on each policy record. They are **informational** — the system does not currently auto-calculate penalties or send deadline reminders.
+
+### 13.11 Year-to-Date (YTD) Tracking
+
+Every Nigerian payslip includes **year-to-date (YTD)** cumulative totals for the tax year (January 1 – December 31):
+
+| YTD Field | What It Tracks |
+|-----------|---------------|
+| `gross_pay_ytd` | Cumulative gross earnings |
+| `income_tax_ytd` | Cumulative PAYE paid |
+| `pension_employee_ytd` | Cumulative employee pension contributions |
+| `pension_employer_ytd` | Cumulative employer pension contributions |
+| `nhf_ytd` | Cumulative NHF contributions |
+| `nhis_employee_ytd` | Cumulative employee NHIS contributions |
+| `nhis_employer_ytd` | Cumulative employer NHIS contributions |
+| `net_pay_ytd` | Cumulative net (take-home) pay |
+
+YTD values are computed by summing all previous payslips in the same tax year (excluding the current payroll run) and adding the current period amounts. This gives employees and auditors a clear view of cumulative statutory compliance.
+
+### 13.12 Statutory Identifiers on Payslips
+
+Nigerian payslips include statutory identification numbers snapshotted from the employee's payroll profile at calculation time:
+
+| Field | Source | Description |
+|-------|--------|-------------|
+| **TIN** | `employee_payroll_profiles.tax_identification_number` | Tax Identification Number (FIRS) |
+| **RSA PIN** | `employee_payroll_profiles.pension_rsa_number` | Retirement Savings Account number with PFA |
+| **NHF Number** | `employee_payroll_profiles.nhf_number` | National Housing Fund registration (FMBN) |
+| **NHIS Number** | `employee_payroll_profiles.nhis_number` | NHIS/HMO enrollee number |
+
+These are configured in the employee's payroll profile at **Payroll → Configuration → Employee Profiles**. They are snapshotted onto each payslip so that historical payslips retain the correct values even if the profile is later updated.
+
+### 13.13 Country-Specific Calculation Engine
+
+The payroll engine uses a **strategy pattern** to handle jurisdiction-specific rules without cluttering the core calculator:
+
+```
+PayrollCalculator
+    → resolveCountryCalculator($position)
+        → CountryPayrollCalculatorRegistry::resolve($countryCode)
+            → NigeriaPayrollCalculator (NG)
+            → DefaultCountryPayrollCalculator (fallback)
+```
+
+**Nigeria-specific logic** in [`NigeriaPayrollCalculator`](app/Modules/Payroll/Services/Payroll/Countries/NigeriaPayrollCalculator.php):
+
+| Method | What It Does |
+|--------|-------------|
+| `resolvePensionableBase()` | Sums Basic + Housing + Transport components; falls back to `base_salary` |
+| `isIncomeTaxExempt()` | Returns `true` if annual gross ≤ ₦840,000 (₦70k × 12 minimum wage) |
+| `applyTaxReliefs()` | Applies rent relief (20% of rent, capped ₦500k), pension relief, and NHF relief |
+
+**Adding a new country**: Register the calculator class in [`config/quick_hr_payroll.php → country_calculators`](app/Modules/Payroll/Config/quick_hr_payroll.php:76) and implement the [`CountryPayrollCalculator`](app/Modules/Payroll/Contracts/CountryPayrollCalculator.php) interface.
+
+**Config-driven values** (in [`quick_hr_payroll.php`](app/Modules/Payroll/Config/quick_hr_payroll.php)):
+
+| Config Key | Default | Description |
+|-----------|---------|-------------|
+| `country_tax_rules.NG.minimum_wage_exemption` | 70000 | Monthly minimum wage (₦) |
+| `country_tax_rules.NG.rent_relief_rate` | 0.20 | Rent relief percentage |
+| `country_tax_rules.NG.rent_relief_cap` | 500000 | Annual rent relief cap (₦) |
+| `component_groups.NG.pensionable` | `['basic','housing','transport']` | BHT component keys |
+| `group_life_employer_rate` | 1.5 | Default Group Life premium (%) |
+
+### 13.14 Complete Payslip Example
+
+This worked example ties together all Nigerian statutory deductions for a typical Lagos-based employee.
+
+**Employee Profile**:
+- Monthly base salary: ₦300,000
+- BHT components: Basic ₦500,000 | Housing ₦200,000 | Transport ₦100,000
+- Pensionable base (BHT): ₦800,000
+- Location: Lagos (NG-LA)
+- No annual rent
+- Pay frequency: Monthly
+
+**Step-by-Step Calculation**:
+
+| # | Item | Calculation | Amount |
+|---|------|------------|--------|
+| 1 | **Gross Pay** | Base salary | **₦300,000.00** |
+| | | | |
+| 2 | **Employee Pension (8%)** | ₦800,000 × 8% | −₦64,000.00 |
+| 3 | **NHF (2.5%)** | ₦300,000 × 2.5% | −₦7,500.00 |
+| 4 | **NHIS Employee (5%)** | ₦300,000 × 5% | −₦15,000.00 |
+| 5 | **Lagos Development Levy** | > ₦50k/month → ₦200/annum | −₦16.67 |
+| | | | |
+| 6 | **Annual Gross** | ₦300,000 × 12 | ₦3,600,000.00 |
+| 7 | Less: Annual Pension | ₦64,000 × 12 | −₦768,000.00 |
+| 8 | Less: Annual NHF | ₦7,500 × 12 | −₦90,000.00 |
+| 9 | **Annual Taxable** | | **₦2,742,000.00** |
+| | | | |
+| 10 | Band 1 (0–800k @ 0%) | ₦800,000 × 0% | ₦0.00 |
+| 11 | Band 2 (800k–2.742M @ 15%) | ₦1,942,000 × 15% | ₦291,300.00 |
+| 12 | **Annual PAYE** | | **₦291,300.00** |
+| 13 | **Monthly PAYE** | ₦291,300 ÷ 12 | **−₦24,275.00** |
+| | | | |
+| 14 | **Total Employee Deductions** | 64,000 + 7,500 + 15,000 + 16.67 + 24,275 | **−₦110,791.67** |
+| 15 | **Net Pay (Take-Home)** | 300,000 − 110,791.67 | **₦189,208.33** |
+
+**Employer Contributions** (informational — do not reduce net pay):
+
+| # | Item | Calculation | Amount |
+|---|------|------------|--------|
+| E1 | Employer Pension (10%) | ₦800,000 × 10% | ₦80,000.00 |
+| E2 | NSITF (1%) | ₦300,000 × 1% | ₦3,000.00 |
+| E3 | ITF (1%) | ₦300,000 × 1% | ₦3,000.00 |
+| E4 | NHIS Employer (10%) | ₦300,000 × 10% | ₦30,000.00 |
+| E5 | Group Life (1.5%) | ₦300,000 × 1.5% | ₦4,500.00 |
+| | **Total Employer Cost** | | **₦120,500.00** |
+
+**Total Monthly Cost to Employer**: Gross Pay + Employer Contributions = ₦300,000 + ₦120,500 = **₦420,500.00**
+
+**Payslip Summary** (as it appears to the employee):
+
+| Field | Amount |
+|-------|--------|
+| Gross Pay | ₦300,000.00 |
+| Gross Pay YTD | ₦300,000.00 |
+| PAYE (Income Tax) | −₦24,275.00 |
+| Income Tax YTD | ₦24,275.00 |
+| Pension (Employee 8%) | −₦64,000.00 |
+| Pension Employee YTD | ₦64,000.00 |
+| NHF (2.5%) | −₦7,500.00 |
+| NHF YTD | ₦7,500.00 |
+| NHIS (Employee 5%) | −₦15,000.00 |
+| NHIS Employee YTD | ₦15,000.00 |
+| Lagos Development Levy | −₦16.67 |
+| **Net Pay** | **₦189,208.33** |
+| Net Pay YTD | ₦189,208.33 |
+| | |
+| Pension (Employer 10%) | ₦80,000.00 |
+| NSITF (Employer 1%) | ₦3,000.00 |
+| ITF (Employer 1%) | ₦3,000.00 |
+| NHIS (Employer 10%) | ₦30,000.00 |
+| Group Life (Employer 1.5%) | ₦4,500.00 |
+| **Total Employer Contributions** | **₦120,500.00** |
+
+> **YTD Note**: In this example, YTD equals the current period amounts because this is the first payslip of the tax year. For subsequent months, YTD values accumulate — e.g., the February payslip would show Gross Pay YTD = ₦600,000.00 (January + February).
+
+> **Without pension/NHF tax relief**: If pension and NHF were not deducted before PAYE, the monthly tax would be ₦36,500.00 instead of ₦24,275.00 — the employee saves **₦12,225.00/month** through these tax-exempt contributions.

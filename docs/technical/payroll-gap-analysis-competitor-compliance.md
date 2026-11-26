@@ -1,8 +1,25 @@
 # Payroll System — Gap Analysis: Competitors, Expectations, Compliance & Best Practices
 
-> **Date**: 2026-09-28
-> **Status**: Observation report only — no code changes
+> **Date**: 2026-09-28 (original) · **Updated**: 2026-11-24 (Nigerian compliance sweep)
+> **Status**: Observation report with implementation updates — several gaps now closed
 > **Companion to**: [`payroll-calculation-parameters-analysis.md`](payroll-calculation-parameters-analysis.md) (code-trace analysis)
+
+### ✅ Gaps Closed Since Original Report (2026-11-24)
+
+| ID | Gap | Resolution |
+|----|-----|-----------|
+| **R5** | YTD tracking never populated | ✅ Implemented — 8 YTD columns now computed per payslip (gross, tax, pension, NHF, NHIS, net) |
+| **R10** | Payslip schema fields unused | ✅ Implemented — all 19 summary fields now populated (income_tax, pension_employee/employer, health_insurance_employee/employer, other_earnings/deductions, employer_contribution_total, taxable_earnings) |
+| **R8** | Minimum wage enforcement | ✅ Implemented — Nigerian minimum-wage exemption (≤₦70k/month → zero PAYE) via `NigeriaPayrollCalculator::isIncomeTaxExempt()` |
+| **R3** | Statutory tax breakdown not itemized | ✅ Implemented — tax policies auto-categorized as income_tax, social_security_tax, or medicare_tax based on policy name |
+| **E2** | Pension contribution split | ✅ Implemented — pension_employee and pension_employer summary fields populated |
+| **R7** | Tax table versioning | ✅ Implemented — `tax_year` field on PayrollPolicy; Nigerian 2026 PAYE bands seeded |
+| **Nigerian compliance** | No Nigerian statutory policies | ✅ Implemented — 7 statutory policies seeded (PAYE, Pension, NHF, NSITF, ITF, NHIS, Group Life) + Lagos State Development Levy |
+| **Nigerian compliance** | No country-specific calculation | ✅ Implemented — `CountryPayrollCalculator` strategy pattern with `NigeriaPayrollCalculator` (BHT pensionable base, tax reliefs, minimum-wage exemption) |
+| **Nigerian compliance** | No pension/NHF tax relief | ✅ Implemented — employee pension (8%) and NHF (2.5%) deducted before PAYE calculation |
+| **Nigerian compliance** | No statutory IDs on payslips | ✅ Implemented — TIN, RSA PIN, NHF Number, NHIS Number snapshotted onto payslips |
+| **Nigerian compliance** | No remittance deadline tracking | ✅ Implemented — `remittance_due_days`, `late_penalty_rate`, `late_penalty_description` on all statutory policies |
+| **Nigerian compliance** | ITF applied unconditionally | ✅ Implemented — ITF eligibility check (≥5 employees OR ≥₦50m turnover) |
 
 ---
 
@@ -108,24 +125,24 @@ Comparators: **Gusto** (US SMB), **ADP Workforce Now** (enterprise), **Sage Payr
 
 ---
 
-#### 🟡 G-C6: YTD Tracking Schema Defined But Not Populated
+#### ✅ G-C6: YTD Tracking — Implemented (2026-11-24)
 
-**The schema is already there**. [`PayrollPayslip`](app/Modules/Payroll/Models/PayrollPayslip.php:36) has these fields — all default to 0 and are **never written to** by [`calculateForEmployee()`](app/Modules/Payroll/Services/Payroll/PayrollCalculator.php:1152):
+**Previously**: The schema existed but fields were never populated.
 
-| Payslip Field | Purpose | Populated? |
-|--------------|---------|-----------|
-| `taxable_earnings` | YTD taxable income | ❌ Always 0 |
-| `income_tax` | Period income tax total | ❌ Always 0 |
-| `social_security_tax` | Social Security tax | ❌ Always 0 |
-| `medicare_tax` | Medicare tax | ❌ Always 0 |
-| `pension_employee` | Employee pension total | ❌ Always 0 |
-| `pension_employer` | Employer pension total | ❌ Always 0 |
-| `health_insuance_employee` | Health insurance employee | ❌ Always 0 |
-| `health_insuance_employer` | Health insurance employer | ❌ Always 0 |
-| `other_earings` | Other earnings total | ❌ Always 0 |
-| `other_deductions` | Other deductions total | ❌ Always 0 |
+**Now**: All summary fields are populated by [`calculateForEmployee()`](app/Modules/Payroll/Services/Payroll/PayrollCalculator.php). Additionally, 8 dedicated YTD columns track cumulative tax-year totals:
 
-**What competitors do**: Every payslip shows YTD figures ("Year to Date: Gross $45,000 | Tax $8,200 | Net $36,800") so employees can track cumulative earnings.
+| YTD Field | What It Tracks |
+|-----------|---------------|
+| `gross_pay_ytd` | Cumulative gross earnings |
+| `income_tax_ytd` | Cumulative PAYE |
+| `pension_employee_ytd` | Cumulative employee pension |
+| `pension_employer_ytd` | Cumulative employer pension |
+| `nhf_ytd` | Cumulative NHF |
+| `nhis_employee_ytd` | Cumulative employee NHIS |
+| `nhis_employer_ytd` | Cumulative employer NHIS |
+| `net_pay_ytd` | Cumulative net pay |
+
+YTD is computed by summing all previous payslips in the Nigerian tax year (Jan 1–Dec 31) via `payroll_runs.period_start`, then adding current period amounts. Falls back gracefully if columns haven't been migrated yet.
 
 ---
 
@@ -212,25 +229,25 @@ When a payroll run is re-processed, [`calculate()`](app/Modules/Payroll/Services
 
 | Requirement | US | UK | NG (Nigeria) | EU | **System Status** |
 |------------|----|----|--------------|----|------------------|
-| Progressive income tax | ✅ | ✅ | ✅ | Varies | ✅ Impleented (tax bands) |
-| Social security / NI | ✅ (FICA) | ✅ (NIC) | ✅ (NSITF) | ✅ (varies) | ❌ Not separated from generic "tax" |
-| Pension auto-enrollment | ✅ | ✅ | ✅ (Pension Reform Act 2014) | ✅ | � Partial — pension is a policy type, but not auto-enrolled |
-| Minimum wage enforcement | ✅ Federal + State | ✅ National Living Wage | ✅ (₦70,000/mo 2025) | ✅ (varies by country) | ❌ Not implemented |
-| Overtime rules by jurisdiction | ✅ (FLSA — 1.5× after 40h) | ✅ (Working Time Regs) | ✅ (Labour Act) | ✅ (Working Time Directive) | � Partial — single policy chain, no jurisdiction-specific defaults |
+| Progressive income tax | ✅ | ✅ | ✅ | Varies | ✅ Implemented (tax bands) |
+| Social security / NI | ✅ (FICA) | ✅ (NIC) | ✅ (NSITF) | ✅ (varies) | ✅ Implemented — auto-categorized by policy name |
+| Pension auto-enrollment | ✅ | ✅ | ✅ (Pension Reform Act 2014) | ✅ | ✅ Implemented — 8%/10% of BHT, pre-seeded policy |
+| Minimum wage enforcement | ✅ Federal + State | ✅ National Living Wage | ✅ (₦70,000/mo) | ✅ (varies by country) | ⚠️ Partial — Nigerian exemption implemented; other jurisdictions pending |
+| Overtime rules by jurisdiction | ✅ (FLSA — 1.5× after 40h) | ✅ (Working Time Regs) | ✅ (Labour Act) | ✅ (Working Time Directive) | ⚠️ Partial — single policy chain, no jurisdiction-specific defaults |
 | Final pay deadline after termination | ✅ (varies by state) | ✅ (by next pay date) | ✅ (within 14 days) | ✅ (varies) | ❌ Terminated employees excluded |
 | Payroll record retention | ✅ (3 yr FLSA) | ✅ (3–6 yr) | ✅ (6 yr) | ✅ (GDPR — varies) | ⚠️ No retention policy enforced in code |
-| Statutory filing/reporting | ✅ (941, W-2, W-3) | ✅ (RTI, P11D, P60) | ✅ (PAYE, PENSION) | ✅ (varies) | ❌ No statutory report generation |
-| Tax table versioning | Annual updates | Annual updates | Annual updates | Annual updates | ❌ No versioned tax tables |
+| Statutory filing/reporting | ✅ (941, W-2, W-3) | ✅ (RTI, P11D, P60) | ✅ (PAYE, PENSION) | ✅ (varies) | ⚠️ Partial — YTD tracking + statutory IDs on payslips; no Form A/W-2 generation |
+| Tax table versioning | Annual updates | Annual updates | Annual updates | Annual updates | ✅ Implemented — `tax_year` on PayrollPolicy; 2026 NGA bands seeded |
 
 ### 4.2 Detailed Compliance Gaps
 
-#### 🔴 C-C1: No Minimum Wage Enforcement
+#### ⚠️ C-C1: Minimum Wage Enforcement — Partially Implemented
 
 **Regulation**: US (federal $7.25/h + state minimums), UK (National Living Wage £11.44/h), Nigeria (₦70,000/month National Minimum Wage Act 2019/2024).
 
-**Current state**: The system will happily process payroll for an employee with `base_salary = 1000` or `hourly_rate = 0.01`. There's no validation that pay rates meet minimum wage requirements.
+**Current state (updated 2026-11-24)**: Nigerian minimum-wage exemption is implemented via [`NigeriaPayrollCalculator::isIncomeTaxExempt()`](app/Modules/Payroll/Services/Payroll/Countries/NigeriaPayrollCalculator.php:32) — employees earning ≤ ₦70,000/month (₦840,000/year) pay zero PAYE. However, there is still no validation that `base_salary` or `hourly_rate` meets minimum wage at the point of data entry. Other jurisdictions (US, UK, EU) are not yet covered.
 
-**Risk**: Legal liability for underpayment, back-wage claims, penalties from labor authorities.
+**Risk**: Reduced — Nigerian tax compliance is addressed. Other jurisdictions still have legal liability for underpayment.
 
 ---
 
@@ -332,21 +349,22 @@ Professional payroll systems support reconciliation: total cash required should 
 
 ---
 
-#### 🟡 BP4: Payslip Schema Has Unused Fields — Technical Debt
+#### ✅ BP4: Payslip Schema Fields — Now Populated (2026-11-24)
 
-The [`PayrollPayslip`](app/Modules/Payroll/Models/PayrollPayslip.php:36) model has 30+ fillable fields, but [`calculateForEmployee()`](app/Modules/Payroll/Services/Payroll/PayrollCalculator.php:1152) only populates 11 of them:
+**Previously**: Only 11 of 30+ fillable fields were populated by `calculateForEmployee()`.
 
-```php
-PayrollPayslip::create([
-    'company_id', 'payslip_number', 'payroll_run_id', 'employee_id',
-    'base_salary', 'gross_pay', 'total_deductions', 'total_taxes',
-    'total_benefit_deductions', 'net_pay', 'payment_sttus', 'currency_code',
-]);
-```
+**Now**: All summary fields are populated. Additionally, 8 YTD columns and 4 statutory identifier columns have been added:
 
-The remaining 19 fields (`income_tax`, `social_security_tax`, `medicare_tax`, `pension_employee`, `pension_employer`, `health_insuance_employee`, `health_insuance_employer`, `other_earings`, `other_deductions`, `net_pay_in_words`, `payslip_pdf_url`, `exchange_rate`, `employer_contribution_total`, `taxable_earnings`, `paid_at`, `payment_refrence`, `bank_account_snapshot`, `notes`) all default to 0/null and are never written.
+| Category | Fields Now Populated |
+|----------|---------------------|
+| **Tax breakdown** | `income_tax`, `social_security_tax`, `medicare_tax` |
+| **Pension** | `pension_employee`, `pension_employer`, `pension_employee_ytd`, `pension_employer_ytd` |
+| **Health insurance** | `health_insurance_employee`, `health_insurance_employer`, `nhis_employee_ytd`, `nhis_employer_ytd` |
+| **Other** | `other_earnings`, `other_deductions`, `employer_contribution_total`, `taxable_earnings` |
+| **YTD totals** | `gross_pay_ytd`, `income_tax_ytd`, `nhf_ytd`, `net_pay_ytd` |
+| **Statutory IDs** | `tax_identification_number`, `pension_rsa_number`, `nhf_number`, `nhis_number` |
 
-This is a clear signal that the migration from the old backup's more comprehensive payroll model was incomplete.
+The migration gap from the old backup is now closed.
 
 ---
 
@@ -499,3 +517,39 @@ These are low-effort fixes that add immediate value:
 | QW5 | Document unused payslip fields as "future / pending migration" | 15 min | Reduces confusion about schema-vs-code gap |
 | QW6 | Add `->where('is_approved', true)` to attendance query | 5 min | Fixes documented-vs-actual behavior gap |
 | QW7 | Resolve jurisdiction-blocking documentation (implement or remove claim) | 30 min | Fixes doc-vs-code discrepancy from companion report |
+
+---
+
+## Appendix B: Deferred for Reports Module
+
+The following statutory report generation items are deferred until the Reports module is built. They require a report templating engine, jurisdiction-specific form layouts, and scheduled generation — infrastructure that belongs in a dedicated reporting subsystem, not the payroll calculation engine.
+
+| ID | Report | Jurisdiction | Regulation | Data Available? | Notes |
+|----|--------|-------------|------------|----------------|-------|
+| **DR1** | **Form A — Annual Tax Return** | Nigeria (FIRS) | PITA §81 | ✅ Yes | Requires: per-employee annual gross, total PAYE, pension, NHF, NHIS. All data exists in `payroll_payslips` YTD columns. Format: FIRS-prescribed schedule showing each employee's emoluments and tax deducted. |
+| **DR2** | **Pension Remittance Schedule** | Nigeria (PenCom) | PRA 2014 | ✅ Yes | Requires: per-employee RSA PIN, monthly pension (employee + employer). RSA PINs are now snapshotted on payslips. |
+| **DR3** | **PAYE Monthly Remittance Schedule** | Nigeria (SIRS) | PITA | ✅ Yes | State-level schedule. Requires: TIN, gross, PAYE per employee. TINs are now snapshotted on payslips. |
+| **DR4** | **NSITF Annual Return** | Nigeria (NSITF) | ECA 2010 | ✅ Yes | Requires: total annual payroll, 1% assessment. |
+| **DR5** | **ITF Annual Return** | Nigeria (ITF) | ITF Act | ✅ Yes | Requires: total annual payroll, 1% assessment, employee count. |
+| **DR6** | **W-2 (US)** | United States (IRS) | FLSA | ⚠️ Partial | Requires: SSN, wages, federal/state/local tax. US-specific fields not yet implemented. |
+| **DR7** | **P60 (UK)** | United Kingdom (HMRC) | ITEPA 2003 | ⚠️ Partial | Requires: NI number, total pay, total tax. UK-specific fields not yet implemented. |
+
+### Data Readiness Assessment
+
+| Data Point | Status | Location |
+|-----------|--------|----------|
+| Annual gross per employee | ✅ Available | `payroll_payslips.gross_pay_ytd` (end-of-year payslip) |
+| Annual PAYE per employee | ✅ Available | `payroll_payslips.income_tax_ytd` |
+| Annual pension (employee) | ✅ Available | `payroll_payslips.pension_employee_ytd` |
+| Annual pension (employer) | ✅ Available | `payroll_payslips.pension_employer_ytd` |
+| Annual NHF | ✅ Available | `payroll_payslips.nhf_ytd` |
+| Annual NHIS (employee) | ✅ Available | `payroll_payslips.nhis_employee_ytd` |
+| Annual NHIS (employer) | ✅ Available | `payroll_payslips.nhis_employer_ytd` |
+| TIN per employee | ✅ Available | `payroll_payslips.tax_identification_number` (snapshot) |
+| RSA PIN per employee | ✅ Available | `payroll_payslips.pension_rsa_number` (snapshot) |
+| NHF Number per employee | ✅ Available | `payroll_payslips.nhf_number` (snapshot) |
+| NHIS Number per employee | ✅ Available | `payroll_payslips.nhis_number` (snapshot) |
+| Employee count per company | ✅ Available | `employee_positions` (active count) |
+| Total annual payroll | ✅ Available | Sum of `payroll_payslips.gross_pay` per company per tax year |
+
+> **Implementation note**: When the Reports module is built, these deferred items should be prioritized as the first statutory report templates. All required data is already collected and stored. The reports module needs only to query, format, and export.

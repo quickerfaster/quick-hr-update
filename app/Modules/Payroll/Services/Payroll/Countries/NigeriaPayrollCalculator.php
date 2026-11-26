@@ -39,17 +39,27 @@ class NigeriaPayrollCalculator implements CountryPayrollCalculator
     public function applyTaxReliefs(float $annualTaxable, array $reliefs): float
     {
         $rules = config('quick_hr_payroll.country_tax_rules.NG', []);
-        $annualRent = (float) ($reliefs['annual_rent'] ?? 0);
 
-        if ($annualRent <= 0) {
-            return $annualTaxable;
+        // 1. Rent relief (20% of annual rent, capped at ₦500,000)
+        $annualRent = (float) ($reliefs['annual_rent'] ?? 0);
+        if ($annualRent > 0) {
+            $rate = (float) ($rules['rent_relief_rate'] ?? 0.20);
+            $cap  = (float) ($rules['rent_relief_cap'] ?? 500000);
+            $annualTaxable = max(0, $annualTaxable - min($annualRent * $rate, $cap));
         }
 
-        $rate = (float) ($rules['rent_relief_rate'] ?? 0.20);
-        $cap  = (float) ($rules['rent_relief_cap'] ?? 500000);
+        // 2. Employee pension contribution (8% of BHT) — tax-exempt under PRA 2014
+        $annualPension = (float) ($reliefs['annual_pension_employee'] ?? 0);
+        if ($annualPension > 0) {
+            $annualTaxable = max(0, $annualTaxable - $annualPension);
+        }
 
-        $relief = min($annualRent * $rate, $cap);
+        // 3. Employee NHF contribution (2.5% of basic) — tax-exempt under NHF Act
+        $annualNhf = (float) ($reliefs['annual_nhf_employee'] ?? 0);
+        if ($annualNhf > 0) {
+            $annualTaxable = max(0, $annualTaxable - $annualNhf);
+        }
 
-        return max(0, $annualTaxable - $relief);
+        return $annualTaxable;
     }
 }

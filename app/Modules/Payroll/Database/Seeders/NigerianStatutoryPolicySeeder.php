@@ -35,6 +35,9 @@ class NigerianStatutoryPolicySeeder extends Seeder
             'employee'     => 8,
             'employer'     => 10,
             'base'         => 'pensionable',
+            'remittance_due_days'        => 7,
+            'late_penalty_rate'          => 2.00,
+            'late_penalty_description'   => '2% monthly interest on unpaid contributions (PRA 2014 §11(6))',
         ],
         [
             'name'         => 'National Housing Fund (NHF)',
@@ -44,6 +47,9 @@ class NigerianStatutoryPolicySeeder extends Seeder
             'employer'     => 0,
             'base'         => 'base_salary',
             'is_statutory' => false,
+            'remittance_due_days'        => 30,
+            'late_penalty_rate'          => null,
+            'late_penalty_description'   => 'Regulatory sanctions under NHF Act',
         ],
         [
             'name'         => 'NSITF (Employees Compensation)',
@@ -52,6 +58,9 @@ class NigerianStatutoryPolicySeeder extends Seeder
             'employee'     => 0,
             'employer'     => 1,
             'base'         => 'gross_pay',
+            'remittance_due_days'        => 365,
+            'late_penalty_rate'          => null,
+            'late_penalty_description'   => 'Penalties under Employees\' Compensation Act 2010',
         ],
         [
             'name'         => 'ITF (Industrial Training Fund)',
@@ -60,6 +69,14 @@ class NigerianStatutoryPolicySeeder extends Seeder
             'employee'     => 0,
             'employer'     => 1,
             'base'         => 'gross_pay',
+            'eligibility'  => [
+                'min_employees'        => 5,
+                'min_annual_turnover'  => 50000000,
+                'description'          => 'Employers with ≥5 employees OR ≥₦50m annual turnover',
+            ],
+            'remittance_due_days'        => 365,
+            'late_penalty_rate'          => 5.00,
+            'late_penalty_description'   => '5% penalty on unpaid amount under ITF Act',
         ],
         [
             'name'         => 'NHIS (National Health Insurance)',
@@ -68,6 +85,9 @@ class NigerianStatutoryPolicySeeder extends Seeder
             'employee'     => 5,
             'employer'     => 10,
             'base'         => 'base_salary',
+            'remittance_due_days'        => 30,
+            'late_penalty_rate'          => null,
+            'late_penalty_description'   => 'Regulatory sanctions under NHIA Act 2022',
         ],
         [
             'name'         => 'Group Life Assurance',
@@ -76,6 +96,9 @@ class NigerianStatutoryPolicySeeder extends Seeder
             'employee'     => 0,
             'employer'     => (float) config('quick_hr_payroll.group_life_employer_rate', 1.5),
             'base'         => 'gross_pay',
+            'remittance_due_days'        => 30,
+            'late_penalty_rate'          => null,
+            'late_penalty_description'   => 'Policy lapse risk; PRA 2014 compliance required',
         ],
         ];
     }
@@ -89,6 +112,17 @@ class NigerianStatutoryPolicySeeder extends Seeder
 
     protected function seedPolicy(array $policy): void
     {
+        $calcLogic = [
+            'calculation_type' => 'percentage',
+            'base'             => $policy['base'],
+            'employee_value'   => $policy['employee'],
+            'employer_value'   => $policy['employer'],
+        ];
+
+        if (!empty($policy['eligibility'])) {
+            $calcLogic['eligibility'] = $policy['eligibility'];
+        }
+
         $attributes = [
             'name'              => $policy['name'],
             'type'              => $policy['type'],
@@ -96,14 +130,12 @@ class NigerianStatutoryPolicySeeder extends Seeder
             'description'       => $policy['description'],
             'country_code'      => 'NG',
             'state_code'        => null,
-            'calculation_logic' => json_encode([
-                'calculation_type' => 'percentage',
-                'base'             => $policy['base'],
-                'employee_value'   => $policy['employee'],
-                'employer_value'   => $policy['employer'],
-            ]),
+            'calculation_logic' => json_encode($calcLogic),
             'is_statutory'      => $policy['is_statutory'] ?? true,
             'tax_year'          => (int) date('Y'),
+            'remittance_due_days'       => $policy['remittance_due_days'] ?? null,
+            'late_penalty_rate'         => $policy['late_penalty_rate'] ?? null,
+            'late_penalty_description'  => $policy['late_penalty_description'] ?? null,
             'effective_date'    => '2020-01-01',
             'expiry_date'       => null,
             'is_active'         => true,

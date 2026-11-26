@@ -498,3 +498,75 @@ The payroll engine combines:
 to calculate each employee's final payslip accurately and consistently.
 
 By understanding how these three components interact, Payroll and HR Administrators can confidently configure payroll for any business scenario.
+
+---
+
+# 7. Nigerian Statutory Policies (Pre-Seeded)
+
+> **Added**: 2026-11-24 · **Related**: [Nigerian Statutory Compliance](../user/payroll/README.md#13-nigerian-statutory-compliance)
+
+Nigerian companies automatically receive these statutory policies. They are **global** (`country_code = 'NG'`) and apply to all Nigerian employees unless overridden by a company-specific policy. The policies are seeded via [`NigerianStatutoryPolicySeeder`](app/Modules/Payroll/Database/Seeders/NigerianStatutoryPolicySeeder.php) and [`NigerianPayeTaxPolicySeeder`](app/Modules/Payroll/Database/Seeders/NigerianPayeTaxPolicySeeder.php).
+
+### 7.1 Policy Summary
+
+| Policy | Type | Employee | Employer | Base | Notes |
+|--------|------|----------|----------|------|-------|
+| **Nigerian PAYE (Income Tax)** | tax | banded (0%–25%) | — | gross_pay | 2026 NTA bands. ₦800k 0% band. Pension/NHF/rent relief applied before bands. |
+| **Pension (CPS)** | pension | 8% | 10% | pensionable (BHT) | Basic + Housing + Transport. Falls back to base_salary. |
+| **NHF** | deduction | 2.5% | 0% | base_salary | Optional for private sector. |
+| **NSITF** | deduction | 0% | 1% | gross_pay | Employer-only. Annual contribution. |
+| **ITF** | deduction | 0% | 1% | gross_pay | Employer-only. Eligibility: ≥5 employees OR ≥₦50m turnover. |
+| **NHIS** | insurance | 5% | 10% | base_salary | Under NHIA Act 2022. |
+| **Group Life** | insurance | 0% | configurable (default 1.5%) | gross_pay | Employer-funded. Rate from `PAYROLL_GROUP_LIFE_EMPLOYER_RATE`. |
+
+### 7.2 Country-Specific Calculation
+
+The payroll engine uses a **strategy pattern** for jurisdiction-specific rules. For Nigeria, the [`NigeriaPayrollCalculator`](app/Modules/Payroll/Services/Payroll/Countries/NigeriaPayrollCalculator.php) handles:
+
+- **Pensionable base**: Sums Basic + Housing + Transport (BHT) from [`EmployeeSalaryComponent`](app/Modules/Payroll/Models/EmployeeSalaryComponent.php) records
+- **Minimum-wage exemption**: Employees earning ≤ ₦70,000/month pay zero PAYE
+- **Tax reliefs**: Employee pension (8% of BHT), NHF (2.5% of basic), and rent relief (20% of annual rent, capped at ₦500,000) are deducted before applying PAYE bands
+
+### 7.3 ITF Eligibility
+
+The ITF policy includes an `eligibility` block in its `calculation_logic` JSON:
+
+```json
+{
+    "eligibility": {
+        "min_employees": 5,
+        "min_annual_turnover": 50000000
+    }
+}
+```
+
+Companies with fewer than 5 employees AND less than ₦50 million annual revenue are automatically excluded from ITF. The check runs during payroll calculation via [`PayrollCalculator::checkPolicyEligibility()`](app/Modules/Payroll/Services/Payroll/PayrollCalculator.php).
+
+### 7.4 Remittance Deadlines
+
+Each statutory policy carries compliance metadata:
+
+| Policy | Remittance Due | Late Penalty |
+|--------|---------------|--------------|
+| PAYE | 10th of following month | 10% + CBN MPR interest |
+| Pension | 7 working days | 2% monthly interest |
+| NHF | 30 days | Regulatory sanctions |
+| NSITF | Annual (Jan 1) | ECA 2010 penalties |
+| ITF | Annual | 5% penalty |
+| NHIS | 30 days | NHIA Act 2022 sanctions |
+| Group Life | Per insurer | Policy lapse risk |
+
+These fields (`remittance_due_days`, `late_penalty_rate`, `late_penalty_description`) are stored on each policy record and visible in the policy detail screen.
+
+### 7.5 Lagos State Development Levy
+
+A state-specific levy for employees with `state_code = 'NG-LA'`:
+
+| Monthly Gross | Annual Levy |
+|-------------|------------|
+| ≤ ₦50,000 | ₦100 |
+| > ₦50,000 | ₦200 |
+
+Seeded via [`LagosStateDevelopmentLevySeeder`](app/Modules/Payroll/Database/Seeders/LagosStateDevelopmentLevySeeder.php). Collected by employer, remitted to LIRS.
+
+> **See also**: [§13 — Nigerian Statutory Compliance](../user/payroll/README.md#13-nigerian-statutory-compliance) in the Payroll User Guide for worked examples and the complete payslip breakdown.

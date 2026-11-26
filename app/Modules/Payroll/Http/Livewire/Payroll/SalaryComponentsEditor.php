@@ -25,7 +25,7 @@ class SalaryComponentsEditor extends Component
     public function mount(?int $employeeId = null): void
     {
         $this->employeeId = $employeeId;
-        $this->currencySymbol = $this->resolveCurrencySymbol();
+        $this->currencySymbol = $this->resolveCurrencyForDisplay();
         $this->load();
     }
 
@@ -130,7 +130,15 @@ class SalaryComponentsEditor extends Component
         ]);
     }
 
-    protected function resolveCurrencySymbol(): string
+    /**
+     * Resolve the currency symbol for display.
+     *
+     * Named differently from the trait's static resolveCurrencySymbol()
+     * to avoid a method signature collision. The HasCurrencySymbol trait
+     * provides a static resolveCurrencySymbol(string $code, ?object $ctx)
+     * which would conflict with this zero-arg instance method.
+     */
+    protected function resolveCurrencyForDisplay(): string
     {
         $companyId = session('current_company_id');
 

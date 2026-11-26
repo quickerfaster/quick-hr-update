@@ -568,7 +568,9 @@ protected function applyPolicyLogic(
     float $baseSalary,
     float $grossPayBase,
     float $prorationFactor = 1.0,
-    ?EmployeePosition $position = null
+    ?EmployeePosition $position = null,
+    float $pensionEmployeePeriod = 0.0,
+    float $nhfEmployeePeriod = 0.0
 ): array
 {
     $logic = json_decode($policy->calculation_logic, true);
@@ -600,10 +602,12 @@ protected function applyPolicyLogic(
             return ['employee' => 0, 'employer' => 0];
         }
 
-        $annualTaxable = $countryCalculator->applyTaxReliefs(
-            $annualIncome,
-            $this->resolveEmployeeReliefs($position)
-        );
+        // Build reliefs array: rent (from profile) + pension/NHF (computed from policies)
+        $reliefs = $this->resolveEmployeeReliefs($position);
+        $reliefs['annual_pension_employee'] = $this->annualizeAmount($pensionEmployeePeriod, $frequency);
+        $reliefs['annual_nhf_employee'] = $this->annualizeAmount($nhfEmployeePeriod, $frequency);
+
+        $annualTaxable = $countryCalculator->applyTaxReliefs($annualIncome, $reliefs);
 
         $tax = 0;
         $bands = collect($logic['bands'] ?? [])->sortBy('start')->values()->toArray();
@@ -679,6 +683,55 @@ protected function resolveSalaryComponents(?EmployeePosition $position): array
         })
         ->pluck('amount', 'component_key')
         ->toArray();
+}
+
+/**
+ * Check whether the employee's company meets the eligibility criteria
+ * defined in a policy's calculation_logic.eligibility block.
+ *
+ * Currently supports:
+ *  - min_employees: minimum number of active employees in the company
+ *  - min_annual_turnover: minimum annual turnover (checked against
+ *    company.annual_revenue if the column exists)
+ *
+ * Returns true if all criteria are met (or no criteria defined).
+ */
+protected function checkPolicyEligibility(array $eligibility, EmployeePosition $position): bool
+{
+    $company = $position->employee->company ?? null;
+    if (!$company) {
+        return true; // no company context → allow (global policy)
+    }
+
+    // Check minimum employee count
+    if (!empty($eligibility['min_employees'])) {
+        $activeCount = EmployeePosition::withoutCompanyScope()
+            ->whereHas('employee', function ($q) use ($company) {
+                $q->withoutCompanyScope()->where('company_id', $company->id);
+            })
+            ->where('employment_status', 'Active')
+            ->whereNull('deleted_at')
+            ->count();
+
+        if ($activeCount < (int) $eligibility['min_employees']) {
+            // Check fallback: annual turnover threshold
+            $hasTurnover = !empty($eligibility['min_annual_turnover']);
+            if (!$hasTurnover) {
+                return false;
+            }
+
+            $annualRevenue = 0.0;
+            if (\Schema::hasColumn('companies', 'annual_revenue')) {
+                $annualRevenue = (float) ($company->annual_revenue ?? 0);
+            }
+
+            if ($annualRevenue < (float) $eligibility['min_annual_turnover']) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 /**
@@ -1275,7 +1328,7 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
     }
 
     // -------------------------------------------------------------
-    // 7. Apply policies with proration, using $grossPay as base
+    // 7. Apply policies with proration
     // -------------------------------------------------------------
     $periodStart = $this->run->period_start;
     $periodEnd = $this->run->period_end;
@@ -1296,15 +1349,47 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
     $summaryOtherDeductions = 0.0;
     $summaryEmployerContributions = 0.0;
 
-    foreach ($allPolicies as $policy) {
+    // Sort policies: non-tax first, tax last — so pension/NHF employee
+    // contributions are accumulated before PAYE is calculated on the
+    // reduced taxable base (Nigeria Tax Act 2025 / PRA 2014).
+    $sortedPolicies = collect($allPolicies)->sortBy(fn ($p) => $p->type === 'tax' ? 1 : 0);
+
+    // Running totals of tax-exempt employee contributions (period amounts)
+    $pensionEmployeePeriod = 0.0;
+    $nhfEmployeePeriod = 0.0;
+
+    foreach ($sortedPolicies as $policy) {
         $effectivePolicy = $this->resolveEffectivePolicy($policy);
 
         $activeDays = $this->getActiveDaysInRun($effectivePolicy, $periodStart, $periodEnd);
         if ($activeDays <= 0) continue;
+
+        // Check policy eligibility criteria (e.g. ITF requires 5+ employees or ₦50m+ turnover)
+        $logic = json_decode($effectivePolicy->calculation_logic, true);
+        if (!empty($logic['eligibility'])) {
+            if (!$this->checkPolicyEligibility($logic['eligibility'], $position)) {
+                continue;
+            }
+        }
+
         $prorationFactor = $activeDays / $totalDays;
 
-        // Get employee and employer amounts – pass $grossPay as base
-        $amounts = $this->applyPolicyLogic($effectivePolicy, $items, $grossPay, $grossPayBase, $prorationFactor, $position);
+        // Get employee and employer amounts – pass $baseSalary (not $grossPay)
+        // so base_salary-based policies (NHF, NHIS) use the correct base even
+        // for salaried_daily / hourly employees.
+        $amounts = $this->applyPolicyLogic(
+            $effectivePolicy, $items, $baseSalary, $grossPayBase, $prorationFactor, $position,
+            $pensionEmployeePeriod, $nhfEmployeePeriod
+        );
+
+        // Accumulate tax-exempt employee contributions for subsequent tax policies
+        if ($effectivePolicy->type === 'pension') {
+            $pensionEmployeePeriod += abs($amounts['employee']);
+        }
+        $policyNameLower = strtolower($effectivePolicy->name ?? '');
+        if (str_contains($policyNameLower, 'national housing fund') || str_contains($policyNameLower, 'nhf')) {
+            $nhfEmployeePeriod += abs($amounts['employee']);
+        }
 
 
         // Build metadata for auditing
@@ -1395,6 +1480,62 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
     $companyId = $position->employee->company_id ?? $this->run->company_id;
 
     // -------------------------------------------------------------
+    // 8a. Compute year-to-date (YTD) cumulative totals
+    //     Nigerian tax year: 1 January – 31 December
+    //     Falls back to current-period-only values if YTD columns
+    //     haven't been migrated yet (e.g. test DB out of sync).
+    // -------------------------------------------------------------
+    $taxYearStart = Carbon::createFromDate(
+        $this->run->period_start->year, 1, 1
+    )->startOfDay();
+
+    $previousYtd = null;
+    try {
+        $previousYtd = PayrollPayslip::withoutCompanyScope()
+            ->where('employee_id', $employeeId)
+            ->where('payroll_run_id', '!=', $this->run->id)
+            ->whereHas('payrollRun', function ($q) use ($taxYearStart) {
+                $q->where('period_start', '>=', $taxYearStart);
+            })
+            ->selectRaw('
+                COALESCE(SUM(gross_pay), 0) as gross_ytd,
+                COALESCE(SUM(income_tax), 0) as tax_ytd,
+                COALESCE(SUM(pension_employee), 0) as pen_emp_ytd,
+                COALESCE(SUM(pension_employer), 0) as pen_emr_ytd,
+                COALESCE(SUM(nhf_ytd), 0) as nhf_prev_ytd,
+                COALESCE(SUM(health_insurance_employee), 0) as nhis_emp_ytd,
+                COALESCE(SUM(health_insurance_employer), 0) as nhis_emr_ytd,
+                COALESCE(SUM(net_pay), 0) as net_ytd
+            ')
+            ->first();
+    } catch (\Exception $e) {
+        Log::warning('YTD query failed (columns may not exist yet), falling back to current period.', [
+            'employee_id' => $employeeId,
+            'error' => $e->getMessage(),
+        ]);
+    }
+
+    // NHF employee amount for the current period (tracked separately from other_deductions)
+    $summaryNhfEmployee = round($nhfEmployeePeriod, 2);
+
+    $grossPayYtd      = round(((float) ($previousYtd->gross_ytd ?? 0)) + $grossPayTotal, 2);
+    $incomeTaxYtd     = round(((float) ($previousYtd->tax_ytd ?? 0)) + $summaryIncomeTax, 2);
+    $pensionEmpYtd    = round(((float) ($previousYtd->pen_emp_ytd ?? 0)) + $summaryPensionEmployee, 2);
+    $pensionEmrYtd    = round(((float) ($previousYtd->pen_emr_ytd ?? 0)) + $summaryPensionEmployer, 2);
+    $nhfYtd           = round(((float) ($previousYtd->nhf_prev_ytd ?? 0)) + $summaryNhfEmployee, 2);
+    $nhisEmpYtd       = round(((float) ($previousYtd->nhis_emp_ytd ?? 0)) + $summaryHealthInsuranceEmployee, 2);
+    $nhisEmrYtd       = round(((float) ($previousYtd->nhis_emr_ytd ?? 0)) + $summaryHealthInsuranceEmployer, 2);
+    $netPayYtd        = round(((float) ($previousYtd->net_ytd ?? 0)) + $netPay, 2);
+
+    // -------------------------------------------------------------
+    // 8b. Snapshot statutory identifiers from employee payroll profile
+    // -------------------------------------------------------------
+    $payrollProfile = EmployeePayrollProfile::withoutCompanyScope()
+        ->where('employee_id', $employeeId)
+        ->where('is_active', true)
+        ->first();
+
+    // -------------------------------------------------------------
     // 9. Create payslip with full summary breakdown
     // -------------------------------------------------------------
     $payslip = PayrollPayslip::create([
@@ -1404,26 +1545,38 @@ public function calculateForEmployee(EmployeePosition $position): PayrollPayslip
         'employee_id' => $employeeId,
         'base_salary' => $baseSalary,
         'gross_pay' => $grossPayTotal,
+        'gross_pay_ytd' => $grossPayYtd,
         'total_deductions' => $totalDeductions + $totalTaxes,
         'total_taxes' => $totalTaxes,
         'total_benefit_deductions' => $totalDeductions,
         'net_pay' => $netPay,
+        'net_pay_ytd' => $netPayYtd,
         'worked_days' => ($effectivePayType === 'salaried_daily') ? ($attendanceSummary['worked_days'] ?? 0) : null,
         'total_workdays' => ($effectivePayType === 'salaried_daily') ? ($totalWorkdays ?? null) : null,
         'payment_status' => 'pending',
         'currency_code' => $this->run->base_currency ?? 'USD',
         'income_tax' => round($summaryIncomeTax, 2),
+        'income_tax_ytd' => $incomeTaxYtd,
         'social_security_tax' => round($summarySocialSecurityTax, 2),
         'medicare_tax' => round($summaryMedicareTax, 2),
         'pension_employee' => round($summaryPensionEmployee, 2),
+        'pension_employee_ytd' => $pensionEmpYtd,
         'pension_employer' => round($summaryPensionEmployer, 2),
+        'pension_employer_ytd' => $pensionEmrYtd,
+        'nhf_ytd' => $nhfYtd,
         'health_insurance_employee' => round($summaryHealthInsuranceEmployee, 2),
+        'nhis_employee_ytd' => $nhisEmpYtd,
         'health_insurance_employer' => round($summaryHealthInsuranceEmployer, 2),
+        'nhis_employer_ytd' => $nhisEmrYtd,
         'other_earnings' => round($summaryOtherEarnings, 2),
         'other_deductions' => round($summaryOtherDeductions, 2),
         'employer_contribution_total' => round($summaryEmployerContributions, 2),
         'taxable_earnings' => round($grossPayTotal, 2),
         'exchange_rate' => 1.0,
+        'tax_identification_number' => $payrollProfile?->tax_identification_number,
+        'pension_rsa_number' => $payrollProfile?->pension_rsa_number,
+        'nhf_number' => $payrollProfile?->nhf_number,
+        'nhis_number' => $payrollProfile?->nhis_number,
         'created_by' => auth()->id(),
     ]);
 

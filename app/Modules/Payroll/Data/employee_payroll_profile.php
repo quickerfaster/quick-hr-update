@@ -202,8 +202,8 @@ return [
       'display' => 'inline',
       'fillable' => true,
       'editable' => true,
-      'field_type' => 'number',
-      'label' => 'Annual Rent (₦, for Nigerian rent relief)',
+      'field_type' => 'currency',
+      'label' => 'Annual Rent (for tax relief)',
       'validation' => 'nullable|numeric|min:0',
     ],
     'is_exempt_from_federal_tax' => [
@@ -489,7 +489,15 @@ return [
       ],
     ],
   ],
-  'moreActions' => [],
+  'moreActions' => [
+    '0' => [
+      'title' => 'Salary Structure',
+      'icon' => 'fas fa-money-bill-wave',
+      'url' => '/payroll/salary-structure/{id}',
+      'action' => 'salary_structure',
+      'requiredRole' => ['payroll_officer', 'hr_manager', 'admin', 'super_admin', 'company_admin'],
+    ],
+  ],
   'switchViews' => [
     'default' => 'list',
     'table' => [

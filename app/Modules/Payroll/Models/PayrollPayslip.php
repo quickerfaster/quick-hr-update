@@ -33,7 +33,7 @@ class PayrollPayslip extends Model
 
 
     protected $fillable = [
-        'company_id', 'payslip_number', 'payroll_run_id', 'employee_id', 'base_salary', 'gross_pay', 'total_deductions', 'total_taxes', 'total_benefit_deductions', 'net_pay', 'worked_days', 'total_workdays', 'currency_code', 'exchange_rate', 'employer_contribution_total', 'taxable_earnings', 'income_tax', 'social_security_tax', 'medicare_tax', 'pension_employee', 'pension_employer', 'health_insurance_employee', 'health_insurance_employer', 'other_earnings', 'other_deductions', 'net_pay_in_words', 'payslip_pdf_url', 'payment_status', 'paid_at', 'payment_reference', 'bank_account_snapshot', 'notes', 'created_by'
+        'company_id', 'payslip_number', 'payroll_run_id', 'employee_id', 'base_salary', 'gross_pay', 'gross_pay_ytd', 'total_deductions', 'total_taxes', 'total_benefit_deductions', 'net_pay', 'net_pay_ytd', 'worked_days', 'total_workdays', 'currency_code', 'exchange_rate', 'employer_contribution_total', 'taxable_earnings', 'income_tax', 'income_tax_ytd', 'social_security_tax', 'medicare_tax', 'pension_employee', 'pension_employee_ytd', 'pension_employer', 'pension_employer_ytd', 'nhf_ytd', 'health_insurance_employee', 'nhis_employee_ytd', 'health_insurance_employer', 'nhis_employer_ytd', 'other_earnings', 'other_deductions', 'tax_identification_number', 'pension_rsa_number', 'nhf_number', 'nhis_number', 'net_pay_in_words', 'payslip_pdf_url', 'payment_status', 'paid_at', 'payment_reference', 'bank_account_snapshot', 'notes', 'created_by'
     ];
 
     protected $guarded = [
@@ -43,20 +43,28 @@ class PayrollPayslip extends Model
     protected $casts = [
         'base_salary' => 'decimal:2',
         'gross_pay' => 'decimal:2',
+        'gross_pay_ytd' => 'decimal:2',
         'total_deductions' => 'decimal:2',
         'total_taxes' => 'decimal:2',
         'total_benefit_deductions' => 'decimal:2',
         'net_pay' => 'decimal:2',
+        'net_pay_ytd' => 'decimal:2',
         'exchange_rate' => 'decimal:6',
         'employer_contribution_total' => 'decimal:2',
         'taxable_earnings' => 'decimal:2',
         'income_tax' => 'decimal:2',
+        'income_tax_ytd' => 'decimal:2',
         'social_security_tax' => 'decimal:2',
         'medicare_tax' => 'decimal:2',
         'pension_employee' => 'decimal:2',
+        'pension_employee_ytd' => 'decimal:2',
         'pension_employer' => 'decimal:2',
+        'pension_employer_ytd' => 'decimal:2',
+        'nhf_ytd' => 'decimal:2',
         'health_insurance_employee' => 'decimal:2',
+        'nhis_employee_ytd' => 'decimal:2',
         'health_insurance_employer' => 'decimal:2',
+        'nhis_employer_ytd' => 'decimal:2',
         'other_earnings' => 'decimal:2',
         'other_deductions' => 'decimal:2',
         'paid_at' => 'datetime',

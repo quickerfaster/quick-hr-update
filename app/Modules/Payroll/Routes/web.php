@@ -38,6 +38,16 @@ Route::middleware([
         return view('payroll::dashboard-configuration-overview');
     })->name('payroll.dashboard-configuration-overview');
 
+    // Salary Structure — full-page Livewire component for BHT configuration.
+    // Accepts the employee_payroll_profile ID and resolves the employee from it.
+    Route::get('/payroll/salary-structure/{profile}', function (\App\Modules\Payroll\Models\EmployeePayrollProfile $profile) {
+        $employee = $profile->employee;
+        if (!$employee) {
+            abort(404, 'Employee not found for this payroll profile.');
+        }
+        return view('payroll::salary-structure', ['employee' => $employee]);
+    })->name('payroll.salary-structure');
+
     // Preview modal
     Route::get('/payroll/payroll-runs/{payrollRun}/preview', [PayrollRunController::class, 'preview'])
         ->name('payroll.runs.preview');
