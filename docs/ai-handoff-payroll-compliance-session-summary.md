@@ -149,3 +149,66 @@ php artisan db:seed --class=LagosStateDevelopmentLevySeeder
 | Competitor analysis? | [`docs/technical/payroll-competitor-analysis-nigeria.md`](docs/technical/payroll-competitor-analysis-nigeria.md) |
 | Deferred reports spec? | [`docs/technical/payroll-gap-analysis-competitor-compliance.md`](docs/technical/payroll-gap-analysis-competitor-compliance.md) Appendix B |
 | Verification tests? | [`NigeriaPayrollVerificationTest.php`](app/Modules/Payroll/Tests/Unit/NigeriaPayrollVerificationTest.php) — 51 tests, 79 assertions |
+
+---
+
+## Git Branching Strategy (for live deployments)
+
+### Branch Structure
+
+```
+feature/*  →  staging  →  main (production)
+```
+
+| Branch | Purpose | Deploys to | .cpanel.yml DEPLOY_ENV |
+|--------|---------|-----------|----------------------|
+| `main` | Production — only working, tested code | Live server (quick_hr) | `production` |
+| `staging` | Pre-production testing | Staging server (agriwatts-demo) | `staging` |
+| `feature/*` | Individual features/fixes | Local only | N/A |
+
+### Daily Workflow
+
+```bash
+# 1. Start new feature from main
+git checkout main
+git pull
+git checkout -b feature/my-feature
+
+# 2. Work, commit, push
+git add -A && git commit -m "feat: description"
+git push -u origin feature/my-feature
+
+# 3. Test on staging
+git checkout staging
+git merge feature/my-feature
+git push  # → auto-deploys to staging server
+# Test at https://agriwatts-demo.quickerfaster.com
+
+# 4. Deploy to production
+git checkout main
+git merge staging
+git push  # → auto-deploys to live server
+```
+
+### Setup (one-time)
+
+```bash
+# Create staging branch from current main
+git checkout main
+git checkout -b staging
+
+# On staging: set DEPLOY_ENV=staging in .cpanel.yml
+# On main: keep DEPLOY_ENV=production
+
+# Push both
+git push -u origin staging
+git push -u origin main
+```
+
+### Rules
+
+- **Never commit directly to `main`** — always go through `staging` first
+- **Test on staging before merging to main** — catch issues before users see them
+- **Keep `staging` in sync with `main`** — after each production deploy: `git checkout staging && git merge main`
+- **Feature branches are short-lived** — delete after merging
+- **Hotfixes** can go directly to `main` if urgent, but backport to `staging` after
