@@ -2,7 +2,7 @@ deployment:
   tasks:
     # ── Environment ──────────────────────────────────────────────
     # Set to "staging" or "production" — all paths resolve from this.
-    - export DEPLOY_ENV=staging
+    - export DEPLOY_ENV=production
     # ──────────────────────────────────────────────────────────────
 
     - export COMPOSER_BIN=/home/quickerf/composer.phar
