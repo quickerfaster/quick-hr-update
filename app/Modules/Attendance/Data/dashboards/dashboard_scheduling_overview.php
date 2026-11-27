@@ -82,7 +82,7 @@ return array (
       'chart_type' => 'pie',
       'description' => 'Distribution of pattern types',
       'aggregate' => 'count',
-      'width' => 4,
+      'width' => 6,
     ),
     5 =>
     array (
@@ -103,7 +103,7 @@ return array (
           2 => true,
         ),
       ),
-      'width' => 4,
+      'width' => 6,
     ),
     6 =>
     array (
@@ -230,7 +230,7 @@ return array (
           'style' => 'primary',
         ),
       ),
-      'width' => 3,
+      'width' => 6,
     ),
     9 =>
    array (
@@ -258,7 +258,7 @@ return array (
          'style' => 'secondary',
        ),
      ),
-     'width' => 3,
+     'width' => 6,
    ),
   ),
   'roles' =>

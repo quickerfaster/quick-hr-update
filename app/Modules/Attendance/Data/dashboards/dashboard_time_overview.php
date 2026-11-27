@@ -130,7 +130,7 @@ return array (
           2 => 'first day of this month',
         ),
       ),
-      'width' => 4,
+      'width' => 6,
     ),
     5 =>
     array (
@@ -144,41 +144,9 @@ return array (
       'aggregate' => 'count',
       'date_field' => 'date',
       'period' => 6,
-      'width' => 5,
+      'width' => 6,
     ),
     6 =>
-   array (
-     'type' => 'action_card',
-     'title' => 'Quick Actions',
-     'size' => 'col-12',
-     'icon' => 'fas fa-clock',
-     'description' => 'Clock in/out or manage schedules',
-     'actions' =>
-     array (
-       0 =>
-       array (
-         'label' => 'Clock In',
-         'event' => 'navigate',
-         'params' =>
-         array (
-           'url' => '/attendance/clock-events',
-         ),
-         'style' => 'primary',
-       ),
-       1 =>
-       array (
-         'label' => 'Clock Out',
-         'event' => 'navigate',
-         'params' =>
-         array (
-           'url' => '/attendance/clock-events',
-         ),
-         'style' => 'secondary',
-       ),
-     ),
-     'width' => 3,
-   ),
-    7 =>
     array (
       'type' => 'list',
       'title' => 'Recent Attendance Records',
@@ -298,7 +266,7 @@ return array (
       ),
       'target_model' => 'App\\Modules\\Hr\\Models\\Employee',
       'target_aggregate' => 'count',
-      'width' => 3,
+      'width' => 6,
     ),
     10 =>
     array (
@@ -341,7 +309,7 @@ return array (
           'field' => 'status',
         ),
       ),
-      'width' => 9,
+      'width' => 6,
       'show_view_all' => true,
       'view_all_link' => '/attendance/shift-schedules',
     ),
@@ -368,7 +336,7 @@ return array (
           2 => 'first day of this month',
         ),
       ),
-      'width' => 5,
+      'width' => 6,
     ),
     12 =>
     array (
@@ -408,7 +376,7 @@ return array (
           'field' => 'status',
         ),
       ),
-      'width' => 7,
+      'width' => 6,
       'show_view_all' => true,
       'view_all_link' => '/attendance/shift-schedules',
     ),

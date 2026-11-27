@@ -84,6 +84,11 @@ return array (
       'group_by' => 'is_remote',
       'chart_type' => 'pie',
       'description' => 'Physical vs. Remote locations',
+      'label_map' =>
+      array (
+        '0' => 'Physical',
+        '1' => 'Remote',
+      ),
       'aggregate' => 'count',
       'width' => 4,
     ),
@@ -93,7 +98,7 @@ return array (
       'title' => 'Departments by Company',
       'size' => 'col-12',
       'model' => 'App\\Modules\\Hr\\Models\\Department',
-      'group_by' => 'company_id',
+      'group_by' => 'company.name',
       'chart_type' => 'bar',
       'description' => 'Department count per company',
       'aggregate' => 'count',
@@ -251,30 +256,30 @@ return array (
     ),
     12 =>
     array (
-      'type' => 'action_card',
-      'title' => 'Job Titles',
+      'type' => 'progress',
+      'title' => 'Organization Setup Completion',
       'size' => 'col-12',
-      'icon' => 'fas fa-tag',
-      'description' => 'Define job roles and titles',
-      'actions' =>
+      'model' => 'App\\Modules\\Hr\\Models\\Location',
+      'icon' => 'fas fa-check-double',
+      'description' => 'Locations with complete address (street + city)',
+      'aggregate' => 'count',
+      'conditions' =>
       array (
         0 =>
         array (
-          'label' => 'Manage',
-          'event' => 'openDrawer',
-          'params' =>
-          array (
-            'component' => 'qf.data-table-form',
-            'params' =>
-            array (
-              'configKey' => 'hr.job_title',
-              'recordId' => null,
-            ),
-            'title' => 'Add Job Title',
-          ),
-          'style' => 'secondary',
+          0 => 'address_line_1',
+          1 => '!=',
+          2 => NULL,
+        ),
+        1 =>
+        array (
+          0 => 'city',
+          1 => '!=',
+          2 => NULL,
         ),
       ),
+      'target_model' => 'App\\Modules\\Hr\\Models\\Location',
+      'target_aggregate' => 'count',
       'width' => 3,
     ),
     13 =>
@@ -326,62 +331,30 @@ return array (
     14 =>
     array (
       'type' => 'list',
-      'title' => 'Recent Job Titles',
+      'title' => 'Employee Count by Location',
       'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\JobTitle',
-      'icon' => 'fas fa-briefcase',
-      'description' => 'Latest job titles created',
-      'limit' => 5,
-      'sort' =>
-      array (
-        0 => 'created_at',
-        1 => 'desc',
-      ),
+      'model' => 'App\\Modules\\Hr\\Models\\EmployeePosition',
+      'icon' => 'fas fa-users',
+      'description' => 'Headcount per location',
+      'limit' => 10,
+      'group_by' => 'location_id',
       'columns' =>
       array (
         0 =>
         array (
-          'label' => 'Title',
-          'field' => 'title',
+          'label' => 'Location',
+          'field' => 'location.name',
         ),
         1 =>
         array (
-          'label' => 'Description',
-          'field' => 'description',
-          'truncate' => 50,
+          'label' => 'Employees',
+          'field' => 'employee_id',
+          'aggregate' => 'count',
         ),
       ),
       'width' => 6,
       'show_view_all' => true,
-      'view_all_link' => '/hr/job-titles',
-    ),
-    15 =>
-    array (
-      'type' => 'progress',
-      'title' => 'Organization Setup Completion',
-      'size' => 'col-12',
-      'model' => 'App\\Modules\\Hr\\Models\\Location',
-      'icon' => 'fas fa-check-double',
-      'description' => 'Locations with complete address (street + city)',
-      'aggregate' => 'count',
-      'conditions' =>
-      array (
-        0 =>
-        array (
-          0 => 'address_line_1',
-          1 => '!=',
-          2 => NULL,
-        ),
-        1 =>
-        array (
-          0 => 'city',
-          1 => '!=',
-          2 => NULL,
-        ),
-      ),
-      'target_model' => 'App\\Modules\\Hr\\Models\\Location',
-      'target_aggregate' => 'count',
-      'width' => 3,
+      'view_all_link' => '/hr/locations',
     ),
   ),
   'roles' =>

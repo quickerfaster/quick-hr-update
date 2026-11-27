@@ -46,9 +46,19 @@ return array (
       'size' => 'col-12',
       'model' => 'App\\Modules\\Hr\\Models\\EmployeeProfile',
       'icon' => 'fas fa-id-card',
-      'description' => 'Employees with complete profiles',
+      'description' => 'Employees with completed profiles',
       'aggregate' => 'count',
-      'target' => 100,
+      'conditions' =>
+      array (
+        0 =>
+        array (
+          0 => 'date_of_birth',
+          1 => '!=',
+          2 => NULL,
+        ),
+      ),
+      'target_model' => 'App\\Modules\\Hr\\Models\\Employee',
+      'target_aggregate' => 'count',
       'width' => 3,
     ),
     4 =>
@@ -98,7 +108,7 @@ return array (
           'format' => 'date',
         ),
       ),
-      'width' => 6,
+      'width' => 12,
       'show_view_all' => true,
       'view_all_link' => '/hr/employees',
     ),
@@ -122,7 +132,7 @@ return array (
       'title' => 'Employees by Department',
       'size' => 'col-12',
       'model' => 'App\\Modules\\Hr\\Models\\EmployeePosition',
-      'group_by' => 'department_id',
+      'group_by' => 'department.name',
       'chart_type' => 'bar',
       'description' => 'Current headcount per department',
       'aggregate' => 'count',
@@ -130,73 +140,27 @@ return array (
     ),
     7 =>
     array (
-      'type' => 'action_card',
-      'title' => 'Process Payroll',
+      'type' => 'chart',
+      'title' => 'Gender Distribution',
       'size' => 'col-12',
-      'icon' => 'fas fa-calculator',
-      'description' => 'Run monthly payroll for all active employees',
-      'actions' =>
-      array (
-        0 =>
-        array (
-          'label' => 'Start',
-          'event' => 'openPayrollWizard',
-          'params' =>
-          array (
-            'month' => 'current',
-          ),
-          'style' => 'primary',
-        ),
-      ),
+      'model' => 'App\\Modules\\Hr\\Models\\EmployeeProfile',
+      'group_by' => 'gender',
+      'chart_type' => 'pie',
+      'description' => 'Workforce gender breakdown',
+      'aggregate' => 'count',
       'width' => 6,
     ),
     8 =>
     array (
-      'type' => 'stat',
-      'title' => 'Pending Invitations',
+      'type' => 'chart',
+      'title' => 'Headcount by Location',
       'size' => 'col-12',
-      'model' => 'QuickerFaster\\UILibrary\\Models\\Invitation',
-      'icon' => 'fas fa-envelope-open-text',
+      'model' => 'App\\Modules\\Hr\\Models\\EmployeePosition',
+      'group_by' => 'location.name',
+      'chart_type' => 'bar',
+      'description' => 'Employees per location',
       'aggregate' => 'count',
-      'conditions' =>
-      array (
-        0 =>
-        array (
-          0 => 'status',
-          1 => '=',
-          2 => 'pending',
-        ),
-      ),
-      'width' => 3,
-      'link' => '/hr/invitations?status=pending',
-    ),
-    9 =>
-    array (
-      'type' => 'action_card',
-      'title' => 'Send Invitation',
-      'size' => 'col-12',
-      'icon' => 'fas fa-paper-plane',
-      'description' => 'Invite a new user to the platform',
-      'actions' =>
-      array (
-        0 =>
-        array (
-          'label' => 'Send',
-          'event' => 'openDrawer',
-          'params' =>
-          array (
-            'component' => 'qf.data-table-form',
-            'params' =>
-            array (
-              'configKey' => 'admin.invitation',
-              'recordId' => NULL,
-            ),
-            'title' => 'Send Invitation',
-          ),
-          'style' => 'primary',
-        ),
-      ),
-      'width' => 3,
+      'width' => 6,
     ),
   ),
   'roles' =>

@@ -2,6 +2,15 @@
 
 return [
     'context_groups' => [
+        'dashboard' => [
+            'label' => 'Dashboard',
+            'icon' => 'fas fa-tachometer-alt',
+            'order' => 0,
+            'route' => NULL,
+            'url' => 'attendance/dashboard',
+            'permission' => 'view_attendance_dashboard',
+            'roles' => ['super_admin', 'admin', 'company_admin', 'hr_manager', 'hr_officer'],
+        ],
         'time' => [
             'label' => 'Time',
             'icon' => 'fas fa-user-clock',

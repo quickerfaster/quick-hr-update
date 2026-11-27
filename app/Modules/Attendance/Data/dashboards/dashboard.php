@@ -96,21 +96,39 @@ return array (
     4 =>
     array (
       'type' => 'stat',
-      'title' => 'Work Patterns',
+      'title' => 'Active Work Patterns',
       'size' => 'col-12',
       'model' => 'App\\Modules\\Attendance\\Models\\WorkPattern',
       'icon' => 'fas fa-calendar-week',
       'aggregate' => 'count',
+      'conditions' =>
+      array (
+        0 =>
+        array (
+          0 => 'is_active',
+          1 => '=',
+          2 => true,
+        ),
+      ),
       'width' => 3,
     ),
     5 =>
     array (
       'type' => 'stat',
-      'title' => 'Attendance Policies',
+      'title' => 'Active Policies',
       'size' => 'col-12',
       'model' => 'App\\Modules\\Attendance\\Models\\AttendancePolicy',
       'icon' => 'fas fa-gavel',
       'aggregate' => 'count',
+      'conditions' =>
+      array (
+        0 =>
+        array (
+          0 => 'is_active',
+          1 => '=',
+          2 => true,
+        ),
+      ),
       'width' => 3,
     ),
     6 =>
@@ -233,7 +251,7 @@ return array (
           'field' => 'method',
         ),
       ),
-      'width' => 4,
+      'width' => 6,
       'show_view_all' => true,
       'view_all_link' => '/attendance/clock-events',
     ),
@@ -274,7 +292,7 @@ return array (
           'field' => 'reason',
         ),
       ),
-      'width' => 4,
+      'width' => 6,
       'show_view_all' => true,
       'view_all_link' => '/attendance/attendance-adjustments',
     ),
@@ -331,43 +349,11 @@ return array (
           'field' => 'status',
         ),
       ),
-      'width' => 4,
+      'width' => 12,
       'show_view_all' => true,
       'view_all_link' => '/attendance/shift-schedules',
     ),
     14 =>
-   array (
-     'type' => 'action_card',
-     'title' => 'Clock In',
-     'size' => 'col-12',
-     'icon' => 'fas fa-sign-in-alt',
-     'description' => 'Start your work session',
-     'actions' =>
-     array (
-       0 =>
-       array (
-         'label' => 'Clock In',
-         'event' => 'navigate',
-         'params' =>
-         array (
-           'url' => '/attendance/clock-events',
-         ),
-         'style' => 'primary',
-       ),
-       1 =>
-       array (
-         'label' => 'Clock Out',
-         'event' => 'navigate',
-         'params' =>
-         array (
-           'url' => '/attendance/clock-events',
-         ),
-         'style' => 'secondary',
-       ),
-     ),
-     'width' => 3,
-   ),
-    15 =>
    array (
      'type' => 'action_card',
      'title' => 'Record Attendance',
@@ -393,9 +379,9 @@ return array (
          'style' => 'primary',
        ),
      ),
-     'width' => 3,
+     'width' => 4,
    ),
-    16 =>
+   16 =>
     array (
       'type' => 'action_card',
       'title' => 'Create Shift',
@@ -421,7 +407,7 @@ return array (
           'style' => 'secondary',
         ),
       ),
-      'width' => 3,
+      'width' => 4,
     ),
     17 =>
    array (
@@ -449,7 +435,7 @@ return array (
          'style' => 'secondary',
        ),
      ),
-     'width' => 3,
+     'width' => 4,
    ),
   ),
   'roles' =>

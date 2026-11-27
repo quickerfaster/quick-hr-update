@@ -117,8 +117,8 @@
                                     'employee_number' => $employee->employee_number,
                                     'employee_email' => $employee->email,
                                     'employee_phone' => $profile->personal_phone ?? ($employee->phone ?? ''),
-                                    'tenure_years' => now()->diffInYears($employee->hire_date),
-                                    'days_until_anniversary' => $this->getDaysUntilAnniversary(),
+                                    'tenure_years' => $employee->hire_date ? round(abs(now()->diffInYears($employee->hire_date)), 1) : 0,
+                                    'days_until_anniversary' => abs($this->getDaysUntilAnniversary()),
                                 ],
                             ],
                             key('dashboard-' . $recordId)

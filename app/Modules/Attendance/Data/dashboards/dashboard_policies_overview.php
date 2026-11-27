@@ -217,7 +217,7 @@ return array (
           'style' => 'primary',
         ),
       ),
-      'width' => 3,
+      'width' => 4,
     ),
     10 =>
    array (
@@ -245,9 +245,9 @@ return array (
          'style' => 'secondary',
        ),
      ),
-     'width' => 3,
+     'width' => 4,
    ),
-    11 =>
+   11 =>
     array (
       'type' => 'action_card',
       'title' => 'Create Work Pattern',
@@ -272,31 +272,9 @@ return array (
           'style' => 'secondary',
         ),
       ),
-      'width' => 3,
+      'width' => 4,
     ),
     12 =>
-    array (
-      'type' => 'action_card',
-      'title' => 'Bulk Assign Patterns',
-      'size' => 'col-12',
-      'icon' => 'fas fa-users',
-      'description' => 'Assign patterns to multiple employees',
-      'actions' =>
-      array (
-        0 =>
-        array (
-          'label' => 'Bulk Assign',
-          'event' => 'navigate',
-          'params' =>
-          array (
-            'url' => '/attendance/policy-assignments',
-          ),
-          'style' => 'secondary',
-        ),
-      ),
-      'width' => 3,
-    ),
-    13 =>
     array (
       'type' => 'trend',
       'title' => 'New Policy Assignments Trend',
@@ -374,7 +352,7 @@ return array (
       'distinct' => 'employee_id',
       'target_model' => 'App\\Modules\\Hr\\Models\\Employee',
       'target_aggregate' => 'count',
-      'width' => 3,
+      'width' => 6,
     ),
     16 =>
     array (
@@ -415,7 +393,7 @@ return array (
           'format' => 'date',
         ),
       ),
-      'width' => 9,
+      'width' => 6,
       'show_view_all' => true,
       'view_all_link' => '/attendance/employee-work-patterns',
     ),

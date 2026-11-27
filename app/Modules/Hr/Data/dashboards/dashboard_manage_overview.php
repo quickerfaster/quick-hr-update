@@ -41,6 +41,89 @@ return [
             'width' => 3,
         ],
         4 => [
+            'type' => 'stat',
+            'title' => 'Expiring Documents (30d)',
+            'size' => 'col-12',
+            'model' => 'App\\Modules\\Hr\\Models\\Document',
+            'icon' => 'fas fa-exclamation-circle',
+            'color' => 'warning',
+            'aggregate' => 'count',
+            'conditions' => [
+                ['expiry_date', '<=', '+30 days'],
+                ['expiry_date', '>=', 'today'],
+            ],
+            'width' => 3,
+        ],
+        5 => [
+            'type' => 'action_card',
+            'title' => 'Job Titles',
+            'size' => 'col-12',
+            'icon' => 'fas fa-briefcase',
+            'description' => 'Define job roles and titles',
+            'actions' => [
+                0 => [
+                    'label' => 'Manage',
+                    'event' => 'openDrawer',
+                    'params' => [
+                        'component' => 'qf.data-table-form',
+                        'params' => [
+                            'configKey' => 'hr.job_title',
+                            'recordId' => null,
+                        ],
+                        'title' => 'Add Job Title',
+                    ],
+                    'style' => 'primary',
+                ],
+            ],
+            'width' => 3,
+        ],
+        6 => [
+            'type' => 'action_card',
+            'title' => 'Tags',
+            'size' => 'col-12',
+            'icon' => 'fas fa-tags',
+            'description' => 'Organize employees and records with tags',
+            'actions' => [
+                0 => [
+                    'label' => 'Manage',
+                    'event' => 'openDrawer',
+                    'params' => [
+                        'component' => 'qf.data-table-form',
+                        'params' => [
+                            'configKey' => 'hr.tag',
+                            'recordId' => null,
+                        ],
+                        'title' => 'Add Tag',
+                    ],
+                    'style' => 'secondary',
+                ],
+            ],
+            'width' => 3,
+        ],
+        7 => [
+           'type' => 'action_card',
+           'title' => 'Job History',
+           'size' => 'col-12',
+           'icon' => 'fas fa-history',
+           'description' => 'Review employee job history records',
+           'actions' => [
+               0 => [
+                   'label' => 'Add Entry',
+                   'event' => 'openDrawer',
+                   'params' => [
+                       'component' => 'qf.data-table-form',
+                       'params' => [
+                           'configKey' => 'hr.employee_job_history',
+                           'recordId' => null,
+                       ],
+                       'title' => 'Add Job History',
+                   ],
+                   'style' => 'secondary',
+               ],
+           ],
+           'width' => 3,
+       ],
+        8 => [
             'type' => 'list',
             'title' => 'Recent Job Titles',
             'size' => 'col-12',
@@ -67,7 +150,7 @@ return [
             'show_view_all' => true,
             'view_all_link' => '/hr/job-titles',
         ],
-        5 => [
+        9 => [
             'type' => 'list',
             'title' => 'Tags (A–Z)',
             'size' => 'col-12',
@@ -98,7 +181,7 @@ return [
             'show_view_all' => true,
             'view_all_link' => '/hr/tags',
         ],
-        6 => [
+        10 => [
             'type' => 'list',
             'title' => 'Recent Job History',
             'size' => 'col-12',
@@ -133,7 +216,7 @@ return [
             'show_view_all' => true,
             'view_all_link' => '/hr/employee-job-histories',
         ],
-        7 => [
+        11 => [
             'type' => 'list',
             'title' => 'Recent Documents',
             'size' => 'col-12',
@@ -164,75 +247,6 @@ return [
             'show_view_all' => true,
             'view_all_link' => '/hr/documents',
         ],
-        8 => [
-            'type' => 'action_card',
-            'title' => 'Job Titles',
-            'size' => 'col-12',
-            'icon' => 'fas fa-briefcase',
-            'description' => 'Define job roles and titles',
-            'actions' => [
-                0 => [
-                    'label' => 'Manage',
-                    'event' => 'openDrawer',
-                    'params' => [
-                        'component' => 'qf.data-table-form',
-                        'params' => [
-                            'configKey' => 'hr.job_title',
-                            'recordId' => null,
-                        ],
-                        'title' => 'Add Job Title',
-                    ],
-                    'style' => 'primary',
-                ],
-            ],
-            'width' => 3,
-        ],
-        9 => [
-            'type' => 'action_card',
-            'title' => 'Tags',
-            'size' => 'col-12',
-            'icon' => 'fas fa-tags',
-            'description' => 'Organize employees and records with tags',
-            'actions' => [
-                0 => [
-                    'label' => 'Manage',
-                    'event' => 'openDrawer',
-                    'params' => [
-                        'component' => 'qf.data-table-form',
-                        'params' => [
-                            'configKey' => 'hr.tag',
-                            'recordId' => null,
-                        ],
-                        'title' => 'Add Tag',
-                    ],
-                    'style' => 'secondary',
-                ],
-            ],
-            'width' => 3,
-        ],
-        10 => [
-           'type' => 'action_card',
-           'title' => 'Job History',
-           'size' => 'col-12',
-           'icon' => 'fas fa-history',
-           'description' => 'Review employee job history records',
-           'actions' => [
-               0 => [
-                   'label' => 'Add Entry',
-                   'event' => 'openDrawer',
-                   'params' => [
-                       'component' => 'qf.data-table-form',
-                       'params' => [
-                           'configKey' => 'hr.employee_job_history',
-                           'recordId' => null,
-                       ],
-                       'title' => 'Add Job History',
-                   ],
-                   'style' => 'secondary',
-               ],
-           ],
-           'width' => 3,
-       ],
     ],
     'roles' => [
         'admin' => 'full',

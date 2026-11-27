@@ -660,8 +660,13 @@ class EmployeeDetail extends Component
     {
         if (!$this->employee->hire_date)
             return 0;
-        $nextAnniversary = $this->employee->hire_date->copy()->addYears(now()->diffInYears($this->employee->hire_date) + 1);
-        return now()->diffInDays($nextAnniversary);
+        $today = now()->startOfDay();
+        $hireDate = $this->employee->hire_date->copy()->startOfDay();
+        $nextAnniversary = $hireDate->copy()->year($today->year);
+        if ($nextAnniversary->lt($today)) {
+            $nextAnniversary->addYear();
+        }
+        return $today->diffInDays($nextAnniversary);
     }
 
     public function render()

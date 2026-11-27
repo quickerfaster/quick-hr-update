@@ -25,6 +25,9 @@ return [
             'model' => 'App\\Modules\\Hr\\Models\\Employee',
             'icon' => 'fas fa-user-plus',
             'aggregate' => 'count',
+            'conditions' => [
+                ['hire_date', '>=', 'first day of this month'],
+            ],
             'width' => 3,
         ],
         // --- Onboarding Gap Tracking ---
@@ -70,6 +73,66 @@ return [
         ],
         // --- End Onboarding Gap Tracking ---
         5 => [
+            'type' => 'action_card',
+            'title' => 'Send Invitation',
+            'size' => 'col-12',
+            'icon' => 'fas fa-paper-plane',
+            'description' => 'Invite a new user to the platform',
+            'actions' => [
+                0 => [
+                    'label' => 'Send',
+                    'event' => 'openDrawer',
+                    'params' => [
+                        'component' => 'qf.data-table-form',
+                        'params' => [
+                            'configKey' => 'admin.invitation',
+                            'recordId' => null,
+                        ],
+                        'title' => 'Send Invitation',
+                    ],
+                    'style' => 'primary',
+                ],
+            ],
+            'width' => 3,
+        ],
+        6 => [
+            'type' => 'action_card',
+            'title' => 'Assign Companies',
+            'size' => 'col-12',
+            'icon' => 'fas fa-building',
+            'color' => 'warning',
+            'description' => 'Bulk-assign companies to employees missing assignment',
+            'actions' => [
+                0 => [
+                    'label' => 'Assign',
+                    'event' => 'openDrawer',
+                    'params' => [
+                        'component' => 'qf.user-company-assignment',
+                        'params' => [],
+                        'title' => 'Assign Companies to Employees',
+                    ],
+                    'style' => 'danger',
+                ],
+            ],
+            'width' => 3,
+        ],
+        7 => [
+            'type' => 'action_card',
+            'title' => 'Onboard New Hire',
+            'size' => 'col-12',
+            'icon' => 'fas fa-magic',
+            'description' => 'Walk through the employee onboarding wizard',
+            'actions' => [
+                0 => [
+                    'label' => 'Start',
+                    'event' => 'navigate',
+                    'params' => ['url' => '/hr/employee-onboarding'],
+                    'style' => 'primary',
+                ],
+            ],
+            'width' => 3,
+        ],
+        8 => [
             'type' => 'list',
             'title' => 'Incomplete Onboarding',
             'size' => 'col-12',
@@ -124,7 +187,7 @@ return [
                 ],
             ],
         ],
-        6 => [
+        9 => [
             'type' => 'list',
             'title' => 'Recent Invitations',
             'size' => 'col-12',
@@ -158,66 +221,6 @@ return [
             'width' => 6,
             'show_view_all' => true,
             'view_all_link' => '/hr/invitations',
-        ],
-        7 => [
-            'type' => 'action_card',
-            'title' => 'Send Invitation',
-            'size' => 'col-12',
-            'icon' => 'fas fa-paper-plane',
-            'description' => 'Invite a new user to the platform',
-            'actions' => [
-                0 => [
-                    'label' => 'Send',
-                    'event' => 'openDrawer',
-                    'params' => [
-                        'component' => 'qf.data-table-form',
-                        'params' => [
-                            'configKey' => 'admin.invitation',
-                            'recordId' => null,
-                        ],
-                        'title' => 'Send Invitation',
-                    ],
-                    'style' => 'primary',
-                ],
-            ],
-            'width' => 3,
-        ],
-        8 => [
-            'type' => 'action_card',
-            'title' => 'Assign Companies',
-            'size' => 'col-12',
-            'icon' => 'fas fa-building',
-            'color' => 'danger',
-            'description' => 'Bulk-assign companies to employees missing assignment',
-            'actions' => [
-                0 => [
-                    'label' => 'Assign',
-                    'event' => 'openDrawer',
-                    'params' => [
-                        'component' => 'qf.user-company-assignment',
-                        'params' => [],
-                        'title' => 'Assign Companies to Employees',
-                    ],
-                    'style' => 'danger',
-                ],
-            ],
-            'width' => 3,
-        ],
-        9 => [
-            'type' => 'action_card',
-            'title' => 'Onboard New Hire',
-            'size' => 'col-12',
-            'icon' => 'fas fa-magic',
-            'description' => 'Walk through the employee onboarding wizard',
-            'actions' => [
-                0 => [
-                    'label' => 'Start',
-                    'event' => 'navigate',
-                    'params' => ['url' => '/hr/employee-onboarding'],
-                    'style' => 'primary',
-                ],
-            ],
-            'width' => 3,
         ],
     ],
     'roles' => [
