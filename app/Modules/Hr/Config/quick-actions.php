@@ -186,6 +186,18 @@ return [
             'url'         => '/hr/my-profile?tab=contact',
             'roles'       => ['employee', 'manager'],
         ],
+        [
+            'id'          => 'ess.report_absence',
+            'label'       => 'Report Absence',
+            'description' => 'Notify your manager of an unplanned absence',
+            'icon'        => 'fas fa-phone-alt',
+            'action'      => 'navigate',
+            'module'      => 'hr',
+            'keywords'    => ['sick', 'absence', 'call in', 'report', 'emergency', 'unplanned'],
+            'category'    => 'Self Service',
+            'url'         => '/hr/leave-hub?tab=report-absence',
+            'roles'       => ['employee', 'manager'],
+        ],
 
         /*
          * ─── Admin Actions ───────────────────────────────────────

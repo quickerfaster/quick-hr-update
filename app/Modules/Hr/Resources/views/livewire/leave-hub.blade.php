@@ -22,6 +22,11 @@
                 <i class="fas fa-calendar-plus"></i> Apply
             </button>
         </li>
+        <li class="nav-item">
+            <button class="nav-link {{ $activeTab === 'report-absence' ? 'active' : '' }}" wire:click="switchTab('report-absence')">
+                <i class="fas fa-phone-alt"></i> Report Absence
+            </button>
+        </li>
     </ul>
 
     <div>
@@ -47,6 +52,8 @@
                     'files' => ['export' => ['csv', 'pdf'], 'print' => true],
                 ],
             ], key('leave-hub-my-leaves-'.$employeeId))
+        @elseif ($activeTab === 'report-absence')
+            @livewire('qf.wizard', ['configKey' => 'attendance.wizards.absence_report', 'presetData' => ['employee_id' => $employeeId]], key('leave-hub-report-absence-'.$employeeId))
         @else
             @livewire('qf.wizard', ['configKey' => 'leave.wizards.employee_self_service', 'presetData' => ['employee_id' => $employeeId]], key('leave-hub-apply-'.$employeeId))
         @endif

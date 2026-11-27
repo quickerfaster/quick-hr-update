@@ -144,6 +144,31 @@ return [
             ],
             'width'       => 3,
         ],
+        [
+            'type'        => 'action_card',
+            'title'       => 'Report Absence',
+            'icon'        => 'fas fa-phone-alt',
+            'color'       => 'warning',
+            'description' => 'Notify your manager of an unplanned absence',
+            'actions'     => [
+                [
+                    'label'  => 'Report',
+                    'event'  => 'openDrawer',
+                    'params' => [
+                        'component' => 'qf.wizard',
+                        'params'    => [
+                            'configKey'  => 'attendance.wizards.absence_report',
+                            'presetData' => [
+                                'employee_id' => '{{ employee_id }}',
+                            ],
+                        ],
+                        'title'     => 'Report Absence',
+                    ],
+                    'style'  => 'warning',
+                ],
+            ],
+            'width'       => 3,
+        ],
         // Clock In/Out is rendered inline in my-portal.blade.php
         // as <livewire:qf.clock-in-out :employee-id="$employee->id" />
         // This avoids the drawer parameter-passing issue where nested
@@ -175,9 +200,15 @@ return [
             'actions'     => [
                 [
                     'label'  => 'Edit',
-                    'event'  => 'navigate',
+                    'event'  => 'openDrawer',
                     'params' => [
-                        'url' => '/hr/my-account',
+                        'component' => 'qf.data-table-form',
+                        'params'    => [
+                            'configKey'  => 'hr.employee_self_service_edit',
+                            'recordId'   => '{{ employee_id }}',
+                            'inline'     => false,
+                        ],
+                        'title'     => 'Update My Info',
                     ],
                     'style'  => 'warning',
                 ],
@@ -200,12 +231,13 @@ return [
          * phase using causer_id filtering.
          */
         [
-            'type'  => 'quick_actions',
-            'title' => 'Quick Actions',
-            'icon'  => 'fas fa-bolt',
-            'color' => 'warning',
-            'limit' => 5,
-            'width' => 12,
+            'type'     => 'quick_actions',
+            'title'    => 'Quick Actions',
+            'icon'     => 'fas fa-bolt',
+            'color'    => 'warning',
+            'limit'    => 5,
+            'category' => 'Self Service',
+            'width'    => 12,
         ],
 
         /*

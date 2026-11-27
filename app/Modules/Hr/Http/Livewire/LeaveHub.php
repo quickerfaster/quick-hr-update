@@ -29,7 +29,7 @@ class LeaveHub extends Component
         $this->employeeName = $employee->full_name ?? $employee->first_name . ' ' . $employee->last_name;
 
         // Read tab from query string to persist active tab on refresh
-        if (request()->has('tab') && in_array(request()->query('tab'), ['overview', 'my-leaves', 'apply'])) {
+        if (request()->has('tab') && in_array(request()->query('tab'), ['overview', 'my-leaves', 'apply', 'report-absence'])) {
             $this->activeTab = request()->query('tab');
         }
     }

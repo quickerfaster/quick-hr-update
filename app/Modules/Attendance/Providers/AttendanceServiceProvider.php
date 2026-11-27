@@ -14,6 +14,9 @@ class AttendanceServiceProvider extends ServiceProvider
     {
         // Register the ClockInOut Livewire component (moved from library).
         Livewire::component('attendance.clock-in-out', \App\Modules\Attendance\Http\Livewire\ClockInOut::class);
+
+        // Register the Absence Report Form component (ESS wizard step).
+        Livewire::component('attendance.absence-report-form', \App\Modules\Attendance\Http\Livewire\AbsenceReportForm::class);
     }
 
     /**

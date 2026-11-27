@@ -316,6 +316,33 @@ Other self-service pages (attendance, clock events, payslips, documents) are rea
 
 > Employees do **not** see the module switcher, and only see the **My Portal** tab in the top navigation. All other HR context tabs (People, Manage, Organization, Onboarding) are hidden.
 
+### 6.1 My Portal Action Cards
+
+The My Portal dashboard has four quick-action cards that open **drawer overlays** (side panels) instead of navigating to new pages:
+
+| Card | Action | What It Opens |
+|------|--------|---------------|
+| **Request Leave** | `openDrawer` | Leave request wizard (`leave.wizards.employee_self_service`) |
+| **Report Absence** | `openDrawer` | Absence report wizard (`attendance.wizards.absence_report`) |
+| **View Payslip** | `navigate` | Payroll payslips page |
+| **Update My Info** | `openDrawer` | Employee personal details form (`hr.employee_self_service_edit`) — first name, last name, email, phone |
+
+### 6.2 Top Navigation — User Menu
+
+The user profile dropdown (top-right) also supports drawer-based actions:
+
+| Link | Action | What It Opens |
+|------|--------|---------------|
+| **My Portal** | `navigate` | `/hr/my-portal` |
+| **Edit My Account** | `openDrawer` | User account form (`admin.user`) — name, email, password |
+| **My Preferences** | `navigate` | User preferences page |
+
+> **"Edit My Account" vs "Update My Info"**: "Edit My Account" edits your **user/auth record** (login name, email, password). "Update My Info" edits your **employee record** (first name, last name, work email, phone). They are different records in the system.
+
+### 6.3 Leave Hub — Report Absence
+
+The **Leave Hub** (`/hr/leave-hub`) also has a **Report Absence** action card on the Overview tab, and a dedicated **Report Absence** tab. Both open the absence report wizard in a drawer. See the [Absence Report Guide](../attendance/absence-report.md) for full details.
+
 ---
 
 ## 7. Validation Rules

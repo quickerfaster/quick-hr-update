@@ -78,7 +78,7 @@ return [
         |------------------------------------------------------------------
         */
         'attendance' => [
-            'enabled' => false,     // Phase 2
+            'enabled' => true,     // Phase 2
             'label' => 'Attendance',
             'icon' => 'fa-clock',
             'route' => 'attendance.dashboard',
@@ -947,10 +947,17 @@ return [
             ],*/
             [
                 'label' => 'Edit My Account',
-                'url' => null,
-                // 'icon' => 'fas fa-cog',
                 'icon' => 'fas fa-edit',
-                'route' => 'my-account',
+                'event' => 'openDrawer',
+                'params' => [
+                    'component' => 'qf.data-table-form',
+                    'params' => [
+                        'configKey' => 'admin.user',
+                        'recordId' => '{{ auth_id }}',
+                        'inline' => false,
+                    ],
+                    'title' => 'Edit My Account',
+                ],
             ],
             [
                 'label' => 'My Preferences',

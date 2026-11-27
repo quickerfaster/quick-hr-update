@@ -5,24 +5,24 @@ return array (
   'title' => 'Report Sudden Absence',
   'description' => 'Quickly notify your manager of an unplanned absence',
   'returnPath' => '',
-  'steps' => 
+  'steps' =>
   array (
-    0 => 
+    0 =>
     array (
       'title' => 'Reason & Duration',
-      'model' => 'App\\Modules\\Hr\\Models\\Attendance',
-      'groups' => 
+      'model' => 'App\\Modules\\Attendance\\Models\\Attendance',
+      'groups' =>
       array (
         0 => 'absence_details',
       ),
-      'fields' => 
+      'fields' =>
       array (
-        0 => 
+        0 =>
         array (
-          'absence_type' => 
+          'absence_type' =>
           array (
             'type' => 'select',
-            'options' => 
+            'options' =>
             array (
               'sick_leave' => 'Sick Leave',
               'emergency' => 'Family Emergency',
@@ -32,24 +32,24 @@ return array (
             'default' => 'sick_leave',
           ),
         ),
-        1 => 
+        1 =>
         array (
-          'start_date' => 
+          'start_date' =>
           array (
             'type' => 'datepicker',
             'default' => 'today',
-            'validation' => 
+            'validation' =>
             array (
               0 => 'required|date|before_or_equal:today',
             ),
           ),
         ),
-        2 => 
+        2 =>
         array (
-          'expected_duration' => 
+          'expected_duration' =>
           array (
             'type' => 'select',
-            'options' => 
+            'options' =>
             array (
               1 => '1 day',
               2 => '2 days',
@@ -60,13 +60,13 @@ return array (
             'default' => 1,
           ),
         ),
-        3 => 
+        3 =>
         array (
-          'absence_reason' => 
+          'absence_reason' =>
           array (
             'type' => 'textarea',
             'placeholder' => 'Brief explanation for your absence...',
-            'validation' => 
+            'validation' =>
             array (
               0 => 'required|string|min:10|max:500',
             ),
@@ -74,33 +74,33 @@ return array (
         ),
       ),
     ),
-    1 => 
+    1 =>
     array (
       'title' => 'Notification Preferences',
       'model' => NULL,
-      'fields' => 
+      'fields' =>
       array (
-        0 => 
+        0 =>
         array (
-          'notify_manager' => 
+          'notify_manager' =>
           array (
             'type' => 'boolcheckbox',
             'default' => true,
             'label' => 'Notify manager immediately',
           ),
         ),
-        1 => 
+        1 =>
         array (
-          'create_leave_request' => 
+          'create_leave_request' =>
           array (
             'type' => 'boolcheckbox',
             'default' => true,
             'label' => 'Create draft leave request for later',
           ),
         ),
-        2 => 
+        2 =>
         array (
-          'emergency_contact_notified' => 
+          'emergency_contact_notified' =>
           array (
             'type' => 'boolcheckbox',
             'default' => false,
@@ -110,46 +110,46 @@ return array (
       ),
     ),
   ),
-  'completion' => 
+  'completion' =>
   array (
     'title' => 'Absence Reported Successfully',
     'message' => 'Your manager has been notified. {create_leave_request ? \'A draft leave request has been created for you to complete later.\' : \'Please submit a formal leave request when possible.\'}',
-    'actions' => 
+    'actions' =>
     array (
-      0 => 
+      0 =>
       array (
         'label' => 'View My Attendance',
         'url' => '/hr/my-attendance',
         'primary' => true,
       ),
-      1 => 
+      1 =>
       array (
         'label' => 'Complete Leave Request',
         'url' => '/hr/leave-request',
         'condition' => ['create_leave_request' => [true]],
       ),
-      2 => 
+      2 =>
       array (
         'label' => 'Back to Dashboard',
         'url' => '/hr/dashboard',
       ),
     ),
   ),
-  'linkFields' => 
+  'linkFields' =>
   array (
     'userField' => 'employee_number',
     'databaseField' => 'employee_id',
   ),
-  'roles' => 
+  'roles' =>
   array (
     0 => 'employee',
   ),
-  'models' => 
+  'models' =>
   array (
-    'primary' => 'App\\Modules\\Hr\\Models\\Attendance',
-    'related' => 
+    'primary' => 'App\\Modules\\Attendance\\Models\\Attendance',
+    'related' =>
     array (
-      0 => 'App\\Modules\\Hr\\Models\\LeaveRequest',
+      0 => 'App\\Modules\\Leave\\Models\\LeaveRequest',
     ),
   ),
 );

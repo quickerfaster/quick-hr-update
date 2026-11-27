@@ -2,7 +2,9 @@
 
 ## Overview
 
-The Attendance module allows employees to record their working time (clock in/out) and administrators to manage attendance policies, shifts, work patterns, locations, and geofencing rules.
+The Attendance module allows employees to record their working time (clock in/out), report unplanned absences, and administrators to manage attendance policies, shifts, work patterns, locations, and geofencing rules.
+
+> **New**: [Absence Report Guide](absence-report.md) — how to quickly notify your manager of an unplanned absence (sickness, emergency, personal matter, or official assignment).
 
 ---
 

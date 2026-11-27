@@ -189,7 +189,32 @@ return [
                     'style'  => 'primary',
                 ],
             ],
-            'width'       => 12,
+            'width'       => 6,
+        ],
+        [
+            'type'        => 'action_card',
+            'title'       => 'Report Absence',
+            'icon'        => 'fas fa-phone-alt',
+            'color'       => 'warning',
+            'description' => 'Notify your manager of an unplanned absence',
+            'actions'     => [
+                [
+                    'label'  => 'Report',
+                    'event'  => 'openDrawer',
+                    'params' => [
+                        'component' => 'qf.wizard',
+                        'params'    => [
+                            'configKey'  => 'attendance.wizards.absence_report',
+                            'presetData' => [
+                                'employee_id' => '{{ employee_id }}',
+                            ],
+                        ],
+                        'title'     => 'Report Absence',
+                    ],
+                    'style'  => 'warning',
+                ],
+            ],
+            'width'       => 6,
         ],
 
     ],

@@ -222,7 +222,7 @@ return [
       'relationship' => [
         'model' => 'App\Modules\Leave\Models\LeaveRequest',
         'type' => 'belongsTo',
-        'display_field' => 'id',
+        'display_field' => 'start_date',
         'dynamic_property' => 'leaveRequest',
         'foreign_key' => 'leave_request_id',
         'inlineAdd' => false,
@@ -230,7 +230,7 @@ return [
       'options' => [
         'model' => 'App\Modules\Leave\Models\LeaveRequest',
         'column' => 'id',
-        'hintField' => '',
+        'hintField' => 'start_date',
       ],
     ],
     'is_paid_absence' => [
@@ -240,7 +240,8 @@ return [
       'label' => 'Paid Absence',
       'validation' => 'nullable|boolean',
       'filterable' => true,
-      'editable' => true,
+      'editable' => false,
+      'help_text' => 'Set automatically by payroll — not employee-editable',
     ],
     'hours_deducted' => [
       'display' => 'inline',
@@ -248,7 +249,8 @@ return [
       'field_type' => 'number',
       'label' => 'Hours Deducted',
       'validation' => 'nullable|numeric|min:0|max:24',
-      'editable' => true,
+      'editable' => false,
+      'help_text' => 'Calculated automatically — not employee-editable',
     ],
 
     // ===== VIOLATIONS =====
